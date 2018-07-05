@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "456655338579",
+    "firebase_url": "https://petowners-48d38.firebaseio.com",
+    "project_id": "petowners",
+    "storage_bucket": "petowners.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:456655338579:android:219164868615c719",
+        "android_client_info": {
+          "package_name": "com.owners.pet.petowners"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "456655338579-96vsat3c6s6lvqko8u2okcpkeevjao55.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAj9ePHzGpQGNE9V4Dxm-ZFJhXCa3bfLzc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
