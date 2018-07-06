@@ -10,4 +10,5 @@
     <color name="colorDivider">#BDBDBD</color>
     <color name="colorTextIcons">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
+    <color name="colorCivBorder">#FF000000</color>
 </resources>

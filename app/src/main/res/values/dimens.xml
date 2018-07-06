@@ -14,4 +14,16 @@
     <dimen name="signin_link_text_size">16sp</dimen>
     <dimen name="signup_link_text_size">16sp</dimen>
     <dimen name="forgot_password_link_text_size">15sp</dimen>
+    <dimen name="activity_horizontal_margin">13dp</dimen>
+    <dimen name="profile_picture_margin_top">5dp</dimen>
+    <dimen name="civ_border_with">2dp</dimen>
+    <dimen name="profile_picture_width">150dp</dimen>
+    <dimen name="profile_picture_height">150dp</dimen>
+    <dimen name="collapsing_toolbar_expandedTitle_margin_end">64dp</dimen>
+    <dimen name="collapsing_toolbar_expandedTitle_margin_start">48dp</dimen>
+    <dimen name="appbar_height">300dp</dimen>
+    <dimen name="scrolling_linearlayout_margin_top">30dp</dimen>
+    <dimen name="pets_text_margin_top">15dp</dimen>
+    <dimen name="pets_text_margin_left">14dp</dimen>
+    <dimen name="appbar_elevation">6dp</dimen>
 </resources>
