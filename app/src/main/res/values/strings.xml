@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">PetOwners</string>
+    <string name="applogo_content_description">Pet\'s Friend</string>
+    <string name="fullname_edit_text">Full Name</string>
+    <string name="email_edit_text">Email</string>
+    <string name="password_edit_text">Password</string>
+    <string name="signup_button_text">SIGN UP</string>
+    <string name="signin_link">Already have an account? Sign in here.</string>
+    <string name="signup_link">No account yet? Create one.</string>
+    <string name="forgot_password_link"><u>Forgot your password?</u></string>
+    <string name="login_button_text">LOGIN</string>
 </resources>
