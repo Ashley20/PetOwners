@@ -84,11 +84,13 @@ public class SignupActivity extends AppCompatActivity {
                                     .setDisplayName(name)
                                     .build();
 
-                            Toast.makeText(getApplicationContext(), "You've successfully signed up", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), getString(R.string.successful_signup_message_text),
+                                    Toast.LENGTH_LONG).show();
 
                         } else {
                             // If sign in fails, display a message to the user.
-                            Toast.makeText(getApplicationContext(), "Authentication Failed", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), getString(R.string.auth_fail_text),
+                                    Toast.LENGTH_LONG).show();
 
                         }
 
@@ -108,12 +110,14 @@ public class SignupActivity extends AppCompatActivity {
 
         if(TextUtils.isEmpty(name) || TextUtils.isEmpty(email)
                 || TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Please fill in the required fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.fill_in_required_fields_text),
+                    Toast.LENGTH_SHORT).show();
             return false;
         }
 
         if((password.length() < 6)) {
-            Toast.makeText(this, "Password has to be at least 6 characters", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.password_size_constraint_text),
+                    Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;

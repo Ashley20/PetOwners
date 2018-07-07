@@ -21,4 +21,15 @@
     <string name="pet_one">Şira</string>
     <string name="waits_for_adoption_text">Hello, I am waiting for adoption :)</string>
     <string name="pet_two">Cupcake</string>
+    <string name="reset_your_password_title">RESET YOUR PASSWORD</string>
+    <string name="reset_your_password_message">Enter your email address and we will send you a link to reset your password.</string>
+    <string name="pw_reset_dialog_positive_button">SEND</string>
+    <string name="pw_reset_dialog_negative_button">CANCEL</string>
+    <string name="fill_in_email_field_text">Please fill in the email field</string>
+    <string name="successful_password_reset_email_link_send">A password reset email link has been send to your email</string>
+    <string name="fail_password_reset_email_link_send">Error while sending the password reset email link</string>
+    <string name="fill_in_required_fields_text">Please fill in required fields</string>
+    <string name="auth_fail_text">Authentication failed.</string>
+    <string name="successful_signup_message_text">You\'ve successfully signed up</string>
+    <string name="password_size_constraint_text">Password has to be at least 6 characters</string>
 </resources>
