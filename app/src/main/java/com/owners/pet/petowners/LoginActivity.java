@@ -7,8 +7,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.forgot_password_link) TextView forgot_password_link;
     @BindView(R.id.password_edit_text) EditText password;
     @BindView(R.id.email_edit_text) EditText email;
+    @BindView(R.id.progress_bar) ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
 
@@ -61,6 +64,7 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             return;
         }
+        progressBar.setVisibility(View.VISIBLE);
         login(emailField, passwordField);
 
     }
@@ -70,6 +74,9 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+
+                        progressBar.setVisibility(View.INVISIBLE);
+
                         if(task.isSuccessful()){
                             // User is successfully logged in, open the main page
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);

@@ -32,4 +32,6 @@
     <string name="auth_fail_text">Authentication failed.</string>
     <string name="successful_signup_message_text">You\'ve successfully signed up</string>
     <string name="password_size_constraint_text">Password has to be at least 6 characters</string>
+    <string name="chat_fragment_tab_title">Chats</string>
+    <string name="map_search_fragment_tab_title">Map Search</string>
 </resources>
