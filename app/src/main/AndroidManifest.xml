@@ -16,11 +16,11 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyD53R6lTHbTeUMQhe6AeKrwqSSdiWVLscA" />
 
-        <activity android:name=".SignupActivity" />
+        <activity android:name=".ProfileActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".LoginActivity" />
 
-        <activity android:name=".ProfileActivity">
+        <activity android:name=".SignupActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

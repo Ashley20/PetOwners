@@ -26,4 +26,5 @@
     <dimen name="pets_text_margin_top">15dp</dimen>
     <dimen name="pets_text_margin_left">14dp</dimen>
     <dimen name="appbar_elevation">6dp</dimen>
+    <dimen name="progress_bar_elevation">10dp</dimen>
 </resources>

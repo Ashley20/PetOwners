@@ -78,24 +78,39 @@
 
         </android.support.design.widget.TextInputLayout>
 
-        <!--            SING UP BUTTON            -->
-        <Button
-            android:id="@+id/sign_up_btn"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/signup_button_margin_top"
-            android:background="@color/colorAccent"
-            android:clickable="true"
-            android:focusable="true"
-            android:text="@string/signup_button_text" />
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/sign_up_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/signup_button_margin_top"
+                android:background="@color/colorAccent"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/signup_button_text" />
+
+            <ProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/progress_bar"
+                android:visibility="invisible"
+                android:elevation="@dimen/progress_bar_elevation"/>
+
+
+        </FrameLayout>
+        <!--            SING UP BUTTON            -->
+
 
         <TextView
-            android:id="@+id/signin_link"
+            android:id="@+id/login_link"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/signin_link_margin_top"
             android:gravity="center"
-            android:text="@string/signin_link"
+            android:text="@string/login_link"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="@dimen/signin_link_text_size" />
 
