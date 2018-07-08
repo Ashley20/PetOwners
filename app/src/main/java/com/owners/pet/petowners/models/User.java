@@ -3,6 +3,7 @@ package com.owners.pet.petowners.models;
 import java.util.List;
 
 public class User {
+    private String uid;
     private String name;
     private String email;
     private String phoneNumber;
@@ -15,8 +16,15 @@ public class User {
     }
 
 
-    public User(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public User() {
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getName() {

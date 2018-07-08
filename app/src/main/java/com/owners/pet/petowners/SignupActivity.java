@@ -14,11 +14,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.owners.pet.petowners.models.User;
 
 import java.util.Objects;
 
@@ -34,6 +38,7 @@ public class SignupActivity extends AppCompatActivity {
     @BindView(R.id.login_link) TextView login_link;
     @BindView(R.id.progress_bar) ProgressBar progressBar;
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +47,7 @@ public class SignupActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         ActionBar actionBar = getSupportActionBar();
         if(actionBar != null){
@@ -98,6 +104,10 @@ public class SignupActivity extends AppCompatActivity {
                             FirebaseUser firebaseUser = mAuth.getCurrentUser();
                             if (firebaseUser != null) {
                                 firebaseUser.updateProfile(profileUpdates);
+
+                                /* Store the new user with the exact same uid reference into firestore database so that
+                                you can keep extra information about that user*/
+                                saveIntoFirestore(firebaseUser);
                             }
 
                             Intent openLoginActivityIntent = new Intent(getApplicationContext(), LoginActivity.class);
@@ -112,6 +122,21 @@ public class SignupActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    /**
+     * Save user into firestore database
+     * @param firebaseUser
+     */
+    private void saveIntoFirestore(FirebaseUser firebaseUser) {
+        User user = new User();
+        user.setEmail(firebaseUser.getEmail());
+        user.setName(firebaseUser.getDisplayName());
+        user.setUid(firebaseUser.getUid());
+
+        db.collection(getString(R.string.COLLECTION_USERS))
+                .document(firebaseUser.getUid())
+                .set(user);
     }
 
 
