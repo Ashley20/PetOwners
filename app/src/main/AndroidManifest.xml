@@ -17,7 +17,9 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyD53R6lTHbTeUMQhe6AeKrwqSSdiWVLscA" />
 
-        <activity android:name=".ProfileActivity" />
+        <activity
+            android:name=".ProfileActivity"
+            android:parentActivityName=".MainActivity"/>
         <activity android:name=".MainActivity" />
         <activity android:name=".SignupActivity" />
 
