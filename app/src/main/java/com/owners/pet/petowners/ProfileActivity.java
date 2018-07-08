@@ -4,13 +4,18 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +26,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -37,9 +43,12 @@ import butterknife.OnClick;
 public class ProfileActivity extends AppCompatActivity {
     private static final int PICK_IMAGE = 1;
     private static final String FIREBASE_STORAGE_IMAGES_REFERENCE_URL = "gs://petowners.appspot.com";
+
     @BindView(R.id.profile_picture_image_view) ImageView profile_picture;
-    @BindView(R.id.phone_text_view) TextView phone;
-    @BindView(R.id.email_text_view) TextView email;
+    @BindView(R.id.phone_edit_text) EditText phone;
+    @BindView(R.id.email_edit_text) EditText email;
+    @BindView(R.id.name) TextView name;
+
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private FirebaseStorage storage;
@@ -57,6 +66,7 @@ public class ProfileActivity extends AppCompatActivity {
             actionBar.setElevation(0);
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setLogo(R.drawable.ic_done);
         }
 
         mAuth = FirebaseAuth.getInstance();
@@ -69,8 +79,17 @@ public class ProfileActivity extends AppCompatActivity {
         // If the user is not null then update the UI with current user's profile information
         if (currentUser != null) {
             profile_picture.setImageURI(currentUser.getPhotoUrl());
+            name.setText(currentUser.getDisplayName());
+            email.setText(currentUser.getEmail());
         }
         super.onStart();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.profile_menu, menu);
+        return true;
     }
 
     @Override
@@ -79,9 +98,33 @@ public class ProfileActivity extends AppCompatActivity {
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
+            case R.id.done:
+                saveUserProfile();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void saveUserProfile() {
+        String phoneUpdate = phone.getText().toString();
+        final String emailUpdate = email.getText().toString();
+
+        if(TextUtils.isEmpty(phoneUpdate) || TextUtils.isEmpty(emailUpdate)){
+            Toast.makeText(this, getString(R.string.fill_in_required_fields_text),
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        currentUser.updateEmail(emailUpdate).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    email.setText(emailUpdate);
+                }
+            }
+        });
+
     }
 
     @OnClick(R.id.profile_picture_image_view)

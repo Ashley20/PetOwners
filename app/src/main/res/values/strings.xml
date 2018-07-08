@@ -10,11 +10,11 @@
     <string name="forgot_password_link"><u>Forgot your password?</u></string>
     <string name="login_button_text">LOGIN</string>
     <string name="profile_picture">Profile Picture</string>
-    <string name="user_fullname">Mac Donnovan</string>
+    <string name="user_fullname">User Name</string>
     <string name="email_text">Email:</string>
     <string name="phone_icon">Phone</string>
     <string name="phone_text_example">(123) 456-7890</string>
-    <string name="email_text_example">kucukkaraaslan.didem@gmail.com</string>
+    <string name="email_text_example">email</string>
     <string name="pet_information_text">Pets</string>
     <string name="pet_icon">Pet image</string>
     <string name="user_information_text">User</string>
@@ -36,4 +36,6 @@
     <string name="map_search_fragment_tab_title">Map Search</string>
     <string name="menu_option_edit_profile">Edit Profile</string>
     <string name="menu_option_settings">Settings</string>
+    <string name="phone_hint">Phone number</string>
+    <string name="save">Save</string>
 </resources>

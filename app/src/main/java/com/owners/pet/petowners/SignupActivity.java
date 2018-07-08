@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
 import java.util.Objects;
@@ -94,8 +95,13 @@ public class SignupActivity extends AppCompatActivity {
                                     .setDisplayName(name)
                                     .build();
 
-                            Toast.makeText(getApplicationContext(), getString(R.string.successful_signup_message_text),
-                                    Toast.LENGTH_LONG).show();
+                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                            if (firebaseUser != null) {
+                                firebaseUser.updateProfile(profileUpdates);
+                            }
+
+                            Intent openLoginActivityIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                            startActivity(openLoginActivityIntent);
 
                         } else {
                             // If sign in fails, display a message to the user.

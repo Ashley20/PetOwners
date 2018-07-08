@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
+/*
     @Override
     protected void onStart() {
         super.onStart();
@@ -60,6 +60,7 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
+    */
 
     @OnClick(R.id.login_btn)
     public void validateAndLogin(){

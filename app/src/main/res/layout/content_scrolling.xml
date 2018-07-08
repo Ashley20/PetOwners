@@ -31,8 +31,8 @@
                 android:contentDescription="@string/phone_icon"
                 android:src="@drawable/phone_icon" />
 
-            <TextView
-                android:id="@+id/phone_text_view"
+            <EditText
+                android:id="@+id/phone_edit_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
@@ -41,7 +41,9 @@
                 android:layout_toRightOf="@id/phone_icon"
                 android:text="@string/phone_text_example"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/colorBlack" />
+                android:textColor="@color/colorBlack"
+                android:hint="@string/phone_hint"
+                android:inputType="phone" />
 
         </RelativeLayout>
 
@@ -64,17 +66,19 @@
                 android:contentDescription="@string/phone_icon"
                 android:src="@drawable/email_icon" />
 
-            <TextView
-                android:id="@+id/email_text_view"
+            <EditText
+                android:id="@+id/email_edit_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_toEndOf="@id/email_icon"
                 android:layout_toRightOf="@id/email_icon"
+                android:hint="@string/email_text"
                 android:text="@string/email_text_example"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/colorBlack" />
+                android:textColor="@color/colorBlack"
+                android:inputType="textEmailAddress" />
 
         </RelativeLayout>
 
