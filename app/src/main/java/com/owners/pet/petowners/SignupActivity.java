@@ -101,13 +101,16 @@ public class SignupActivity extends AppCompatActivity {
                                     .setDisplayName(name)
                                     .build();
 
-                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                            final FirebaseUser firebaseUser = mAuth.getCurrentUser();
                             if (firebaseUser != null) {
-                                firebaseUser.updateProfile(profileUpdates);
-
-                                /* Store the new user with the exact same uid reference into firestore database so that
+                                firebaseUser.updateProfile(profileUpdates).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                         /* Store the new user with the exact same uid reference into firestore database so that
                                 you can keep extra information about that user*/
-                                saveIntoFirestore(firebaseUser);
+                                        saveIntoFirestore(firebaseUser);
+                                    }
+                                });
                             }
 
                             Intent openLoginActivityIntent = new Intent(getApplicationContext(), LoginActivity.class);
@@ -130,9 +133,9 @@ public class SignupActivity extends AppCompatActivity {
      */
     private void saveIntoFirestore(FirebaseUser firebaseUser) {
         User user = new User();
-        user.setEmail(firebaseUser.getEmail());
         user.setName(firebaseUser.getDisplayName());
         user.setUid(firebaseUser.getUid());
+        user.setBiography(getString(R.string.NO_BIOGRAPHY));
 
         db.collection(getString(R.string.COLLECTION_USERS))
                 .document(firebaseUser.getUid())

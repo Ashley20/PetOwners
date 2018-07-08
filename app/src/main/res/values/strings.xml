@@ -39,4 +39,5 @@
     <string name="phone_hint">Phone number</string>
     <string name="save">Save</string>
     <string name="COLLECTION_USERS">users</string>
+    <string name="NO_BIOGRAPHY">No biography found for this user yet</string>
 </resources>

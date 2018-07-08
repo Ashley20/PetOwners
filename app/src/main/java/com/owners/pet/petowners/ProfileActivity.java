@@ -28,6 +28,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -51,6 +55,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
+    private FirebaseFirestore db;
     private FirebaseStorage storage;
     private StorageReference storageRef;
 
@@ -70,6 +75,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
     }
 
@@ -82,6 +88,22 @@ public class ProfileActivity extends AppCompatActivity {
             name.setText(currentUser.getDisplayName());
             email.setText(currentUser.getEmail());
         }
+
+        db.collection(getString(R.string.COLLECTION_USERS))
+                .document(currentUser.getUid())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot doc = task.getResult();
+                            if(doc.get("phoneNumber") != null){
+                                phone.setText((doc.get("phoneNumber")).toString());
+                            }
+                        }
+                    }
+                });
+
         super.onStart();
     }
 
@@ -107,7 +129,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void saveUserProfile() {
-        String phoneUpdate = phone.getText().toString();
+        final String phoneUpdate = phone.getText().toString();
         final String emailUpdate = email.getText().toString();
 
         if(TextUtils.isEmpty(phoneUpdate) || TextUtils.isEmpty(emailUpdate)){
@@ -125,6 +147,15 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        // Update the firestore user's phone number.
+        updateFirestoreUser(phoneUpdate);
+
+
+    }
+
+    private void updateFirestoreUser(String newPhone) {
+        DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
+        user.update("phoneNumber", newPhone);
     }
 
     @OnClick(R.id.profile_picture_image_view)
