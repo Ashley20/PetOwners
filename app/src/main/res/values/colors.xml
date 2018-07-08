@@ -11,4 +11,5 @@
     <color name="colorTextIcons">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
     <color name="colorCivBorder">#FF000000</color>
+    <color name="colorWhite">#FFFFFF</color>
 </resources>

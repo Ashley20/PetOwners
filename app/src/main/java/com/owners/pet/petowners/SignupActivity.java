@@ -1,7 +1,9 @@
 package com.owners.pet.petowners;
 
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -16,6 +18,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserProfileChangeRequest;
+
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,6 +41,12 @@ public class SignupActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         mAuth = FirebaseAuth.getInstance();
+
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null){
+            actionBar.hide();
+        }
+
     }
 
 
