@@ -60,7 +60,7 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
-    */
+*/
 
     @OnClick(R.id.login_btn)
     public void validateAndLogin(){

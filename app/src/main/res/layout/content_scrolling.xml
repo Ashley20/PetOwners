@@ -12,6 +12,27 @@
         android:layout_marginTop="@dimen/scrolling_linearlayout_margin_top"
         android:orientation="vertical">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/bio_title_text_view"
+            android:layout_marginStart="@dimen/bio_title_text_view_margin_left"
+            android:layout_marginLeft="@dimen/bio_title_text_view_margin_left"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:text="@string/about_me"
+            android:textColor="@color/colorPrimaryDark" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/bio_text_view"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_marginStart="@dimen/bio_margin_left"
+            android:layout_marginLeft="@dimen/bio_margin_left"
+            android:layout_marginTop="@dimen/bio_margin_top"
+            android:layout_marginBottom="@dimen/bio_margin_bottom"
+            android:textColor="@color/colorSecondaryText" />
+
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -90,7 +111,7 @@
             android:layout_marginTop="@dimen/pets_text_margin_top"
             android:layout_marginStart="@dimen/pets_text_margin_left"
             android:layout_marginLeft="@dimen/pets_text_margin_top"
-            android:textColor="@color/colorPrimaryText"
+            android:textColor="@color/colorPrimaryDark"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:text="@string/pet_information_text"/>
 

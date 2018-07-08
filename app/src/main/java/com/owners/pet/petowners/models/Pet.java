@@ -3,14 +3,14 @@ package com.owners.pet.petowners.models;
 import java.util.List;
 
 public class Pet {
+    public static final int CAT = 0;
+    public static final int DOG = 1;
     private User owner;
     private String name;
     private String age;
+    private int type;
     private boolean wants_to_be_adopted;
-    private enum TYPE {
-        Cat,
-        Dog
-    }
+
 
     public Pet() {
     }
@@ -37,6 +37,14 @@ public class Pet {
 
     public void setAge(String age) {
         this.age = age;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     public boolean isWants_to_be_adopted() {

@@ -1,5 +1,6 @@
 package com.owners.pet.petowners;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +9,7 @@ import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -51,6 +53,7 @@ public class ProfileActivity extends AppCompatActivity {
     @BindView(R.id.profile_picture_image_view) ImageView profile_picture;
     @BindView(R.id.phone_edit_text) EditText phone;
     @BindView(R.id.email_edit_text) EditText email;
+    @BindView(R.id.bio_text_view) TextView bio;
     @BindView(R.id.name) TextView name;
 
     private FirebaseAuth mAuth;
@@ -97,8 +100,11 @@ public class ProfileActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if(task.isSuccessful()){
                             DocumentSnapshot doc = task.getResult();
-                            if(doc.get("phoneNumber") != null){
-                                phone.setText((doc.get("phoneNumber")).toString());
+                            if(doc.get(getString(R.string.PHONE_NUMBER_KEY)) != null){
+                                phone.setText((doc.get(getString(R.string.PHONE_NUMBER_KEY))).toString());
+                            }
+                            if(doc.get(getString(R.string.BIO_KEY)) != null){
+                                bio.setText(doc.get(getString(R.string.BIO_KEY)).toString());
                             }
                         }
                     }
@@ -150,12 +156,15 @@ public class ProfileActivity extends AppCompatActivity {
         // Update the firestore user's phone number.
         updateFirestoreUser(phoneUpdate);
 
+        Toast.makeText(this, getString(R.string.successful_profile_update_message),
+                Toast.LENGTH_SHORT).show();
+
 
     }
 
     private void updateFirestoreUser(String newPhone) {
         DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
-        user.update("phoneNumber", newPhone);
+        user.update(getString(R.string.PHONE_NUMBER_KEY), newPhone);
     }
 
     @OnClick(R.id.profile_picture_image_view)
@@ -212,5 +221,47 @@ public class ProfileActivity extends AppCompatActivity {
     @OnClick(R.id.add_pet_fab)
     public void addPet(){
 
+    }
+
+    @OnClick(R.id.bio_text_view)
+    public void showDialogAndUpdateBiography(){
+        showDialog();
+    }
+
+    private void showDialog() {
+        final EditText editText = new EditText(this);
+
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.edit_your_bio_title))
+                .setView(editText)
+                .setPositiveButton(getString(R.string.bio_dialog_positive_button), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String biography = editText.getText().toString();
+
+                        if(TextUtils.isEmpty(biography)){
+                            Toast.makeText(getApplicationContext(),
+                                    getString(R.string.fill_in_bio_text), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        updateBio(biography);
+
+
+                    }
+                })
+                .setNegativeButton(getString(R.string.bio_dialog_negative_button), null)
+                .create();
+
+        alertDialog.show();
+    }
+
+    private void updateBio(final String newBiography) {
+        DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
+        user.update(getString(R.string.BIO_KEY), newBiography).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                bio.setText(newBiography);
+            }
+        });
     }
 }

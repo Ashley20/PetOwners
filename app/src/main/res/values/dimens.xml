@@ -22,10 +22,14 @@
     <dimen name="collapsing_toolbar_expandedTitle_margin_end">64dp</dimen>
     <dimen name="collapsing_toolbar_expandedTitle_margin_start">48dp</dimen>
     <dimen name="appbar_height">300dp</dimen>
-    <dimen name="scrolling_linearlayout_margin_top">30dp</dimen>
+    <dimen name="scrolling_linearlayout_margin_top">10dp</dimen>
     <dimen name="pets_text_margin_top">15dp</dimen>
     <dimen name="pets_text_margin_left">14dp</dimen>
     <dimen name="appbar_elevation">6dp</dimen>
     <dimen name="progress_bar_elevation">10dp</dimen>
     <dimen name="fab_elevation">6dp</dimen>
+    <dimen name="bio_margin_top">4dp</dimen>
+    <dimen name="bio_margin_bottom">5dp</dimen>
+    <dimen name="bio_title_text_view_margin_left">15dp</dimen>
+    <dimen name="bio_margin_left">15dp</dimen>
 </resources>

@@ -39,5 +39,14 @@
     <string name="phone_hint">Phone number</string>
     <string name="save">Save</string>
     <string name="COLLECTION_USERS">users</string>
-    <string name="NO_BIOGRAPHY">No biography found for this user yet</string>
+    <string name="NO_BIOGRAPHY">Tap to add an about me..</string>
+    <string name="PHONE_NUMBER_KEY">phoneNumber</string>
+    <string name="about_me">About me</string>
+    <string name="about_me_example">I am 22. I have 2 cats which ..</string>
+    <string name="BIO_KEY">biography</string>
+    <string name="edit_your_bio_title">Add about me</string>
+    <string name="bio_dialog_positive_button">OK</string>
+    <string name="fill_in_bio_text">Please right something about yourself</string>
+    <string name="bio_dialog_negative_button">CANCEL</string>
+    <string name="successful_profile_update_message">Profile updated successfully</string>
 </resources>
