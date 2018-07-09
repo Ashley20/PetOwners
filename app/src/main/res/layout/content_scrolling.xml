@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/bio_text_view"
+            app:fontFamily="@font/helvetica_neueit"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:layout_marginStart="@dimen/bio_margin_left"
             android:layout_marginLeft="@dimen/bio_margin_left"
