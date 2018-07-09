@@ -34,5 +34,6 @@
     <dimen name="bio_margin_left">15dp</dimen>
     <dimen name="pet_age_margin_left">5dp</dimen>
     <dimen name="pet_profile_pic_margin_top">16dp</dimen>
-    <dimen name="dialog_input_field_margin_top">5dp</dimen>
+    <dimen name="dialog_input_field_margin_top">10dp</dimen>
+    <dimen name="listview_margin_bottom">4dp</dimen>
 </resources>

@@ -89,8 +89,8 @@
                 android:id="@+id/about_pet_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/pet_name_edit_text"
-                android:inputType="textLongMessage"
+                android:hint="@string/about_pet"
+                android:inputType="textMultiLine"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/input_text_size" />
 

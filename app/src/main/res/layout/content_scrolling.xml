@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginTop="@dimen/scrolling_linearlayout_margin_top"
         android:orientation="vertical">
 
@@ -117,11 +117,12 @@
 
         <ListView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/pets_list_view">
+            android:layout_height="match_parent"
+            android:id="@+id/pets_list_view"
+            android:layout_marginBottom="@dimen/listview_margin_bottom">
         </ListView>
 
 
     </LinearLayout>
-
 </android.support.v4.widget.NestedScrollView>
+

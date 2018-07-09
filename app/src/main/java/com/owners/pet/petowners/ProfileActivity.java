@@ -1,12 +1,8 @@
 package com.owners.pet.petowners;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
@@ -18,11 +14,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -34,25 +31,20 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.owners.pet.petowners.models.Pet;
 import com.owners.pet.petowners.models.User;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
-import adapters.PetsAdapter;
+import com.owners.pet.petowners.adapters.PetsAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -133,6 +125,7 @@ public class ProfileActivity extends AppCompatActivity {
     private void loadPets(ArrayList<Pet> petList) {
         PetsAdapter petsAdapter = new PetsAdapter(this, petList);
         pets_list_view.setAdapter(petsAdapter);
+        setListViewHeightBasedOnChildren(pets_list_view);
 
     }
 
@@ -315,6 +308,11 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
+
+    /**
+     * Creates a new pet for the current user
+     * @param pet
+     */
     private void addAnewPet(Pet pet) {
 
         user.getPetList().add(pet);
@@ -329,6 +327,8 @@ public class ProfileActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
+        pets_list_view.deferNotifyDataSetChanged();
+        setListViewHeightBasedOnChildren(pets_list_view);
 
     }
 
@@ -383,5 +383,36 @@ public class ProfileActivity extends AppCompatActivity {
                 bio.setText(newBiography);
             }
         });
+    }
+
+
+    /**
+     * Solves listview inside a NestedScrollView problem
+     */
+    public static void setListViewHeightBasedOnChildren
+    (ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) return;
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(),
+                View.MeasureSpec.UNSPECIFIED);
+        int totalHeight = 0;
+        View view = null;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            view = listAdapter.getView(i, view, listView);
+            if (i == 0) view.setLayoutParams(new
+                    ViewGroup.LayoutParams(desiredWidth,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            view.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            totalHeight += view.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+
+        params.height = totalHeight + (listView.getDividerHeight() *
+                (listAdapter.getCount() - 1));
+
+        listView.setLayoutParams(params);
+        listView.requestLayout();
     }
 }

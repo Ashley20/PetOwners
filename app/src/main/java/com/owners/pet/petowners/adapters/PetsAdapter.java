@@ -1,4 +1,4 @@
-package adapters;
+package com.owners.pet.petowners.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -10,15 +10,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.Pet;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import butterknife.BindView;
 
 public class PetsAdapter extends ArrayAdapter<Pet>{
     private Context mContext;
