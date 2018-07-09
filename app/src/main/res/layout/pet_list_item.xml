@@ -44,14 +44,4 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         android:textColor="#727272" />
 
-    <TextView
-        android:id="@+id/pet_age_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/pet_name"
-        android:layout_toRightOf="@+id/pet_name"
-        android:layout_marginLeft="@dimen/pet_age_margin_left"
-        android:layout_marginStart="@dimen/pet_age_margin_left"
-        android:text="@string/pet_age"/>
-
 </RelativeLayout>

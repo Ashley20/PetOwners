@@ -10,6 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.Pet;
 
@@ -22,7 +24,7 @@ public class PetsAdapter extends ArrayAdapter<Pet>{
     private Context mContext;
     private ArrayList<Pet> petList;
 
-    public PetsAdapter(@NonNull Context context, ArrayList<Pet> petList) {
+    public PetsAdapter(Context context, ArrayList<Pet> petList) {
         super(context,0, petList);
         this.mContext = context;
         this.petList = petList;
@@ -41,19 +43,26 @@ public class PetsAdapter extends ArrayAdapter<Pet>{
 
         ImageView petIcon = convertView.findViewById(R.id.pet_icon);
         TextView petName = convertView.findViewById(R.id.pet_name);
-        TextView petAge = convertView.findViewById(R.id.pet_age_text_view);
         TextView petState = convertView.findViewById(R.id.pet_state);
 
         // Update UI
         if (pet != null) {
             petIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.pets_icon));
             petName.setText(pet.getName());
-            petAge.setText(pet.getAge());
             petState.setText(pet.isWants_to_be_adopted() ? mContext.getString(R.string.waits_for_adoption_text)
                     : mContext.getString(R.string.no_adoption));
 
         }
 
         return convertView;
+    }
+
+    @Override
+    public int getCount() {
+        if(petList != null){
+            return petList.size();
+        }else {
+            return 0;
+        }
     }
 }

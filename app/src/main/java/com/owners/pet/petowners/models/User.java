@@ -4,6 +4,7 @@ import android.content.res.Resources;
 
 import com.owners.pet.petowners.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class User {
@@ -15,11 +16,12 @@ public class User {
     private String name;
     private String phoneNumber;
     private String biography;
-    private List<Pet> petList;
+    private ArrayList<Pet> petList;
     private int userState;
 
     public User() {
         this.userState = NONE;
+        this.petList = new ArrayList<>();
     }
 
     public String getUid() {
@@ -54,11 +56,11 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public List<Pet> getPetList() {
+    public ArrayList<Pet> getPetList() {
         return petList;
     }
 
-    public void setPetList(List<Pet> petList) {
+    public void setPetList(ArrayList<Pet> petList) {
         this.petList = petList;
     }
 

@@ -39,6 +39,7 @@
     <string name="phone_hint">Phone number</string>
     <string name="save">Save</string>
     <string name="COLLECTION_USERS">users</string>
+    <string name="COLLECTION_PETS">pets</string>
     <string name="NO_BIOGRAPHY">Tap to add an about me..</string>
     <string name="PHONE_NUMBER_KEY">phoneNumber</string>
     <string name="about_me">About me</string>
@@ -49,6 +50,29 @@
     <string name="fill_in_bio_text">Please right something about yourself</string>
     <string name="bio_dialog_negative_button">CANCEL</string>
     <string name="successful_profile_update_message">Profile updated successfully</string>
-    <string name="pet_age">(5 years old)</string>
     <string name="no_adoption">I am not for adoption.</string>
+    <string name="pet_profile_pic">Pet profile picture</string>
+    <string name="pet_name_edit_text">Pet name</string>
+    <string name="pet_age_edit_text">Pet age</string>
+    <string name="cancel_button">CANCEL</string>
+    <string name="add_pet_dialog_button">ADD</string>
+    <string name="gender_girl">Girl</string>
+    <string name="gender_boy">Boy</string>
+    <string name="add_pet_cancel_dialog_button">CANCEL</string>
+    <string name="dialog_adoption_checkbox_text">Check it if the pet is waiting to be adopted.</string>
+    <string name="add_a_new_pet_title">Add a new pet</string>
+    <string name="type_cat">Cat</string>
+    <string name="type_dog">Dog</string>
+    <string name="successful_pet_addition_message">You\'ve added a new pet!</string>
+    <string name="PETLIST_KEY">petList</string>
+
+    <string-array name="genderList">
+        <item>@string/gender_girl</item>
+        <item>@string/gender_boy</item>
+    </string-array>
+
+    <string-array name="petTypeList">
+        <item>@string/type_cat</item>
+        <item>@string/type_dog</item>
+    </string-array>
 </resources>

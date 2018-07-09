@@ -1,5 +1,6 @@
 package com.owners.pet.petowners;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -17,9 +18,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,11 +43,16 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.owners.pet.petowners.models.Pet;
+import com.owners.pet.petowners.models.User;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
+import adapters.PetsAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -65,6 +75,7 @@ public class ProfileActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,17 +115,25 @@ public class ProfileActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if(task.isSuccessful()){
                             DocumentSnapshot doc = task.getResult();
-                            if(doc.get(getString(R.string.PHONE_NUMBER_KEY)) != null){
-                                phone.setText((doc.get(getString(R.string.PHONE_NUMBER_KEY))).toString());
-                            }
-                            if(doc.get(getString(R.string.BIO_KEY)) != null){
-                                bio.setText(doc.get(getString(R.string.BIO_KEY)).toString());
+                            if (doc.exists()){
+                                user = doc.toObject(User.class);
+                                if (user != null) {
+                                    phone.setText(user.getPhoneNumber());
+                                    bio.setText(user.getBiography());
+                                    loadPets(user.getPetList());
+                                }
                             }
                         }
                     }
                 });
 
         super.onStart();
+    }
+
+    private void loadPets(ArrayList<Pet> petList) {
+        PetsAdapter petsAdapter = new PetsAdapter(this, petList);
+        pets_list_view.setAdapter(petsAdapter);
+
     }
 
     @Override
@@ -231,7 +250,85 @@ public class ProfileActivity extends AppCompatActivity {
 
 
     @OnClick(R.id.add_pet_fab)
-    public void addPet(){
+    public void displayAddPetDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = getLayoutInflater().inflate(R.layout.add_pet_custom_dialog, null);
+        builder.setTitle(getString(R.string.add_a_new_pet_title));
+
+        ImageView petProfilePicture = (ImageView) view.findViewById(R.id.pet_profile_pic);
+        final EditText petName = (EditText) view.findViewById(R.id.pet_name_edit_text);
+        final EditText petAbout = (EditText) view.findViewById(R.id.about_pet_edit_text);
+        final CheckBox petAdoptionState = (CheckBox) view.findViewById(R.id.pet_adoption_state);
+        final Spinner genderSpinner = (Spinner) view.findViewById(R.id.pet_gender_spinner);
+        final Spinner typeSpinner = (Spinner) view.findViewById(R.id.pet_type_spinner);
+
+        // Create adapter for the genderSpinner and set it
+        ArrayAdapter<String> genderAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
+                getResources().getStringArray(R.array.genderList));
+        genderAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        genderSpinner.setAdapter(genderAdapter);
+
+
+        // Create adapter for the typeSpinner and set it
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
+                getResources().getStringArray(R.array.petTypeList));
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        typeSpinner.setAdapter(typeAdapter);
+
+        // Set positive and negative buttons
+        builder.setPositiveButton(getString(R.string.add_pet_dialog_button), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(!TextUtils.isEmpty(petName.getText().toString())){
+                    // With the given information create a new pet.
+                    Pet pet = new Pet();
+                    pet.setOwner(currentUser.getDisplayName());
+                    pet.setName(petName.getText().toString());
+                    pet.setAbout(petAbout.getText().toString());
+                    pet.setGender(genderSpinner.getSelectedItem().toString());
+                    pet.setType(typeSpinner.getSelectedItem().toString());
+                    pet.setWants_to_be_adopted(petAdoptionState.isChecked());
+
+                 addAnewPet(pet);
+
+                }else {
+                    Toast.makeText(getApplicationContext(), getString(R.string.fill_in_required_fields_text),
+                            Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        builder.setNegativeButton(getString(R.string.add_pet_cancel_dialog_button), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        // Set the custom dialog view
+        builder.setView(view);
+
+        // Display the custom dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+
+    private void addAnewPet(Pet pet) {
+
+        user.getPetList().add(pet);
+
+        db.collection(getString(R.string.COLLECTION_USERS))
+                .document(currentUser.getUid())
+                .set(user)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.successful_pet_addition_message),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
 
     }
 

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/linearlayout_margin_size"
+        android:layout_marginRight="@dimen/linearlayout_margin_size"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/pet_profile_pic"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/pet_profile_pic_margin_top"
+            android:src="@drawable/pets_icon"
+            android:contentDescription="@string/pet_profile_pic"
+            android:scaleType="centerCrop" />
+
+        <!--                 Pet Name Field                   -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dialog_input_field_margin_top"
+            android:textColorHint="@color/colorBlack">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/pet_name_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/pet_name_edit_text"
+                android:inputType="textPersonName"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/input_text_size" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!--                 Pet Type Field                   -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dialog_input_field_margin_top"
+            android:textColorHint="@color/colorBlack">
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/pet_type_spinner">
+            </Spinner>
+        </android.support.design.widget.TextInputLayout>
+
+        <!--                 Pet Gender Field                   -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dialog_input_field_margin_top"
+            android:textColorHint="@color/colorBlack">
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/pet_gender_spinner">
+            </Spinner>
+        </android.support.design.widget.TextInputLayout>
+
+        <!--                 Pet Adoption Field                   -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dialog_input_field_margin_top"
+            android:textColorHint="@color/colorBlack">
+            <CheckBox
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/pet_adoption_state"
+                android:text="@string/dialog_adoption_checkbox_text"
+                android:checked="false"/>
+        </android.support.design.widget.TextInputLayout>
+
+        <!--                 About Pet Field                   -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dialog_input_field_margin_top"
+            android:textColorHint="@color/colorBlack">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/about_pet_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/pet_name_edit_text"
+                android:inputType="textLongMessage"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/input_text_size" />
+
+        </android.support.design.widget.TextInputLayout>
+
+
+
+
+    </LinearLayout>
+
+</ScrollView>

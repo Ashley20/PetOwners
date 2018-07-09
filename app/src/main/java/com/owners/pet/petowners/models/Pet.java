@@ -1,25 +1,25 @@
 package com.owners.pet.petowners.models;
 
-import java.util.List;
+import com.google.firebase.auth.FirebaseUser;
 
 public class Pet {
-    public static final int CAT = 0;
-    public static final int DOG = 1;
-    private User owner;
+
+    private String owner;
+    private String about;
     private String name;
-    private String age;
-    private int type;
+    private String gender;
+    private String type;
     private boolean wants_to_be_adopted;
 
 
     public Pet() {
     }
 
-    public User getOwner() {
+    public String getOwner() {
         return owner;
     }
 
-    public void setOwner(User owner) {
+    public void setOwner(String owner) {
         this.owner = owner;
     }
 
@@ -31,27 +31,35 @@ public class Pet {
         this.name = name;
     }
 
-    public String getAge() {
-        return age;
-    }
-
-    public void setAge(String age) {
-        this.age = age;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
     public boolean isWants_to_be_adopted() {
         return wants_to_be_adopted;
     }
 
     public void setWants_to_be_adopted(boolean wants_to_be_adopted) {
         this.wants_to_be_adopted = wants_to_be_adopted;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getAbout() {
+        return about;
+    }
+
+    public void setAbout(String about) {
+        this.about = about;
     }
 }
