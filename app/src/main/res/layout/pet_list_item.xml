@@ -1,0 +1,57 @@
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:padding="@dimen/activity_horizontal_margin"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <ImageView
+        android:id="@+id/pet_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:contentDescription="@string/pet_icon"
+        android:src="@drawable/pets_icon" />
+
+    <TextView
+        android:id="@+id/pet_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_toEndOf="@id/pet_icon"
+        android:layout_toRightOf="@id/pet_icon"
+        android:text="@string/pet_one"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/colorBlack" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pet_state"
+        android:layout_below="@id/pet_name"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="8dp"
+        android:layout_toEndOf="@id/pet_icon"
+        android:layout_toRightOf="@id/pet_icon"
+        android:text="@string/waits_for_adoption_text"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="#727272" />
+
+    <TextView
+        android:id="@+id/pet_age_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/pet_name"
+        android:layout_toRightOf="@+id/pet_name"
+        android:layout_marginLeft="@dimen/pet_age_margin_left"
+        android:layout_marginStart="@dimen/pet_age_margin_left"
+        android:text="@string/pet_age"/>
+
+</RelativeLayout>

@@ -49,4 +49,6 @@
     <string name="fill_in_bio_text">Please right something about yourself</string>
     <string name="bio_dialog_negative_button">CANCEL</string>
     <string name="successful_profile_update_message">Profile updated successfully</string>
+    <string name="pet_age">(5 years old)</string>
+    <string name="no_adoption">I am not for adoption.</string>
 </resources>

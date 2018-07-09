@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +56,9 @@ public class ProfileActivity extends AppCompatActivity {
     @BindView(R.id.email_edit_text) EditText email;
     @BindView(R.id.bio_text_view) TextView bio;
     @BindView(R.id.name) TextView name;
+    @BindView(R.id.pets_list_view) ListView pets_list_view;
+
+
 
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
@@ -134,6 +138,10 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Updates email for firebaseUser and also calls updateEmail function
+     * to update the firestore user's phone information.
+     */
     private void saveUserProfile() {
         final String phoneUpdate = phone.getText().toString();
         final String emailUpdate = email.getText().toString();
@@ -162,6 +170,10 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Updates user's phone and saves it into firestore database.
+     * @param newPhone
+     */
     private void updateFirestoreUser(String newPhone) {
         DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
         user.update(getString(R.string.PHONE_NUMBER_KEY), newPhone);
@@ -228,6 +240,12 @@ public class ProfileActivity extends AppCompatActivity {
         showDialog();
     }
 
+
+
+    /**
+     * Shows a dialog which has an edit text for adding an about me information
+     * Finally this method calls updateBio to update (biography - about me) information.
+     */
     private void showDialog() {
         final EditText editText = new EditText(this);
 
@@ -255,6 +273,11 @@ public class ProfileActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
+
+    /**
+     * Update user's (biography - about me).
+     * @param newBiography
+     */
     private void updateBio(final String newBiography) {
         DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
         user.update(getString(R.string.BIO_KEY), newBiography).addOnSuccessListener(new OnSuccessListener<Void>() {
