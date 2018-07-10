@@ -8,11 +8,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public class MapSearchFragment extends Fragment {
-    private Unbinder unbinder;
+public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
+    @BindView(R.id.mapView) MapView mMapView;
+    private GoogleMap mGoogleMap;
 
     public MapSearchFragment() {}
 
@@ -25,5 +32,23 @@ public class MapSearchFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        if(mMapView != null){
+            mMapView.onCreate(null);
+            mMapView.onResume();
+
+            mMapView.getMapAsync(this);
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        MapsInitializer.initialize(getContext());
+        mGoogleMap = googleMap;
+        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+    }
 }

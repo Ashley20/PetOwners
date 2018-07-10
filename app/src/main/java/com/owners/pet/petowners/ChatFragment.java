@@ -12,7 +12,6 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 public class ChatFragment extends Fragment {
-    private Unbinder unbinder;
 
     public ChatFragment() {}
 
