@@ -94,30 +94,31 @@ public class ProfileActivity extends AppCompatActivity {
         currentUser = mAuth.getCurrentUser();
         // If the user is not null then update the UI with current user's profile information
         if (currentUser != null) {
+
             profile_picture.setImageURI(currentUser.getPhotoUrl());
             name.setText(currentUser.getDisplayName());
             email.setText(currentUser.getEmail());
-        }
 
-        db.collection(getString(R.string.COLLECTION_USERS))
-                .document(currentUser.getUid())
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
-                            DocumentSnapshot doc = task.getResult();
-                            if (doc.exists()){
-                                user = doc.toObject(User.class);
-                                if (user != null) {
-                                    phone.setText(user.getPhoneNumber());
-                                    bio.setText(user.getBiography());
-                                    loadPets(user.getPetList());
+            db.collection(getString(R.string.COLLECTION_USERS))
+                    .document(currentUser.getUid())
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if(task.isSuccessful()){
+                                DocumentSnapshot doc = task.getResult();
+                                if (doc.exists()){
+                                    user = doc.toObject(User.class);
+                                    if (user != null) {
+                                        phone.setText(user.getPhoneNumber());
+                                        bio.setText(user.getBiography());
+                                        loadPets(user.getPetList());
+                                    }
                                 }
                             }
                         }
-                    }
-                });
+                    });
+        }
 
         super.onStart();
     }
@@ -383,6 +384,19 @@ public class ProfileActivity extends AppCompatActivity {
                 bio.setText(newBiography);
             }
         });
+    }
+
+
+    @OnClick(R.id.logout)
+    public void logOut(){
+        // Simply sign out the user and redirect the user to the login page
+        mAuth.signOut();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 
 
