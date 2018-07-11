@@ -68,6 +68,8 @@
     <string name="about_pet">Tell us about your pet..</string>
     <string name="log_out">Log Out</string>
     <string name="logout_icon">Log out</string>
+    <string name="map_search_text">Search a place</string>
+    <string name="explain_the_need_for_permission">The map feature needs your location to funtion properly</string>
 
     <string-array name="genderList">
         <item>@string/gender_girl</item>
