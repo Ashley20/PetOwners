@@ -2,6 +2,7 @@ package com.owners.pet.petowners.models;
 
 import android.content.res.Resources;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.owners.pet.petowners.R;
 
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ public class User {
     private String name;
     private String phoneNumber;
     private String biography;
+    private Double latitude;
+    private Double longtitude;
     private ArrayList<Pet> petList;
     private int userState;
 
@@ -70,5 +73,21 @@ public class User {
 
     public void setUserState(int userState) {
         this.userState = userState;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongtitude() {
+        return longtitude;
+    }
+
+    public void setLongtitude(Double longtitude) {
+        this.longtitude = longtitude;
     }
 }

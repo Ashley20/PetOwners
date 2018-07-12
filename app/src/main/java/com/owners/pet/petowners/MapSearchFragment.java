@@ -28,6 +28,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -35,8 +37,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.owners.pet.petowners.models.User;
 
 import java.io.IOException;
@@ -48,9 +52,10 @@ import butterknife.ButterKnife;
 
 
 public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
+    public static final String TAG = MapSearchFragment.class.getSimpleName();
+
     public static final int LOCATION_REQUEST = 1;
-    @BindView(R.id.mapView)
-    MapView mMapView;
+    @BindView(R.id.mapView) MapView mMapView;
     @BindView(R.id.search)
     SearchView searchView;
     private GoogleMap mGoogleMap;
@@ -59,6 +64,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Location mLastKnownLocation;
     private boolean mLocationPermissionGranted;
+    private FirebaseUser currentUser;
 
     public MapSearchFragment() {
     }
@@ -72,6 +78,13 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
         ButterKnife.bind(this, rootView);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+
+        mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                currentUser = firebaseAuth.getCurrentUser();
+            }
+        });
 
         return rootView;
     }
@@ -98,9 +111,8 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
+        placeMarkers(mGoogleMap);
         getLocationPermission();
-        updateLocationUI();
-        getDeviceLocation();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -139,6 +151,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
                 mGoogleMap.setMyLocationEnabled(false);
                 mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
                 mLastKnownLocation = null;
+
             }
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
@@ -154,35 +167,36 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
      * @param mGoogleMap
      */
     private void placeMarkers(final GoogleMap mGoogleMap) {
-        getDeviceLocation();
-        mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-                if (currentUser != null) {
-                    db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid())
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot doc = task.getResult();
-                                        if (doc.exists()) {
-                                            User user = doc.toObject(User.class);
-                                            if (user != null) {
-                                                mGoogleMap.addMarker(new MarkerOptions()
-                                                        .title(user.getName())
-                                                        .position(new LatLng(0, 0)));
-                                            }
-                                        }
-                                    }
-                                }
-                            });
-                }
-            }
-        });
 
+        db.collection(getString(R.string.COLLECTION_USERS))
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        List<User> userList = queryDocumentSnapshots.toObjects(User.class);
+                        for (User user : userList) {
+                            MarkerOptions markerOptions = new MarkerOptions()
+                                    .title(user.getName())
+                                    .position(new LatLng(user.getLatitude(), user.getLongtitude()));
+
+                            switch (user.getUserState()){
+                                case User.WANTS_TO_ADOPT:
+                                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                                     break;
+                                case User.WANTS_TO_POST_FOR_ADOPTION:
+                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                                    break;
+                                case User.NONE:
+                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                                    break;
+                            }
+
+                            mGoogleMap.addMarker(markerOptions);
+                        }
+                    }
+                });
     }
+
 
     private void getDeviceLocation() {
         if (mLocationPermissionGranted) {
@@ -193,12 +207,13 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
                             public void onSuccess(Location location) {
                                 if (location != null) {
                                     mLastKnownLocation = location;
-                                    Toast.makeText(getContext(), "lat: " + mLastKnownLocation.getLatitude() + " long: " + mLastKnownLocation.getLongitude(), Toast.LENGTH_SHORT).show();
                                     mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                             new LatLng(mLastKnownLocation.getLatitude(),
                                                     mLastKnownLocation.getLongitude()), 15));
+                                    // Save the last known location into firestore database
+                                    saveLocationIntoDb(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                                 } else {
-                                    Log.d("HATA", "Current location is null. Using defaults.");
+                                    Log.d(TAG, "Current location is null. Using defaults.");
                                     mGoogleMap.moveCamera(CameraUpdateFactory
                                             .newLatLngZoom(new LatLng(-33.8523341, 151.2106085), 15));
                                     mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -208,6 +223,20 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
 
             } catch (SecurityException e) {
             }
+        }
+    }
+
+    /**
+     * Funtion which saves the user's lastknownlocation in firestore database
+     *
+     * @param latitude
+     * @param longitude
+     */
+    private void saveLocationIntoDb(double latitude, double longitude) {
+        if (currentUser != null) {
+            DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
+            user.update(getString(R.string.LATITUDE_KEY), latitude);
+            user.update(getString(R.string.LONGTITUDE_KEY), longitude);
         }
     }
 
@@ -231,6 +260,8 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
+            updateLocationUI();
+            getDeviceLocation();
         } else {
             mLocationPermissionGranted = false;
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST);
@@ -247,6 +278,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationPermissionGranted = true;
+                    getDeviceLocation();
                 }
             }
         }
