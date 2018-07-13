@@ -57,7 +57,8 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
     public static final String TAG = MapSearchFragment.class.getSimpleName();
 
     public static final int LOCATION_REQUEST = 1;
-    @BindView(R.id.mapView) MapView mMapView;
+    @BindView(R.id.mapView)
+    MapView mMapView;
     @BindView(R.id.search)
     SearchView searchView;
     private GoogleMap mGoogleMap;
@@ -181,11 +182,11 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                                     .title(user.getName())
                                     .position(new LatLng(user.getLatitude(), user.getLongtitude()));
 
-                            switch (user.getUserState()){
+                            switch (user.getUserState()) {
                                 case User.WANTS_TO_ADOPT:
-                                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
-                                     markerOptions.snippet(getString(R.string.USER_WANTS_TO_ADOPT_STATE));
-                                     break;
+                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                                    markerOptions.snippet(getString(R.string.USER_WANTS_TO_ADOPT_STATE));
+                                    break;
                                 case User.WANTS_TO_POST_FOR_ADOPTION:
                                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
                                     markerOptions.snippet(getString(R.string.USER_WANTS_TO_POST_FOR_ADOPTION_STATE));
@@ -289,7 +290,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationPermissionGranted = true;
                     getDeviceLocation();
-                }else{
+                } else {
                     mLocationPermissionGranted = false;
                 }
             }
@@ -300,11 +301,17 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
     @Override
     public void onInfoWindowClick(Marker marker) {
         // The uid of the user profile which wants to be displayed
-         String uid = (String) marker.getTag();
-         if(uid != null){
-             Intent openProfileIntent = new Intent(getContext(), ProfileActivity.class);
-             startActivity(openProfileIntent);
-         }
+        String uid = (String) marker.getTag();
+        if (uid != null ) {
+            if (currentUser.getUid().equals(uid)) {
+                Intent openCurrentUserProfileIntent = new Intent(getContext(), ProfileActivity.class);
+                startActivity(openCurrentUserProfileIntent);
+            } else {
+                Intent openOtherUsersProfileIntent = new Intent(getContext(), OthersProfileActivity.class);
+                openOtherUsersProfileIntent.putExtra(getString(R.string.USER_PROFILE_UID), uid);
+                startActivity(openOtherUsersProfileIntent);
+            }
+        }
     }
 }
 

@@ -2,10 +2,7 @@ package com.owners.pet.petowners;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
@@ -28,7 +25,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -42,36 +38,30 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.owners.pet.petowners.Glide.GlideApp;
+import com.owners.pet.petowners.LoginActivity;
+import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.Pet;
 import com.owners.pet.petowners.models.User;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
 import com.owners.pet.petowners.adapters.PetsAdapter;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ProfileActivity extends AppCompatActivity {
+public class OthersProfileActivity extends AppCompatActivity {
     private static final int PICK_IMAGE = 1;
     private static final String FIREBASE_STORAGE_IMAGES_REFERENCE_URL = "gs://petowners.appspot.com";
 
-    @BindView(R.id.profile_picture_image_view)
-    ImageView profile_picture;
-    @BindView(R.id.phone_edit_text)
-    EditText phone;
-    @BindView(R.id.email_edit_text)
-    EditText email;
-    @BindView(R.id.bio_text_view)
-    TextView bio;
-    @BindView(R.id.name)
-    TextView name;
-    @BindView(R.id.pets_list_view)
-    ListView pets_list_view;
+    @BindView(R.id.profile_picture_image_view) ImageView profile_picture;
+    @BindView(R.id.phone_edit_text) EditText phone;
+    @BindView(R.id.email_edit_text) EditText email;
+    @BindView(R.id.bio_text_view) TextView bio;
+    @BindView(R.id.name) TextView name;
+    @BindView(R.id.pets_list_view) ListView pets_list_view;
+
 
 
     private FirebaseAuth mAuth;
@@ -79,7 +69,6 @@ public class ProfileActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseStorage storage;
     private StorageReference storageRef;
-    private StorageReference profileImagesRef;
     private User user;
 
     @Override
@@ -90,7 +79,7 @@ public class ProfileActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
+        if(actionBar != null){
             actionBar.setElevation(0);
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -99,20 +88,18 @@ public class ProfileActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        storageRef = FirebaseStorage.getInstance().getReference();
+        storage = FirebaseStorage.getInstance();
 
-        currentUser = mAuth.getCurrentUser();
-        profileImagesRef = storageRef.child("users").child(currentUser.getUid()).child("profile.jpg");
+        // Get the user profile uid extra from the intent
+        Intent intent = getIntent();
+        if(intent != null){
+            String uid = intent.getStringExtra(getString(R.string.USER_PROFILE_UID));
+        }
     }
 
     @Override
     protected void onStart() {
-
-        // If the user is not null then update the UI with current user's profile information
-        if (currentUser != null) {
-            Toast.makeText(getApplicationContext(), "ONSTART CALLED", Toast.LENGTH_SHORT).show();
-            // Set profile picture from firebase storage
-            setProfilePicture();
+            profile_picture.setImageURI(currentUser.getPhotoUrl());
             name.setText(currentUser.getDisplayName());
             email.setText(currentUser.getEmail());
 
@@ -122,9 +109,9 @@ public class ProfileActivity extends AppCompatActivity {
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
+                            if(task.isSuccessful()){
                                 DocumentSnapshot doc = task.getResult();
-                                if (doc.exists()) {
+                                if (doc.exists()){
                                     user = doc.toObject(User.class);
                                     if (user != null) {
                                         phone.setText(user.getPhoneNumber());
@@ -135,15 +122,8 @@ public class ProfileActivity extends AppCompatActivity {
                             }
                         }
                     });
-        }
 
         super.onStart();
-    }
-
-    private void setProfilePicture() {
-        GlideApp.with(this)
-                .load(profileImagesRef)
-                .into(profile_picture);
     }
 
     private void loadPets(ArrayList<Pet> petList) {
@@ -162,7 +142,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        switch (item.getItemId()){
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
@@ -182,7 +162,7 @@ public class ProfileActivity extends AppCompatActivity {
         final String phoneUpdate = phone.getText().toString();
         final String emailUpdate = email.getText().toString();
 
-        if (TextUtils.isEmpty(phoneUpdate) || TextUtils.isEmpty(emailUpdate)) {
+        if(TextUtils.isEmpty(phoneUpdate) || TextUtils.isEmpty(emailUpdate)){
             Toast.makeText(this, getString(R.string.fill_in_required_fields_text),
                     Toast.LENGTH_SHORT).show();
             return;
@@ -208,7 +188,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     /**
      * Updates user's phone and saves it into firestore database.
-     *
      * @param newPhone
      */
     private void updateFirestoreUser(String newPhone) {
@@ -217,7 +196,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.profile_picture_image_view)
-    public void changeProfilePicture() {
+    public void changeProfilePicture(){
         Intent imagePickerIntent = new Intent(Intent.ACTION_PICK);
         imagePickerIntent.setType("image/*");
         startActivityForResult(imagePickerIntent, PICK_IMAGE);
@@ -225,36 +204,50 @@ public class ProfileActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
+        switch(requestCode) {
             case PICK_IMAGE:
-                if (resultCode == RESULT_OK) {
+                if(resultCode == RESULT_OK){
                     final Uri imageUri = data.getData();
 
                     // Update user photo
-                    if (imageUri != null) {
-                        UploadTask uploadTask = profileImagesRef.putFile(imageUri);
-                        uploadTask.addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception exception) {
-                                // Handle unsuccessful uploads
-                            }
-                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                GlideApp.with(getApplicationContext())
-                                        .load(profileImagesRef)
-                                        .into(profile_picture);
-                            }
-                        });
-                    }
+                    final UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                            .setPhotoUri(imageUri)
+                            .build();
+
+                    currentUser.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            profile_picture.setImageURI(currentUser.getPhotoUrl());
+                        }
+                    });
 
                 }
         }
     }
 
+    private void uploadImageToFirebaseStorage(InputStream imageStream) {
+        storageRef = storage.getReference();
+        StorageReference profileImagesRef = storageRef.child("profile.jpg");
+
+        UploadTask uploadTask = profileImagesRef.putStream(imageStream);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                // ...
+            }
+        });
+
+    }
+
 
     @OnClick(R.id.add_pet_fab)
-    public void displayAddPetDialog() {
+    public void displayAddPetDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = getLayoutInflater().inflate(R.layout.add_pet_custom_dialog, null);
         builder.setTitle(getString(R.string.add_a_new_pet_title));
@@ -283,7 +276,7 @@ public class ProfileActivity extends AppCompatActivity {
         builder.setPositiveButton(getString(R.string.add_pet_dialog_button), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (!TextUtils.isEmpty(petName.getText().toString())) {
+                if(!TextUtils.isEmpty(petName.getText().toString())){
                     // With the given information create a new pet.
                     Pet pet = new Pet();
                     pet.setOwner(currentUser.getDisplayName());
@@ -295,7 +288,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                     addAnewPet(pet);
 
-                } else {
+                }else {
                     Toast.makeText(getApplicationContext(), getString(R.string.fill_in_required_fields_text),
                             Toast.LENGTH_SHORT).show();
                 }
@@ -322,7 +315,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     /**
      * Creates a new pet for the current user
-     *
      * @param pet
      */
     private void addAnewPet(Pet pet) {
@@ -345,9 +337,10 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.bio_text_view)
-    public void showDialogAndUpdateBiography() {
+    public void showDialogAndUpdateBiography(){
         showDialog();
     }
+
 
 
     /**
@@ -365,7 +358,7 @@ public class ProfileActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String biography = editText.getText().toString();
 
-                        if (TextUtils.isEmpty(biography)) {
+                        if(TextUtils.isEmpty(biography)){
                             Toast.makeText(getApplicationContext(),
                                     getString(R.string.fill_in_bio_text), Toast.LENGTH_SHORT).show();
                             return;
@@ -384,7 +377,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     /**
      * Update user's (biography - about me).
-     *
      * @param newBiography
      */
     private void updateBio(final String newBiography) {
@@ -399,7 +391,7 @@ public class ProfileActivity extends AppCompatActivity {
 
 
     @OnClick(R.id.logout)
-    public void logOut() {
+    public void logOut(){
         // Simply sign out the user and redirect the user to the login page
         mAuth.signOut();
         Intent intent = new Intent(this, LoginActivity.class);
