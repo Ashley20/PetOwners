@@ -111,7 +111,6 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        placeMarkers(mGoogleMap);
         getLocationPermission();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -236,7 +235,12 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
         if (currentUser != null) {
             DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
             user.update(getString(R.string.LATITUDE_KEY), latitude);
-            user.update(getString(R.string.LONGTITUDE_KEY), longitude);
+            user.update(getString(R.string.LONGTITUDE_KEY), longitude).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    placeMarkers(mGoogleMap);
+                }
+            });
         }
     }
 
@@ -263,7 +267,6 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
             updateLocationUI();
             getDeviceLocation();
         } else {
-            mLocationPermissionGranted = false;
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST);
         }
 
@@ -272,13 +275,14 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
-        mLocationPermissionGranted = false;
         switch (requestCode) {
             case LOCATION_REQUEST: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationPermissionGranted = true;
                     getDeviceLocation();
+                }else{
+                    mLocationPermissionGranted = false;
                 }
             }
         }
