@@ -3,6 +3,7 @@ package com.owners.pet.petowners;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -31,6 +32,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -51,7 +53,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
+public class MapSearchFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
     public static final String TAG = MapSearchFragment.class.getSimpleName();
 
     public static final int LOCATION_REQUEST = 1;
@@ -110,6 +112,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
         MapsInitializer.initialize(getContext());
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mGoogleMap.setOnInfoWindowClickListener(this);
 
         getLocationPermission();
 
@@ -159,9 +162,9 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
 
     /**
      * Places markers on the map where users are located based on their state.
-     * If they are willing to adopt a pet then the marker color is green
-     * or if they want to post a pet for adoption then the marker color is blue
-     * otherwise the default marker color is gray
+     * If they are willing to adopt a pet then the marker color is orange
+     * or if they want to post a pet for adoption then the marker color is cyan
+     * otherwise the default marker color is green
      *
      * @param mGoogleMap
      */
@@ -181,16 +184,21 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
                             switch (user.getUserState()){
                                 case User.WANTS_TO_ADOPT:
                                      markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                                     markerOptions.snippet(getString(R.string.USER_WANTS_TO_ADOPT_STATE));
                                      break;
                                 case User.WANTS_TO_POST_FOR_ADOPTION:
                                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                                    markerOptions.snippet(getString(R.string.USER_WANTS_TO_POST_FOR_ADOPTION_STATE));
                                     break;
                                 case User.NONE:
                                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                                    markerOptions.snippet(getString(R.string.USER_DEFAULT_STATE));
                                     break;
                             }
 
-                            mGoogleMap.addMarker(markerOptions);
+                            Marker marker = mGoogleMap.addMarker(markerOptions);
+                            marker.setTag(user.getUid());
+
                         }
                     }
                 });
@@ -287,6 +295,16 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback {
             }
         }
         updateLocationUI();
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        // The uid of the user profile which wants to be displayed
+         String uid = (String) marker.getTag();
+         if(uid != null){
+             Intent openProfileIntent = new Intent(getContext(), ProfileActivity.class);
+             startActivity(openProfileIntent);
+         }
     }
 }
 
