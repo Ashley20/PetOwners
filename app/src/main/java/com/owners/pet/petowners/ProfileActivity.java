@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -39,7 +40,9 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.owners.pet.petowners.Glide.GlideApp;
@@ -56,9 +59,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ProfileActivity extends AppCompatActivity {
+import static com.google.firebase.storage.StorageException.ERROR_OBJECT_NOT_FOUND;
+
+public class ProfileActivity extends AppCompatActivity implements OnFailureListener{
     private static final int PICK_IMAGE = 1;
     private static final String FIREBASE_STORAGE_IMAGES_REFERENCE_URL = "gs://petowners.appspot.com";
+    private static final String TAG = ProfileActivity.class.getSimpleName();
 
     @BindView(R.id.profile_picture_image_view)
     ImageView profile_picture;
@@ -99,6 +105,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+
         storageRef = FirebaseStorage.getInstance().getReference();
 
         currentUser = mAuth.getCurrentUser();
@@ -107,14 +114,20 @@ public class ProfileActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        loadUserProfileInformation();
+        super.onStart();
+    }
 
+    /**
+     * When the profile activity first starts
+     * this method will fetch and set the user profile information
+     * like profile picture, email, name and others..
+     */
+    private void loadUserProfileInformation() {
         // If the user is not null then update the UI with current user's profile information
         if (currentUser != null) {
-            Toast.makeText(getApplicationContext(), "ONSTART CALLED", Toast.LENGTH_SHORT).show();
             // Set profile picture from firebase storage
             setProfilePicture();
-            name.setText(currentUser.getDisplayName());
-            email.setText(currentUser.getEmail());
 
             db.collection(getString(R.string.COLLECTION_USERS))
                     .document(currentUser.getUid())
@@ -127,6 +140,8 @@ public class ProfileActivity extends AppCompatActivity {
                                 if (doc.exists()) {
                                     user = doc.toObject(User.class);
                                     if (user != null) {
+                                        name.setText(user.getName());
+                                        email.setText(user.getEmail());
                                         phone.setText(user.getPhoneNumber());
                                         bio.setText(user.getBiography());
                                         loadPets(user.getPetList());
@@ -136,14 +151,28 @@ public class ProfileActivity extends AppCompatActivity {
                         }
                     });
         }
-
-        super.onStart();
     }
 
     private void setProfilePicture() {
-        GlideApp.with(this)
-                .load(profileImagesRef)
-                .into(profile_picture);
+        profileImagesRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                GlideApp.with(getApplicationContext())
+                        .load(profileImagesRef)
+                        .into(profile_picture);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                int errorCode = ((StorageException) e).getErrorCode();
+                String errorMessage = e.getMessage();
+                if(errorCode == StorageException.ERROR_OBJECT_NOT_FOUND){
+                    Log.d(TAG, errorMessage + " " + errorCode);
+                    profile_picture.setImageResource(R.drawable.profile_icon);
+                }
+            }
+        });
+
     }
 
     private void loadPets(ArrayList<Pet> petList) {
@@ -188,17 +217,10 @@ public class ProfileActivity extends AppCompatActivity {
             return;
         }
 
-        currentUser.updateEmail(emailUpdate).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    email.setText(emailUpdate);
-                }
-            }
-        });
+        currentUser.updateEmail(emailUpdate);
 
-        // Update the firestore user's phone number.
-        updateFirestoreUser(phoneUpdate);
+        // Update the firestore user's email and phone number.
+        updateFirestoreUser(phoneUpdate, emailUpdate);
 
         Toast.makeText(this, getString(R.string.successful_profile_update_message),
                 Toast.LENGTH_SHORT).show();
@@ -211,9 +233,15 @@ public class ProfileActivity extends AppCompatActivity {
      *
      * @param newPhone
      */
-    private void updateFirestoreUser(String newPhone) {
+    private void updateFirestoreUser(String newPhone, final String newEmail) {
         DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
-        user.update(getString(R.string.PHONE_NUMBER_KEY), newPhone);
+        user.update(getString(R.string.EMAIL_KEY), newEmail);
+        user.update(getString(R.string.PHONE_NUMBER_KEY), newPhone).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                email.setText(newEmail);
+            }
+        });
     }
 
     @OnClick(R.id.profile_picture_image_view)
@@ -439,5 +467,16 @@ public class ProfileActivity extends AppCompatActivity {
 
         listView.setLayoutParams(params);
         listView.requestLayout();
+    }
+
+    @Override
+    public void onFailure(@NonNull Exception e) {
+        int errorCode = ((StorageException) e).getErrorCode();
+        String errorMessage = e.getMessage();
+
+        if(errorCode == ERROR_OBJECT_NOT_FOUND){
+            Log.d(TAG, errorMessage);
+            profile_picture.setImageResource(R.drawable.profile_icon);
+        }
     }
 }

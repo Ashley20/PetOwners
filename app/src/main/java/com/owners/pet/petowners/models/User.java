@@ -17,6 +17,7 @@ public class User {
     private String name;
     private String phoneNumber;
     private String biography;
+    private String email;
     private Double latitude;
     private Double longtitude;
     private ArrayList<Pet> petList;
@@ -89,5 +90,13 @@ public class User {
 
     public void setLongtitude(Double longtitude) {
         this.longtitude = longtitude;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

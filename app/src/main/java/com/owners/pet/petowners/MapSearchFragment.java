@@ -207,6 +207,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
 
 
     private void getDeviceLocation() {
+        updateLocationUI();
         if (mLocationPermissionGranted) {
             try {
                 mFusedLocationProviderClient.getLastLocation()
@@ -222,9 +223,10 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                                     saveLocationIntoDb(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                                 } else {
                                     Log.d(TAG, "Current location is null. Using defaults.");
-                                    mGoogleMap.moveCamera(CameraUpdateFactory
-                                            .newLatLngZoom(new LatLng(-33.8523341, 151.2106085), 15));
+                                   /* mGoogleMap.moveCamera(CameraUpdateFactory
+                                            .newLatLngZoom(new LatLng(-33.8523341, 151.2106085), 15)); */
                                     mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
+                                    placeMarkers(mGoogleMap);
                                 }
                             }
                         });
@@ -273,7 +275,6 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
-            updateLocationUI();
             getDeviceLocation();
         } else {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST);
@@ -292,10 +293,11 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                     getDeviceLocation();
                 } else {
                     mLocationPermissionGranted = false;
+                    updateLocationUI();
                 }
             }
         }
-        updateLocationUI();
+
     }
 
     @Override

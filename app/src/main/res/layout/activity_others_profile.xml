@@ -60,16 +60,6 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_scrolling" />
-
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/add_pet_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:fabSize="normal"
-        app:elevation="@dimen/fab_elevation"
-        android:src="@drawable/fab_add_icon"
-        android:layout_gravity="bottom|end"/>
+    <include layout="@layout/content_scrolling_othersprofile" />
 
 </android.support.design.widget.CoordinatorLayout>

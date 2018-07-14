@@ -134,6 +134,7 @@ public class SignupActivity extends AppCompatActivity {
     private void saveIntoFirestore(FirebaseUser firebaseUser) {
         User user = new User();
         user.setName(firebaseUser.getDisplayName());
+        user.setEmail(firebaseUser.getEmail());
         user.setUid(firebaseUser.getUid());
         user.setBiography(getString(R.string.NO_BIOGRAPHY));
 

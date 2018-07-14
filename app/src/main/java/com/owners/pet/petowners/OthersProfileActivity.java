@@ -1,63 +1,55 @@
 package com.owners.pet.petowners;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.owners.pet.petowners.LoginActivity;
-import com.owners.pet.petowners.R;
+import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.models.Pet;
 import com.owners.pet.petowners.models.User;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 
 import com.owners.pet.petowners.adapters.PetsAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
-public class OthersProfileActivity extends AppCompatActivity {
+import static com.google.firebase.storage.StorageException.ERROR_OBJECT_NOT_FOUND;
+
+public class OthersProfileActivity extends AppCompatActivity{
     private static final int PICK_IMAGE = 1;
     private static final String FIREBASE_STORAGE_IMAGES_REFERENCE_URL = "gs://petowners.appspot.com";
+    public static final String TAG = OthersProfileActivity.class.getSimpleName();
 
     @BindView(R.id.profile_picture_image_view) ImageView profile_picture;
-    @BindView(R.id.phone_edit_text) EditText phone;
-    @BindView(R.id.email_edit_text) EditText email;
+    @BindView(R.id.phone_text_view) TextView phone;
+    @BindView(R.id.email_text_view) TextView email;
     @BindView(R.id.bio_text_view) TextView bio;
     @BindView(R.id.name) TextView name;
     @BindView(R.id.pets_list_view) ListView pets_list_view;
@@ -69,12 +61,14 @@ public class OthersProfileActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    private StorageReference profileImagesRef;
     private User user;
+    private String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        setContentView(R.layout.activity_others_profile);
 
         ButterKnife.bind(this);
 
@@ -88,32 +82,41 @@ public class OthersProfileActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
+        storageRef = FirebaseStorage.getInstance().getReference();
 
         // Get the user profile uid extra from the intent
         Intent intent = getIntent();
         if(intent != null){
-            String uid = intent.getStringExtra(getString(R.string.USER_PROFILE_UID));
+            uid = intent.getStringExtra(getString(R.string.USER_PROFILE_UID));
+            profileImagesRef = storageRef.child("users").child(uid).child("profile.jpg");
         }
     }
 
     @Override
     protected void onStart() {
-            profile_picture.setImageURI(currentUser.getPhotoUrl());
-            name.setText(currentUser.getDisplayName());
-            email.setText(currentUser.getEmail());
+        loadUserProfileInformation();
+        super.onStart();
+    }
+
+    private void loadUserProfileInformation() {
+        // If the uid is not null then update the UI profile information
+        if (uid != null) {
+            // Set profile picture from firebase storage
+            setProfilePicture();
 
             db.collection(getString(R.string.COLLECTION_USERS))
-                    .document(currentUser.getUid())
+                    .document(uid)
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if(task.isSuccessful()){
+                            if (task.isSuccessful()) {
                                 DocumentSnapshot doc = task.getResult();
-                                if (doc.exists()){
+                                if (doc.exists()) {
                                     user = doc.toObject(User.class);
                                     if (user != null) {
+                                        name.setText(user.getName());
+                                        email.setText(user.getEmail());
                                         phone.setText(user.getPhoneNumber());
                                         bio.setText(user.getBiography());
                                         loadPets(user.getPetList());
@@ -122,8 +125,28 @@ public class OthersProfileActivity extends AppCompatActivity {
                             }
                         }
                     });
+        }
+    }
 
-        super.onStart();
+    private void setProfilePicture() {
+        profileImagesRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                GlideApp.with(getApplicationContext())
+                        .load(profileImagesRef)
+                        .into(profile_picture);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                int errorCode = ((StorageException) e).getErrorCode();
+                String errorMessage = e.getMessage();
+                if(errorCode == StorageException.ERROR_OBJECT_NOT_FOUND){
+                    Log.d(TAG, errorMessage + " " + errorCode);
+                    profile_picture.setImageResource(R.drawable.profile_icon);
+                }
+            }
+        });
     }
 
     private void loadPets(ArrayList<Pet> petList) {
@@ -133,12 +156,7 @@ public class OthersProfileActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.profile_menu, menu);
-        return true;
-    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -146,262 +164,10 @@ public class OthersProfileActivity extends AppCompatActivity {
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
-            case R.id.done:
-                saveUserProfile();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
-    /**
-     * Updates email for firebaseUser and also calls updateEmail function
-     * to update the firestore user's phone information.
-     */
-    private void saveUserProfile() {
-        final String phoneUpdate = phone.getText().toString();
-        final String emailUpdate = email.getText().toString();
-
-        if(TextUtils.isEmpty(phoneUpdate) || TextUtils.isEmpty(emailUpdate)){
-            Toast.makeText(this, getString(R.string.fill_in_required_fields_text),
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        currentUser.updateEmail(emailUpdate).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    email.setText(emailUpdate);
-                }
-            }
-        });
-
-        // Update the firestore user's phone number.
-        updateFirestoreUser(phoneUpdate);
-
-        Toast.makeText(this, getString(R.string.successful_profile_update_message),
-                Toast.LENGTH_SHORT).show();
-
-
-    }
-
-    /**
-     * Updates user's phone and saves it into firestore database.
-     * @param newPhone
-     */
-    private void updateFirestoreUser(String newPhone) {
-        DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
-        user.update(getString(R.string.PHONE_NUMBER_KEY), newPhone);
-    }
-
-    @OnClick(R.id.profile_picture_image_view)
-    public void changeProfilePicture(){
-        Intent imagePickerIntent = new Intent(Intent.ACTION_PICK);
-        imagePickerIntent.setType("image/*");
-        startActivityForResult(imagePickerIntent, PICK_IMAGE);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
-            case PICK_IMAGE:
-                if(resultCode == RESULT_OK){
-                    final Uri imageUri = data.getData();
-
-                    // Update user photo
-                    final UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                            .setPhotoUri(imageUri)
-                            .build();
-
-                    currentUser.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            profile_picture.setImageURI(currentUser.getPhotoUrl());
-                        }
-                    });
-
-                }
-        }
-    }
-
-    private void uploadImageToFirebaseStorage(InputStream imageStream) {
-        storageRef = storage.getReference();
-        StorageReference profileImagesRef = storageRef.child("profile.jpg");
-
-        UploadTask uploadTask = profileImagesRef.putStream(imageStream);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                // ...
-            }
-        });
-
-    }
-
-
-    @OnClick(R.id.add_pet_fab)
-    public void displayAddPetDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = getLayoutInflater().inflate(R.layout.add_pet_custom_dialog, null);
-        builder.setTitle(getString(R.string.add_a_new_pet_title));
-
-        ImageView petProfilePicture = (ImageView) view.findViewById(R.id.pet_profile_pic);
-        final EditText petName = (EditText) view.findViewById(R.id.pet_name_edit_text);
-        final EditText petAbout = (EditText) view.findViewById(R.id.about_pet_edit_text);
-        final CheckBox petAdoptionState = (CheckBox) view.findViewById(R.id.pet_adoption_state);
-        final Spinner genderSpinner = (Spinner) view.findViewById(R.id.pet_gender_spinner);
-        final Spinner typeSpinner = (Spinner) view.findViewById(R.id.pet_type_spinner);
-
-        // Create adapter for the genderSpinner and set it
-        ArrayAdapter<String> genderAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
-                getResources().getStringArray(R.array.genderList));
-        genderAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        genderSpinner.setAdapter(genderAdapter);
-
-
-        // Create adapter for the typeSpinner and set it
-        ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
-                getResources().getStringArray(R.array.petTypeList));
-        typeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        typeSpinner.setAdapter(typeAdapter);
-
-        // Set positive and negative buttons
-        builder.setPositiveButton(getString(R.string.add_pet_dialog_button), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if(!TextUtils.isEmpty(petName.getText().toString())){
-                    // With the given information create a new pet.
-                    Pet pet = new Pet();
-                    pet.setOwner(currentUser.getDisplayName());
-                    pet.setName(petName.getText().toString());
-                    pet.setAbout(petAbout.getText().toString());
-                    pet.setGender(genderSpinner.getSelectedItem().toString());
-                    pet.setType(typeSpinner.getSelectedItem().toString());
-                    pet.setWants_to_be_adopted(petAdoptionState.isChecked());
-
-                    addAnewPet(pet);
-
-                }else {
-                    Toast.makeText(getApplicationContext(), getString(R.string.fill_in_required_fields_text),
-                            Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-
-        builder.setNegativeButton(getString(R.string.add_pet_cancel_dialog_button), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-
-        // Set the custom dialog view
-        builder.setView(view);
-
-        // Display the custom dialog
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-    }
-
-
-    /**
-     * Creates a new pet for the current user
-     * @param pet
-     */
-    private void addAnewPet(Pet pet) {
-
-        user.getPetList().add(pet);
-
-        db.collection(getString(R.string.COLLECTION_USERS))
-                .document(currentUser.getUid())
-                .set(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.successful_pet_addition_message),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-        pets_list_view.deferNotifyDataSetChanged();
-        setListViewHeightBasedOnChildren(pets_list_view);
-
-    }
-
-    @OnClick(R.id.bio_text_view)
-    public void showDialogAndUpdateBiography(){
-        showDialog();
-    }
-
-
-
-    /**
-     * Shows a dialog which has an edit text for adding an about me information
-     * Finally this method calls updateBio to update (biography - about me) information.
-     */
-    private void showDialog() {
-        final EditText editText = new EditText(this);
-
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.edit_your_bio_title))
-                .setView(editText)
-                .setPositiveButton(getString(R.string.bio_dialog_positive_button), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String biography = editText.getText().toString();
-
-                        if(TextUtils.isEmpty(biography)){
-                            Toast.makeText(getApplicationContext(),
-                                    getString(R.string.fill_in_bio_text), Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        updateBio(biography);
-
-
-                    }
-                })
-                .setNegativeButton(getString(R.string.bio_dialog_negative_button), null)
-                .create();
-
-        alertDialog.show();
-    }
-
-
-    /**
-     * Update user's (biography - about me).
-     * @param newBiography
-     */
-    private void updateBio(final String newBiography) {
-        DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
-        user.update(getString(R.string.BIO_KEY), newBiography).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                bio.setText(newBiography);
-            }
-        });
-    }
-
-
-    @OnClick(R.id.logout)
-    public void logOut(){
-        // Simply sign out the user and redirect the user to the login page
-        mAuth.signOut();
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                Intent.FLAG_ACTIVITY_CLEAR_TASK |
-                Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
-    }
-
 
     /**
      * Solves listview inside a NestedScrollView problem
@@ -432,4 +198,6 @@ public class OthersProfileActivity extends AppCompatActivity {
         listView.setLayoutParams(params);
         listView.requestLayout();
     }
+
+
 }
