@@ -8,8 +8,8 @@
     </item>
 
     <item
-        android:id="@+id/settings"
-        android:title="@string/menu_option_settings"
+        android:id="@+id/all_users"
+        android:title="@string/menu_option_allusers"
         app:showAsAction="never">
     </item>
 

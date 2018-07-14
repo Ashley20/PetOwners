@@ -63,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
                 Intent profileActivityIntent = new Intent(this, ProfileActivity.class);
                 startActivity(profileActivityIntent);
                 return true;
+            case R.id.all_users:
+                Intent usersActivityIntent = new Intent(this, UsersActivity.class);
+                startActivity(usersActivityIntent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
 

@@ -23,6 +23,7 @@ public class User {
     private ArrayList<Pet> petList;
     private int userState;
 
+
     public User() {
         this.userState = NONE;
         this.petList = new ArrayList<>();

@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import com.owners.pet.petowners.adapters.PetsAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 import static com.google.firebase.storage.StorageException.ERROR_OBJECT_NOT_FOUND;
 
@@ -167,6 +168,11 @@ public class OthersProfileActivity extends AppCompatActivity{
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @OnClick(R.id.message_fab)
+    public void sendMessage(){
+
     }
 
     /**
