@@ -1,5 +1,6 @@
 package com.owners.pet.petowners;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
@@ -18,6 +19,8 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
@@ -38,7 +41,9 @@ public class UsersActivity extends AppCompatActivity {
     private FirestoreRecyclerAdapter adapter;
     private StorageReference storageReference;
     private StorageReference profileImagesRef;
+    private FirebaseUser currentUser;
     LinearLayoutManager linearLayoutManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +67,7 @@ public class UsersActivity extends AppCompatActivity {
         linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
         mUsersList.setLayoutManager(linearLayoutManager);
         db = FirebaseFirestore.getInstance();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
         storageReference = FirebaseStorage.getInstance().getReference();
     }
 
@@ -76,7 +82,7 @@ public class UsersActivity extends AppCompatActivity {
         adapter = new FirestoreRecyclerAdapter<User, UsersViewHolder>(options) {
 
             @Override
-            protected void onBindViewHolder(@NonNull final UsersViewHolder holder, int position, @NonNull User model) {
+            protected void onBindViewHolder(@NonNull final UsersViewHolder holder, int position, @NonNull final User model) {
                 profileImagesRef = storageReference.child("users").child(model.getUid()).child("profile.jpg");
 
                 GlideApp.with(getApplicationContext())
@@ -86,6 +92,24 @@ public class UsersActivity extends AppCompatActivity {
 
                 holder.userFullName.setText(model.getName());
                 holder.userBio.setText(model.getBiography());
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(currentUser != null){
+                            if(currentUser.getUid().equals(model.getUid())){
+                                Intent profileActivityIntent =
+                                        new Intent(getApplicationContext(), ProfileActivity.class);
+                                startActivity(profileActivityIntent);
+                            }else{
+                                Intent othersProfileActivity =
+                                        new Intent(getApplicationContext(), OthersProfileActivity.class);
+                                othersProfileActivity.putExtra(getString(R.string.USER_PROFILE_UID), model.getUid());
+                                startActivity(othersProfileActivity);
+                            }
+                        }
+                    }
+                });
             }
 
             @NonNull
@@ -96,6 +120,7 @@ public class UsersActivity extends AppCompatActivity {
 
                 return new UsersViewHolder(view);
             }
+
 
             @Override
             public void onError(@NonNull FirebaseFirestoreException e) {

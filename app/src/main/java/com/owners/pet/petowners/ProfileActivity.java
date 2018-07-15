@@ -2,10 +2,7 @@ package com.owners.pet.petowners;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
@@ -29,14 +26,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -49,8 +44,6 @@ import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.models.Pet;
 import com.owners.pet.petowners.models.User;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 import com.owners.pet.petowners.adapters.PetsAdapter;
@@ -63,7 +56,6 @@ import static com.google.firebase.storage.StorageException.ERROR_OBJECT_NOT_FOUN
 
 public class ProfileActivity extends AppCompatActivity implements OnFailureListener {
     private static final int PICK_IMAGE = 1;
-    private static final String FIREBASE_STORAGE_IMAGES_REFERENCE_URL = "gs://petowners.appspot.com";
     private static final String TAG = ProfileActivity.class.getSimpleName();
 
     @BindView(R.id.profile_picture_image_view)
@@ -109,7 +101,8 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
         storageRef = FirebaseStorage.getInstance().getReference();
 
         currentUser = mAuth.getCurrentUser();
-        profileImagesRef = storageRef.child("users").child(currentUser.getUid()).child("profile.jpg");
+        profileImagesRef = storageRef.child(getString(R.string.storage_users_ref))
+                .child(currentUser.getUid()).child(getString(R.string.storage_profile_ref));
     }
 
     @Override
@@ -178,7 +171,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+                onBackPressed();
                 return true;
             case R.id.done:
                 saveUserProfile();
