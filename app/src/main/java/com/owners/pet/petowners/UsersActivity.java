@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.models.User;
@@ -26,41 +28,46 @@ public class UsersActivity extends AppCompatActivity {
     @BindView(R.id.user_list_rv)
     RecyclerView mUsersList;
     private FirebaseFirestore db;
-    private FirestoreRecyclerAdapter adapter;
+    private FirestoreRecyclerAdapter  adapter;
+    LinearLayoutManager linearLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users);
 
+        ButterKnife.bind(this);
+
         ActionBar actionBar = getSupportActionBar();
         if(actionBar != null){
             actionBar.setTitle(getString(R.string.all_users_title));
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-
-        ButterKnife.bind(this);
-
-        mUsersList.setHasFixedSize(true);
-        mUsersList.setLayoutManager(new LinearLayoutManager(this));
         
+        init();
         loadUsers();
+
+    }
+
+    private void init() {
+        linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
+        mUsersList.setLayoutManager(linearLayoutManager);
+        db = FirebaseFirestore.getInstance();
     }
 
     private void loadUsers() {
 
-        Query query = FirebaseFirestore.getInstance()
-                .collection(getString(R.string.COLLECTION_USERS))
-                .limit(50);
+        Query query = db.collection("users");
 
         FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
                 .build();
 
-        FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<User, UsersViewHolder>(options){
+         adapter = new FirestoreRecyclerAdapter<User, UsersViewHolder>(options){
 
             @Override
             protected void onBindViewHolder(@NonNull UsersViewHolder holder, int position, @NonNull User model) {
+                holder.userProfileImage.setImageResource(R.drawable.profile_icon);
                 holder.userFullName.setText(model.getName());
                 holder.userBio.setText(model.getBiography());
             }
@@ -73,15 +80,22 @@ public class UsersActivity extends AppCompatActivity {
 
                 return new UsersViewHolder(view);
             }
-        };
+
+             @Override
+             public void onError(@NonNull FirebaseFirestoreException e) {
+                 super.onError(e);
+                 Log.e("errorrrrrrrrrrrr", e.getMessage());
+             }
+         };
 
         adapter.notifyDataSetChanged();
         // Finally set the adapter
         mUsersList.setAdapter(adapter);
+
     }
 
 
-    public class UsersViewHolder extends RecyclerView.ViewHolder {
+    public static class UsersViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.user_profile_image_view)
         CircleImageView userProfileImage;
         @BindView(R.id.user_fullname)
@@ -89,7 +103,7 @@ public class UsersActivity extends AppCompatActivity {
         @BindView(R.id.user_bio)
         TextView userBio;
 
-        public UsersViewHolder(View itemView) {
+        UsersViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
