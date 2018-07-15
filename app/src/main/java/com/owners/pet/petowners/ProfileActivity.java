@@ -61,7 +61,7 @@ import butterknife.OnClick;
 
 import static com.google.firebase.storage.StorageException.ERROR_OBJECT_NOT_FOUND;
 
-public class ProfileActivity extends AppCompatActivity implements OnFailureListener{
+public class ProfileActivity extends AppCompatActivity implements OnFailureListener {
     private static final int PICK_IMAGE = 1;
     private static final String FIREBASE_STORAGE_IMAGES_REFERENCE_URL = "gs://petowners.appspot.com";
     private static final String TAG = ProfileActivity.class.getSimpleName();
@@ -154,25 +154,10 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
     }
 
     private void setProfilePicture() {
-        profileImagesRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                GlideApp.with(getApplicationContext())
-                        .load(profileImagesRef)
-                        .into(profile_picture);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                int errorCode = ((StorageException) e).getErrorCode();
-                String errorMessage = e.getMessage();
-                if(errorCode == StorageException.ERROR_OBJECT_NOT_FOUND){
-                    Log.d(TAG, errorMessage + " " + errorCode);
-                    profile_picture.setImageResource(R.drawable.profile_icon);
-                }
-            }
-        });
-
+        GlideApp.with(getApplicationContext())
+                .load(profileImagesRef)
+                .placeholder(R.drawable.profile_icon)
+                .into(profile_picture);
     }
 
     private void loadPets(ArrayList<Pet> petList) {
@@ -474,7 +459,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
         int errorCode = ((StorageException) e).getErrorCode();
         String errorMessage = e.getMessage();
 
-        if(errorCode == ERROR_OBJECT_NOT_FOUND){
+        if (errorCode == ERROR_OBJECT_NOT_FOUND) {
             Log.d(TAG, errorMessage);
             profile_picture.setImageResource(R.drawable.profile_icon);
         }

@@ -1,5 +1,6 @@
 package com.owners.pet.petowners;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -12,11 +13,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
+import com.google.firebase.storage.StorageReference;
 import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.models.User;
 
@@ -28,7 +35,9 @@ public class UsersActivity extends AppCompatActivity {
     @BindView(R.id.user_list_rv)
     RecyclerView mUsersList;
     private FirebaseFirestore db;
-    private FirestoreRecyclerAdapter  adapter;
+    private FirestoreRecyclerAdapter adapter;
+    private StorageReference storageReference;
+    private StorageReference profileImagesRef;
     LinearLayoutManager linearLayoutManager;
 
     @Override
@@ -39,11 +48,11 @@ public class UsersActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null){
+        if (actionBar != null) {
             actionBar.setTitle(getString(R.string.all_users_title));
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        
+
         init();
         loadUsers();
 
@@ -53,6 +62,7 @@ public class UsersActivity extends AppCompatActivity {
         linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
         mUsersList.setLayoutManager(linearLayoutManager);
         db = FirebaseFirestore.getInstance();
+        storageReference = FirebaseStorage.getInstance().getReference();
     }
 
     private void loadUsers() {
@@ -63,11 +73,17 @@ public class UsersActivity extends AppCompatActivity {
                 .setQuery(query, User.class)
                 .build();
 
-         adapter = new FirestoreRecyclerAdapter<User, UsersViewHolder>(options){
+        adapter = new FirestoreRecyclerAdapter<User, UsersViewHolder>(options) {
 
             @Override
-            protected void onBindViewHolder(@NonNull UsersViewHolder holder, int position, @NonNull User model) {
-                holder.userProfileImage.setImageResource(R.drawable.profile_icon);
+            protected void onBindViewHolder(@NonNull final UsersViewHolder holder, int position, @NonNull User model) {
+                profileImagesRef = storageReference.child("users").child(model.getUid()).child("profile.jpg");
+
+                GlideApp.with(getApplicationContext())
+                        .load(profileImagesRef)
+                        .placeholder(R.drawable.profile_icon)
+                        .into(holder.userProfileImage);
+
                 holder.userFullName.setText(model.getName());
                 holder.userBio.setText(model.getBiography());
             }
@@ -81,12 +97,12 @@ public class UsersActivity extends AppCompatActivity {
                 return new UsersViewHolder(view);
             }
 
-             @Override
-             public void onError(@NonNull FirebaseFirestoreException e) {
-                 super.onError(e);
-                 Log.e("errorrrrrrrrrrrr", e.getMessage());
-             }
-         };
+            @Override
+            public void onError(@NonNull FirebaseFirestoreException e) {
+                super.onError(e);
+                Log.e("errorrrrrrrrrrrr", e.getMessage());
+            }
+        };
 
         adapter.notifyDataSetChanged();
         // Finally set the adapter

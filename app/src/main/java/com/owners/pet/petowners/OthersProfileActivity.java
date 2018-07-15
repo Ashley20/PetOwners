@@ -130,24 +130,10 @@ public class OthersProfileActivity extends AppCompatActivity{
     }
 
     private void setProfilePicture() {
-        profileImagesRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                GlideApp.with(getApplicationContext())
-                        .load(profileImagesRef)
-                        .into(profile_picture);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                int errorCode = ((StorageException) e).getErrorCode();
-                String errorMessage = e.getMessage();
-                if(errorCode == StorageException.ERROR_OBJECT_NOT_FOUND){
-                    Log.d(TAG, errorMessage + " " + errorCode);
-                    profile_picture.setImageResource(R.drawable.profile_icon);
-                }
-            }
-        });
+        GlideApp.with(getApplicationContext())
+                .load(profileImagesRef)
+                .placeholder(R.drawable.profile_icon)
+                .into(profile_picture);
     }
 
     private void loadPets(ArrayList<Pet> petList) {

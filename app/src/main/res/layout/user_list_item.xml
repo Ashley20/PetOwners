@@ -3,16 +3,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:clickable="true"
+    android:background="?android:attr/selectableItemBackground"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:focusable="true">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_profile_image_view"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
+        android:layout_marginLeft="@dimen/default_profile_margin_left"
+        android:layout_marginTop="@dimen/default_profile_margin_top"
+        android:layout_width="@dimen/default_profile_width"
+        android:layout_height="@dimen/default_profile_height"
         android:layout_alignParentTop="true"
+        app:civ_border_color="@color/colorPrimaryText"
+        app:civ_circle_background_color="@color/colorPrimaryText"
         android:scaleType="centerCrop"
         android:src="@drawable/profile_icon"
-        android:background="@color/colorGray" />
+        android:layout_marginStart="@dimen/default_profile_margin_left" />
 
     <TextView
         android:id="@+id/user_fullname"
@@ -20,12 +27,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="130dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginStart="@dimen/user_fullname_margin_start"
+        android:layout_marginTop="@dimen/user_fullname_margin_top"
         android:text="@string/user_fullname"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="130dp" />
+        android:layout_marginLeft="@dimen/user_fullname_margin_start" />
 
     <TextView
         android:id="@+id/user_bio"
@@ -33,7 +40,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignStart="@+id/user_fullname"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="@dimen/user_bio_margin_top"
+        android:maxLines="@integer/user_bio_maxiumum_lines"
         android:fontFamily="@font/helvetica_neueit"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:text="@string/user_bio"
