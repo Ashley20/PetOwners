@@ -18,15 +18,18 @@
         android:weightSum="@integer/message_bar_linear_layout_weight_sum"
         android:layout_alignParentLeft="true">
 
-        <TextView
-            android:id="@+id/message_text_view"
+        <EditText
+            android:id="@+id/message_edit_text"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:layout_weight="@integer/message_weight"
             android:layout_marginLeft="@dimen/message_text_view_margin_left"
             android:text="@string/message"
-            android:layout_marginStart="@dimen/message_text_view_margin_left" />
+            android:layout_marginStart="@dimen/message_text_view_margin_left"
+            android:inputType="text"
+            android:hint="@string/message"
+            tools:ignore="LabelFor" />
 
         <ImageButton
             android:id="@+id/send_btn"

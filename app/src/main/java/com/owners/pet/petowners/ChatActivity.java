@@ -5,12 +5,19 @@ import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,28 +25,44 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.owners.pet.petowners.Glide.GlideApp;
+import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.User;
+
+import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatActivity extends AppCompatActivity {
+    private static final String TAG = ChatActivity.class.getSimpleName();
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private String uid;
     private String name;
     private StorageReference storageRef;
     private StorageReference chatUserProfileImageRef;
+    private FirebaseUser currentUser;
+
+    @BindView(R.id.message_edit_text)
+    EditText messageEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        ButterKnife.bind(this);
+
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         storageRef = FirebaseStorage.getInstance().getReference();
+
+        // Get the current user
+        currentUser = mAuth.getCurrentUser();
 
         Intent intent = getIntent();
         if(intent != null){
@@ -70,12 +93,60 @@ public class ChatActivity extends AppCompatActivity {
             actionBar.setCustomView(custom_bar_view);
         }
 
+        if(currentUser != null){
+            createChatWithTheUser();
+        }
+
+
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+    private void createChatWithTheUser() {
+        db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid())
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
+                if (snapshot != null && snapshot.exists()) {
+                    User user = snapshot.toObject(User.class);
+                    if(user != null){
+                        if(!user.getConversationList().contains(uid)){
+                            updateConversationList(user);
+                        }
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+    }
+
+    /**
+     * Updates the user conversation list by adding a new conversation
+     * @param user
+     */
+    private void updateConversationList(User user) {
+        user.getConversationList().add(uid);
+
+        db.collection(getString(R.string.COLLECTION_USERS))
+                .document(currentUser.getUid())
+                .set(user);
+    }
+
+    @OnClick(R.id.send_btn)
+    public void sendMessage(){
+        String content = messageEditText.getText().toString();
+        if(!TextUtils.isEmpty(content)){
+            messageEditText.setText("");
+            // Create a new message and set the content, receiver and sender information
+            Message newMessage = new Message();
+            newMessage.setSender(currentUser.getUid());
+            newMessage.setReceiver(uid);
+            newMessage.setContent(content);
+
+            // Store the message in firestore
+            db.collection(getString(R.string.COLLECTION_MESSAGES)).document().set(newMessage);
+        }
+
     }
 
     @Override

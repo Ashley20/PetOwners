@@ -22,12 +22,14 @@ public class User {
     private Double latitude;
     private Double longtitude;
     private ArrayList<Pet> petList;
+    private ArrayList<String> conversationList;
     private int userState;
 
 
     public User() {
         this.userState = NONE;
         this.petList = new ArrayList<>();
+        this.conversationList = new ArrayList<>();
     }
 
     public String getUid() {
@@ -108,5 +110,13 @@ public class User {
 
     public void setDeviceToken(String deviceToken) {
         this.deviceToken = deviceToken;
+    }
+
+    public ArrayList<String> getConversationList() {
+        return conversationList;
+    }
+
+    public void setConversationList(ArrayList<String> conversationList) {
+        this.conversationList = conversationList;
     }
 }
