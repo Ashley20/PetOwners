@@ -3,10 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/colorGray300"
     android:orientation="vertical"
     tools:context=".ChatActivity">
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/message_list_recycler_view">
+
+    </android.support.v7.widget.RecyclerView>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,7 +32,6 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:layout_weight="@integer/message_weight"
             android:layout_marginLeft="@dimen/message_text_view_margin_left"
-            android:text="@string/message"
             android:layout_marginStart="@dimen/message_text_view_margin_left"
             android:inputType="text"
             android:hint="@string/message"

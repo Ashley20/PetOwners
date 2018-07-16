@@ -47,4 +47,5 @@
     <dimen name="custom_appbar_title_margin_left">1dp</dimen>
     <dimen name="custom_profile_image_size">50dp</dimen>
     <dimen name="custom_profile_image_margin_right">2dp</dimen>
+    <dimen name="message_text_background_drawable_radius">30dp</dimen>
 </resources>

@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,13 +24,16 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.owners.pet.petowners.Glide.GlideApp;
+import com.owners.pet.petowners.adapters.MessagesAdapter;
 import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.User;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -46,9 +51,14 @@ public class ChatActivity extends AppCompatActivity {
     private StorageReference storageRef;
     private StorageReference chatUserProfileImageRef;
     private FirebaseUser currentUser;
+    private MessagesAdapter messagesAdapter;
 
     @BindView(R.id.message_edit_text)
     EditText messageEditText;
+    @BindView(R.id.message_list_recycler_view)
+    RecyclerView messageListRv;
+
+    private List<Message> messageList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,11 +103,35 @@ public class ChatActivity extends AppCompatActivity {
             actionBar.setCustomView(custom_bar_view);
         }
 
+        messagesAdapter = new MessagesAdapter(messageList);
+        LinearLayoutManager mLinearLayout = new LinearLayoutManager(this);
+        //messageListRv.setHasFixedSize(true);
+        messageListRv.setLayoutManager(mLinearLayout);
+        messageListRv.setAdapter(messagesAdapter);
+
+        loadMessages();
+
         if(currentUser != null){
             createChatWithTheUser();
         }
 
 
+
+    }
+
+    private void loadMessages() {
+        db.collection(getString(R.string.COLLECTION_MESSAGES))
+              //  .whereEqualTo(getString(R.string.SENDER_KEY), currentUser.getUid())
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if (queryDocumentSnapshots != null) {
+                            messageList.addAll(queryDocumentSnapshots.toObjects(Message.class));
+                         //   messageList =
+                            messagesAdapter.notifyDataSetChanged();
+                        }
+                    }
+                });
 
     }
 
