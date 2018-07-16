@@ -13,4 +13,7 @@
     <color name="colorCivBorder">#FF000000</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorGray">#D50000</color>
+    <color name="colorLightRed">#FFEBEE</color>
+    <color name="colorLightAccent">#E1BEE7</color>
+    <color name="colorGray300">#E0E0E0</color>
 </resources>

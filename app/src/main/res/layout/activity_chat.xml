@@ -1,9 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorGray300"
+    android:orientation="vertical"
     tools:context=".ChatActivity">
 
-</android.support.constraint.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:background="@color/colorWhite"
+        android:orientation="horizontal"
+        android:weightSum="@integer/message_bar_linear_layout_weight_sum"
+        android:layout_alignParentLeft="true">
+
+        <TextView
+            android:id="@+id/message_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_weight="@integer/message_weight"
+            android:layout_marginLeft="@dimen/message_text_view_margin_left"
+            android:text="@string/message"
+            android:layout_marginStart="@dimen/message_text_view_margin_left" />
+
+        <ImageButton
+            android:id="@+id/send_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:background="@color/colorAccent"
+            android:layout_weight="@integer/send_btn_weight"
+            android:contentDescription="@string/send_btn"
+            android:src="@drawable/ic_send" />
+
+    </LinearLayout>
+
+</RelativeLayout>

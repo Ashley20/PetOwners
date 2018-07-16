@@ -77,7 +77,7 @@
     <string name="USER_DEFAULT_STATE">Not interested</string>
     <string name="USER_PROFILE_UID">user_profile_uid</string>
     <string name="EMAIL_KEY">email</string>
-    <string name="message">Message content</string>
+    <string name="message">Type your message</string>
     <string name="user_bio">user bio information</string>
     <string name="all_users_title">All Users</string>
     <string name="menu_option_allusers">See all users</string>
@@ -86,6 +86,7 @@
     <string name="DEVICE_TOKEN_KEY">deviceToken</string>
     <string name="USER_PROFILE_NAME">user_profile_name</string>
     <string name="chat_user_name">User Name</string>
+    <string name="send_btn">send</string>
 
     <string-array name="genderList">
         <item>@string/gender_girl</item>

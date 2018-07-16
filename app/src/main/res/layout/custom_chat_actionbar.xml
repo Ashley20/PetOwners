@@ -8,25 +8,26 @@
         android:id="@+id/chat_user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/custom_appbar_title_margin_left"
+        android:layout_marginLeft="@dimen/custom_appbar_title_margin_left"
+        style="@style/TextAppearance.AppCompat.Title"
         android:text="@string/chat_user_name"
-        android:layout_marginLeft="40dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginEnd="5dp" />
+        android:layout_alignParentLeft="true" />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/chat_profile_image"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/custom_profile_image_size"
+        android:layout_height="@dimen/custom_profile_image_size"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_marginEnd="2dp"
+        android:layout_marginEnd="@dimen/custom_profile_image_margin_right"
+        android:layout_marginRight="@dimen/custom_profile_image_margin_right"
         android:src="@drawable/profile_icon"
         app:civ_border_color="@color/colorPrimaryText"
         app:civ_fill_color="@color/colorPrimaryDark"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="2dp" />
+        android:layout_alignParentRight="true" />
 
 
 

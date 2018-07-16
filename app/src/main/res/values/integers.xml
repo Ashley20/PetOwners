@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="user_bio_maxiumum_lines">2</integer>
+    <integer name="message_weight">9</integer>
+    <integer name="send_btn_weight">1</integer>
+    <integer name="message_bar_linear_layout_weight_sum">10</integer>
 </resources>
