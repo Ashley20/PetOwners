@@ -25,12 +25,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.owners.pet.petowners.Glide.GlideApp;
+import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.Pet;
 import com.owners.pet.petowners.models.User;
 
@@ -158,7 +160,10 @@ public class OthersProfileActivity extends AppCompatActivity{
 
     @OnClick(R.id.message_fab)
     public void sendMessage(){
-
+        Intent chatActivityIntent = new Intent(this, ChatActivity.class);
+        chatActivityIntent.putExtra(getString(R.string.USER_PROFILE_UID), uid);
+        chatActivityIntent.putExtra(getString(R.string.USER_PROFILE_NAME), user.getName());
+        startActivity(chatActivityIntent);
     }
 
     /**

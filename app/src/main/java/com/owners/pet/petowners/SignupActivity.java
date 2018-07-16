@@ -76,6 +76,7 @@ public class SignupActivity extends AppCompatActivity {
     public void openLoginActivity(){
         Intent loginActivityIntent = new Intent(this, LoginActivity.class);
         startActivity(loginActivityIntent);
+        finish();
 
     }
 
@@ -115,6 +116,7 @@ public class SignupActivity extends AppCompatActivity {
 
                             Intent openLoginActivityIntent = new Intent(getApplicationContext(), LoginActivity.class);
                             startActivity(openLoginActivityIntent);
+                            finish();
 
                         } else {
                             // If sign in fails, display a message to the user.

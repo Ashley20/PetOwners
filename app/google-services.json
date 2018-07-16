@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "456655338579-31ihir8rvbl5c8doullsv1u27sejtfj8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.owners.pet.petowners",
+            "certificate_hash": "65d431216fb35ca383040f7b3958fccafa4e5806"
+          }
+        },
+        {
           "client_id": "456655338579-96vsat3c6s6lvqko8u2okcpkeevjao55.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "456655338579-96vsat3c6s6lvqko8u2okcpkeevjao55.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

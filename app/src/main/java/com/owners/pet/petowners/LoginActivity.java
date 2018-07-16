@@ -16,10 +16,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,12 +32,18 @@ import butterknife.OnClick;
 
 public class LoginActivity extends AppCompatActivity {
 
-    @BindView(R.id.forgot_password_link) TextView forgot_password_link;
-    @BindView(R.id.password_edit_text) EditText password;
-    @BindView(R.id.email_edit_text) EditText email;
-    @BindView(R.id.progress_bar) ProgressBar progressBar;
+    @BindView(R.id.forgot_password_link)
+    TextView forgot_password_link;
+    @BindView(R.id.password_edit_text)
+    EditText password;
+    @BindView(R.id.email_edit_text)
+    EditText email;
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+    private FirebaseUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +52,11 @@ public class LoginActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
 
         ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null){
+        if (actionBar != null) {
             actionBar.hide();
         }
     }
@@ -52,22 +64,23 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        currentUser = mAuth.getCurrentUser();
 
         // If the user is already logged in then redirect the user to the main page
-        if(currentUser != null){
+        if (currentUser != null) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
+            finish();
         }
     }
 
 
     @OnClick(R.id.login_btn)
-    public void validateAndLogin(){
+    public void validateAndLogin() {
         String emailField = email.getText().toString();
         String passwordField = password.getText().toString();
 
-        if(TextUtils.isEmpty(emailField) || TextUtils.isEmpty(passwordField)){
+        if (TextUtils.isEmpty(emailField) || TextUtils.isEmpty(passwordField)) {
             Toast.makeText(this, getString(R.string.fill_in_required_fields_text),
                     Toast.LENGTH_SHORT).show();
             return;
@@ -77,30 +90,46 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+
     private void login(String email, String password) {
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
 
-                        progressBar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.INVISIBLE);
 
-                        if(task.isSuccessful()){
-                            // User is successfully logged in, open the main page
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
-                        }else {
-                            // Display an error message indicating that the authentication failed
-                            Toast.makeText(getApplicationContext(),getString(R.string.auth_fail_text),
-                                    Toast.LENGTH_SHORT).show();
+                if (task.isSuccessful()) {
+                    currentUser = mAuth.getCurrentUser();
+                    // Get the device id and store it in firestore database
+                    FirebaseInstanceId.getInstance().getInstanceId()
+                            .addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                                @Override
+                                public void onSuccess(InstanceIdResult instanceIdResult) {
+                                    String deviceToken = instanceIdResult.getToken();
+                                    DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS))
+                                            .document(currentUser.getUid());
+                                    user.update(getString(R.string.DEVICE_TOKEN_KEY), deviceToken)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                    startActivity(intent);
+                                                }
+                                            });
+                                }
+                            });
+                } else {
+                    // Display an error message indicating that the authentication failed
+                    Toast.makeText(getApplicationContext(), getString(R.string.auth_fail_text),
+                            Toast.LENGTH_SHORT).show();
 
-                        }
-                    }
-                });
+                }
+            }
+        });
     }
 
     @OnClick(R.id.forgot_password_link)
-    public void remindPassword(){
+    public void remindPassword() {
         final EditText editText = new EditText(this);
 
         AlertDialog alertDialog = new AlertDialog.Builder(this)
@@ -112,7 +141,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String email = editText.getText().toString();
 
-                        if(TextUtils.isEmpty(email)){
+                        if (TextUtils.isEmpty(email)) {
                             Toast.makeText(getApplicationContext(),
                                     getString(R.string.fill_in_email_field_text), Toast.LENGTH_SHORT).show();
                             return;
@@ -135,7 +164,7 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Toast.makeText(getApplicationContext(), getString(R.string.successful_password_reset_email_link_send),
                                     Toast.LENGTH_LONG).show();
-                        }else {
+                        } else {
                             Toast.makeText(getApplicationContext(), getString(R.string.fail_password_reset_email_link_send),
                                     Toast.LENGTH_LONG).show();
                         }
@@ -145,8 +174,9 @@ public class LoginActivity extends AppCompatActivity {
 
 
     @OnClick(R.id.signup_link)
-    public void openSignupActivity(){
+    public void openSignupActivity() {
         Intent signupActivityIntent = new Intent(this, SignupActivity.class);
         startActivity(signupActivityIntent);
+        finish();
     }
 }
