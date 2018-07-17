@@ -27,7 +27,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MessageViewHolder> {
+public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<Message> messageList;
     private FirebaseAuth mAuth;
     private StorageReference storageRef;
@@ -43,36 +43,27 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
 
     @NonNull
     @Override
-    public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         mContext = parent.getContext();
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.message_list_item, parent, false);
-        return new MessageViewHolder(v);
-    }
-
-    public class MessageViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.message_text_view)
-        TextView messageText;
-        @BindView(R.id.custom_message_profile_pic)
-        CircleImageView profilePic;
-        @BindView(R.id.date)
-        TextView date;
-
-        MessageViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
+        View view;
+        switch (viewType) {
+            case 0:
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_list_item, parent, false);
+                return new MessageViewHolder(view);
+            case 1:
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_me_list_item, parent, false);
+                return new MeMessageViewHolder(view);
         }
+        return null;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MessagesAdapter.MessageViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Message message = messageList.get(position);
-
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null && message != null) {
+        if (message != null && currentUser != null) {
             if (message.getSender().equals(currentUser.getUid())) {
-                holder.messageText.setBackgroundColor(Color.WHITE);
-                holder.messageText.setTextColor(Color.BLACK);
+                ((MeMessageViewHolder) holder).messageText.setText(message.getContent());
 
                 // Set profile pic
                 profileImagesRef = storageRef.child("users")
@@ -82,11 +73,16 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                 GlideApp.with(mContext)
                         .load(profileImagesRef)
                         .placeholder(R.drawable.profile_icon)
-                        .into(holder.profilePic);
+                        .into(((MeMessageViewHolder) holder).profilePic);
+
+                // Set date
+                Locale l = Locale.US;
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a", l);
+                ((MeMessageViewHolder) holder).date.setText(simpleDateFormat.format(message.getDate()));
 
             } else {
-                holder.messageText.setBackgroundResource(R.drawable.message_text_background);
-                holder.messageText.setTextColor(Color.WHITE);
+
+                ((MessageViewHolder) holder).messageText.setText(message.getContent());
 
                 // Set profile pic
                 profileImagesRef = storageRef.child("users")
@@ -96,26 +92,64 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                 GlideApp.with(mContext)
                         .load(profileImagesRef)
                         .placeholder(R.drawable.profile_icon)
-                        .into(holder.profilePic);
+                        .into(((MessageViewHolder) holder).profilePic);
+
+                // Set date
+                Locale l = Locale.US;
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a", l);
+                ((MessageViewHolder) holder).date.setText(simpleDateFormat.format(message.getDate()));
 
             }
-            holder.messageText.setText(message.getContent());
-            // Set date
-            Locale l = Locale.US;
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a",l );
-            holder.date.setText(simpleDateFormat.format(message.getDate()));
-
 
         }
-
-
-
-
     }
+
+
+public static class MessageViewHolder extends RecyclerView.ViewHolder {
+    @BindView(R.id.message_text_view)
+    TextView messageText;
+    @BindView(R.id.custom_message_profile_pic)
+    CircleImageView profilePic;
+    @BindView(R.id.date)
+    TextView date;
+
+    MessageViewHolder(View itemView) {
+        super(itemView);
+        ButterKnife.bind(this, itemView);
+    }
+}
+
+public static class MeMessageViewHolder extends RecyclerView.ViewHolder {
+    @BindView(R.id.message_text_view)
+    TextView messageText;
+    @BindView(R.id.custom_message_profile_pic)
+    CircleImageView profilePic;
+    @BindView(R.id.date)
+    TextView date;
+
+    MeMessageViewHolder(View itemView) {
+        super(itemView);
+        ButterKnife.bind(this, itemView);
+    }
+
+}
+
 
     @Override
     public int getItemCount() {
         return messageList.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (messageList != null) {
+            Message message = messageList.get(position);
+            if (message != null && currentUser != null) {
+                return message.getSender().equals(currentUser.getUid()) ? 1 : 0;
+            }
+        }
+        return 0;
     }
 
 
