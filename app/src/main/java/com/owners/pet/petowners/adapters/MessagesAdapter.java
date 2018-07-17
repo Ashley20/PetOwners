@@ -1,5 +1,6 @@
 package com.owners.pet.petowners.adapters;
 
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.Message;
 
@@ -17,11 +20,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>{
+public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MessageViewHolder> {
     private List<Message> messageList;
+    private FirebaseAuth mAuth;
 
     public MessagesAdapter(List<Message> messageList) {
+
         this.messageList = messageList;
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @NonNull
@@ -48,14 +54,25 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     @Override
     public void onBindViewHolder(@NonNull MessagesAdapter.MessageViewHolder holder, int position) {
         Message message = messageList.get(position);
-        holder.messageText.setText(message.getContent());
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null && message != null) {
+            if (message.getSender().equals(currentUser.getUid())) {
+                holder.messageText.setBackgroundColor(Color.WHITE);
+                holder.messageText.setTextColor(Color.BLACK);
+            } else {
+                holder.messageText.setBackgroundResource(R.drawable.message_text_background);
+                holder.messageText.setTextColor(Color.WHITE);
+            }
+            holder.messageText.setText(message.getContent());
+        }
 
 
     }
 
     @Override
     public int getItemCount() {
-     return  messageList.size();
+        return messageList.size();
     }
 
 

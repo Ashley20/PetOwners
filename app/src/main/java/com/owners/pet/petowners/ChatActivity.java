@@ -75,7 +75,7 @@ public class ChatActivity extends AppCompatActivity {
         currentUser = mAuth.getCurrentUser();
 
         Intent intent = getIntent();
-        if(intent != null){
+        if (intent != null) {
             uid = intent.getStringExtra(getString(R.string.USER_PROFILE_UID));
             name = intent.getStringExtra(getString(R.string.USER_PROFILE_NAME));
 
@@ -84,7 +84,7 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null){
+        if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowCustomEnabled(true);
 
@@ -105,57 +105,62 @@ public class ChatActivity extends AppCompatActivity {
 
         messagesAdapter = new MessagesAdapter(messageList);
         LinearLayoutManager mLinearLayout = new LinearLayoutManager(this);
-        //messageListRv.setHasFixedSize(true);
+        messageListRv.setHasFixedSize(true);
         messageListRv.setLayoutManager(mLinearLayout);
         messageListRv.setAdapter(messagesAdapter);
 
         loadMessages();
 
-        if(currentUser != null){
+        if (currentUser != null) {
             createChatWithTheUser();
         }
-
 
 
     }
 
     private void loadMessages() {
         db.collection(getString(R.string.COLLECTION_MESSAGES))
-              //  .whereEqualTo(getString(R.string.SENDER_KEY), currentUser.getUid())
+                .document(currentUser.getUid())
+                .collection(uid)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        if (queryDocumentSnapshots != null) {
-                            messageList.addAll(queryDocumentSnapshots.toObjects(Message.class));
-                         //   messageList =
+                    public void onEvent(@Nullable QuerySnapshot snap, @Nullable FirebaseFirestoreException e) {
+                        if(snap != null){
+                            if(messageList != null){
+                                messageList.clear();
+                            }
+                            for (DocumentSnapshot s : snap.getDocuments()){
+                                Message message = s.toObject(Message.class);
+                                messageList.add(message);
+                            }
                             messagesAdapter.notifyDataSetChanged();
                         }
                     }
                 });
-
     }
 
     private void createChatWithTheUser() {
         db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid())
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
-                if (snapshot != null && snapshot.exists()) {
-                    User user = snapshot.toObject(User.class);
-                    if(user != null){
-                        if(!user.getConversationList().contains(uid)){
-                            updateConversationList(user);
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
+                        if (snapshot != null && snapshot.exists()) {
+                            User user = snapshot.toObject(User.class);
+                            if (user != null) {
+                                if (!user.getConversationList().contains(uid)) {
+                                    updateConversationList(user);
+                                }
+                            }
+                        } else {
+                            Log.d(TAG, "Current data: null");
                         }
                     }
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
+                });
     }
 
     /**
      * Updates the user conversation list by adding a new conversation
+     *
      * @param user
      */
     private void updateConversationList(User user) {
@@ -167,9 +172,9 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.send_btn)
-    public void sendMessage(){
+    public void sendMessage() {
         String content = messageEditText.getText().toString();
-        if(!TextUtils.isEmpty(content)){
+        if (!TextUtils.isEmpty(content)) {
             messageEditText.setText("");
             // Create a new message and set the content, receiver and sender information
             Message newMessage = new Message();
@@ -178,7 +183,15 @@ public class ChatActivity extends AppCompatActivity {
             newMessage.setContent(content);
 
             // Store the message in firestore
-            db.collection(getString(R.string.COLLECTION_MESSAGES)).document().set(newMessage);
+            db.collection(getString(R.string.COLLECTION_MESSAGES))
+                    .document(currentUser.getUid())
+                    .collection(uid).document().set(newMessage);
+
+            db.collection(getString(R.string.COLLECTION_MESSAGES))
+                    .document(uid)
+                    .collection(currentUser.getUid())
+                    .document().set(newMessage);
+
         }
 
     }

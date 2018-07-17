@@ -5,6 +5,7 @@ public class Message {
     private String sender;
     private String receiver;
 
+
     public Message() {
     }
 
