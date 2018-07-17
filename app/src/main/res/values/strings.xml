@@ -92,6 +92,8 @@
     <string name="SENDER_KEY">sender</string>
     <string name="RECEIVER_KEY">receiver</string>
     <string name="COLLECTION_MY_MESSAGES">myMessages</string>
+    <string name="DATE_KEY">date</string>
+    <string name="date">date</string>
 
     <string-array name="genderList">
         <item>@string/gender_girl</item>

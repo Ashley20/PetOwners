@@ -24,7 +24,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.ServerTimestamp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.owners.pet.petowners.Glide.GlideApp;
@@ -122,6 +124,7 @@ public class ChatActivity extends AppCompatActivity {
         db.collection(getString(R.string.COLLECTION_MESSAGES))
                 .document(currentUser.getUid())
                 .collection(uid)
+                .orderBy(getString(R.string.DATE_KEY), Query.Direction.ASCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot snap, @Nullable FirebaseFirestoreException e) {
@@ -134,6 +137,7 @@ public class ChatActivity extends AppCompatActivity {
                                 messageList.add(message);
                             }
                             messagesAdapter.notifyDataSetChanged();
+                            messageListRv.getLayoutManager().scrollToPosition(messagesAdapter.getItemCount() - 4);
                         }
                     }
                 });
@@ -181,6 +185,7 @@ public class ChatActivity extends AppCompatActivity {
             newMessage.setSender(currentUser.getUid());
             newMessage.setReceiver(uid);
             newMessage.setContent(content);
+
 
             // Store the message in firestore
             db.collection(getString(R.string.COLLECTION_MESSAGES))

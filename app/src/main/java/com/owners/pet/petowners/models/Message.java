@@ -1,10 +1,16 @@
 package com.owners.pet.petowners.models;
 
+import com.google.firebase.firestore.ServerTimestamp;
+
+import java.util.Date;
+
 public class Message {
     private String content;
     private String sender;
     private String receiver;
 
+    @ServerTimestamp
+    private Date date;
 
     public Message() {
     }
@@ -31,5 +37,13 @@ public class Message {
 
     public void setReceiver(String receiver) {
         this.receiver = receiver;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }
