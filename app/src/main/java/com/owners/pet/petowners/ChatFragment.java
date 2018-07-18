@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -43,13 +44,13 @@ public class ChatFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
 
-        if(currentUser != null){
+        if (currentUser != null) {
             db.collection(getString(R.string.COLLECTION_USERS))
                     .document(currentUser.getUid())
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @Override
                         public void onEvent(@javax.annotation.Nullable DocumentSnapshot snapshot, @javax.annotation.Nullable FirebaseFirestoreException e) {
-                            if(snapshot != null && snapshot.exists()){
+                            if (snapshot != null && snapshot.exists()) {
                                 User user = snapshot.toObject(User.class);
                                 if (user != null) {
                                     loadConversations(user.getConversationList());
@@ -61,7 +62,6 @@ public class ChatFragment extends Fragment {
 
         return rootView;
     }
-
 
 
     private void loadConversations(ArrayList<ChatUser> conversationList) {

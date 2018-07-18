@@ -116,10 +116,6 @@ public class ChatActivity extends AppCompatActivity {
         messageListRv.setAdapter(messagesAdapter);
 
 
-        if (currentUser != null) {
-            checkIfChatExistsWithTheUser();
-        }
-
         loadMessages();
 
 
@@ -169,40 +165,82 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     /**
-     * Updates the user conversation list by adding a new conversation
+     * This function is updating the chatWithUidList and ConversationList
+     * fields of both the current user and the other user having chat
      *
-     * @param user
+     * @param currentUser
      */
-    private void updateConversationList(final User user) {
+    private void updateConversationList(final User currentUser) {
         db.collection(getString(R.string.COLLECTION_USERS))
                 .document(uid)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot snapshot) {
-                        User u = snapshot.toObject(User.class);
-                        ChatUser chatUser = new ChatUser();
-                        if (u != null) {
-                            // Create a chat user with the fetched user uid , bio and name
-                            chatUser.setUid(u.getUid());
-                            chatUser.setName(u.getName());
-                            chatUser.setBiography(u.getBiography());
-
+                        User otherUser = snapshot.toObject(User.class);
+                        if (otherUser != null) {
+                            updateCurrentUserFields(currentUser, otherUser);
+                            updateOtherUserFields(currentUser, otherUser);
                         }
-
-                        user.getChatWithUidList().add(uid);
-                        user.getConversationList().add(chatUser);
-
-                        db.collection(getString(R.string.COLLECTION_USERS))
-                                .document(currentUser.getUid())
-                                .set(user);
                     }
                 });
 
     }
 
+    /**
+     * Function which updates the other user's ChatWithUidList and ConversationList fields
+     * This function simply packs up the current user's uid, name and bio information as a chatUser object
+     * and stores it into its own conversationList for later use
+     * @param currentUser
+     * @param otherUser
+     */
+    private void updateOtherUserFields(User currentUser, User otherUser) {
+        ChatUser chatUserTwo = new ChatUser();
+
+        chatUserTwo.setUid(currentUser.getUid());
+        chatUserTwo.setName(currentUser.getName());
+        chatUserTwo.setBiography(currentUser.getBiography());
+
+        otherUser.getChatWithUidList().add(currentUser.getUid());
+        otherUser.getConversationList().add(chatUserTwo);
+
+        db.collection(getString(R.string.COLLECTION_USERS))
+                .document(otherUser.getUid())
+                .set(otherUser);
+
+
+    }
+
+    /**
+     * Function which updates the current user's ChatWithUidList and ConversationList fields
+     * This function simply packs up the other user's uid, name and bio information as a chatUser object
+     * and stores it into its own conversationList for later use
+     * @param currentUser
+     * @param otherUser
+     */
+    private void updateCurrentUserFields(User currentUser, User otherUser) {
+        ChatUser chatUserOne = new ChatUser();
+
+        chatUserOne.setUid(otherUser.getUid());
+        chatUserOne.setName(otherUser.getName());
+        chatUserOne.setBiography(otherUser.getBiography());
+
+        // Update our current user
+        currentUser.getChatWithUidList().add(chatUserOne.getUid());
+        currentUser.getConversationList().add(chatUserOne);
+
+        db.collection(getString(R.string.COLLECTION_USERS))
+                .document(currentUser.getUid())
+                .set(currentUser);
+    }
+
     @OnClick(R.id.send_btn)
     public void sendMessage() {
+
+        if (currentUser != null) {
+            checkIfChatExistsWithTheUser();
+        }
+
         String content = messageEditText.getText().toString();
         if (!TextUtils.isEmpty(content)) {
             messageEditText.setText("");
