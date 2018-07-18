@@ -2,6 +2,7 @@ package com.owners.pet.petowners;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,6 +33,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.adapters.MessagesAdapter;
+import com.owners.pet.petowners.models.ChatUser;
 import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.User;
 
@@ -54,6 +57,7 @@ public class ChatActivity extends AppCompatActivity {
     private StorageReference chatUserProfileImageRef;
     private FirebaseUser currentUser;
     private MessagesAdapter messagesAdapter;
+    private boolean chatAlreadyExists;
 
     @BindView(R.id.message_edit_text)
     EditText messageEditText;
@@ -111,11 +115,12 @@ public class ChatActivity extends AppCompatActivity {
         messageListRv.setLayoutManager(mLinearLayout);
         messageListRv.setAdapter(messagesAdapter);
 
-        loadMessages();
 
         if (currentUser != null) {
-            createChatWithTheUser();
+            checkIfChatExistsWithTheUser();
         }
+
+        loadMessages();
 
 
     }
@@ -128,22 +133,25 @@ public class ChatActivity extends AppCompatActivity {
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot snap, @Nullable FirebaseFirestoreException e) {
-                        if(snap != null){
-                            if(messageList != null){
+                        if (snap != null) {
+                            if (messageList != null) {
                                 messageList.clear();
                             }
-                            for (DocumentSnapshot s : snap.getDocuments()){
+                            for (DocumentSnapshot s : snap.getDocuments()) {
                                 Message message = s.toObject(Message.class);
                                 messageList.add(message);
                             }
                             messagesAdapter.notifyDataSetChanged();
+
                             messageListRv.getLayoutManager().scrollToPosition(messagesAdapter.getItemCount() - 4);
+
+
                         }
                     }
                 });
     }
 
-    private void createChatWithTheUser() {
+    private void checkIfChatExistsWithTheUser() {
         db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid())
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
@@ -151,12 +159,10 @@ public class ChatActivity extends AppCompatActivity {
                         if (snapshot != null && snapshot.exists()) {
                             User user = snapshot.toObject(User.class);
                             if (user != null) {
-                                if (!user.getConversationList().contains(uid)) {
+                                if (!user.getChatWithUidList().contains(uid)) {
                                     updateConversationList(user);
                                 }
                             }
-                        } else {
-                            Log.d(TAG, "Current data: null");
                         }
                     }
                 });
@@ -167,12 +173,32 @@ public class ChatActivity extends AppCompatActivity {
      *
      * @param user
      */
-    private void updateConversationList(User user) {
-        user.getConversationList().add(uid);
-
+    private void updateConversationList(final User user) {
         db.collection(getString(R.string.COLLECTION_USERS))
-                .document(currentUser.getUid())
-                .set(user);
+                .document(uid)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot snapshot) {
+                        User u = snapshot.toObject(User.class);
+                        ChatUser chatUser = new ChatUser();
+                        if (u != null) {
+                            // Create a chat user with the fetched user uid , bio and name
+                            chatUser.setUid(u.getUid());
+                            chatUser.setName(u.getName());
+                            chatUser.setBiography(u.getBiography());
+
+                        }
+
+                        user.getChatWithUidList().add(uid);
+                        user.getConversationList().add(chatUser);
+
+                        db.collection(getString(R.string.COLLECTION_USERS))
+                                .document(currentUser.getUid())
+                                .set(user);
+                    }
+                });
+
     }
 
     @OnClick(R.id.send_btn)
@@ -196,6 +222,7 @@ public class ChatActivity extends AppCompatActivity {
                     .document(uid)
                     .collection(currentUser.getUid())
                     .document().set(newMessage);
+
 
         }
 

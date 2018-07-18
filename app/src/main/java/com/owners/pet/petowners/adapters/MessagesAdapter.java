@@ -1,16 +1,12 @@
 package com.owners.pet.petowners.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
@@ -31,7 +27,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private List<Message> messageList;
     private FirebaseAuth mAuth;
     private StorageReference storageRef;
-    private StorageReference profileImagesRef;
     private Context mContext;
 
     public MessagesAdapter(List<Message> messageList) {
@@ -62,6 +57,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         Message message = messageList.get(position);
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (message != null && currentUser != null) {
+            StorageReference profileImagesRef;
             if (message.getSender().equals(currentUser.getUid())) {
                 ((MeMessageViewHolder) holder).messageText.setText(message.getContent());
 
@@ -78,7 +74,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 // Set date
                 Locale l = Locale.US;
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a", l);
-                ((MeMessageViewHolder) holder).date.setText(simpleDateFormat.format(message.getDate()));
+                if(message.getDate() != null){
+                    ((MeMessageViewHolder) holder).date.setText(simpleDateFormat.format(message.getDate()));
+                }
 
             } else {
 
@@ -137,7 +135,11 @@ public static class MeMessageViewHolder extends RecyclerView.ViewHolder {
 
     @Override
     public int getItemCount() {
-        return messageList.size();
+        if(messageList == null){
+            return 0;
+        }else{
+            return messageList.size();
+        }
     }
 
     @Override

@@ -36,8 +36,8 @@
     <dimen name="pet_profile_pic_margin_top">16dp</dimen>
     <dimen name="dialog_input_field_margin_top">10dp</dimen>
     <dimen name="listview_margin_bottom">4dp</dimen>
-    <dimen name="default_profile_width">95dp</dimen>
-    <dimen name="default_profile_height">80dp</dimen>
+    <dimen name="default_profile_width">90dp</dimen>
+    <dimen name="default_profile_height">75dp</dimen>
     <dimen name="default_profile_margin_top">15dp</dimen>
     <dimen name="default_profile_margin_left">10dp</dimen>
     <dimen name="user_fullname_margin_start">130dp</dimen>

@@ -22,7 +22,8 @@ public class User {
     private Double latitude;
     private Double longtitude;
     private ArrayList<Pet> petList;
-    private ArrayList<String> conversationList;
+    private ArrayList<ChatUser> conversationList;
+    private ArrayList<String> chatWithUidList;
     private int userState;
 
 
@@ -30,6 +31,7 @@ public class User {
         this.userState = NONE;
         this.petList = new ArrayList<>();
         this.conversationList = new ArrayList<>();
+        this.chatWithUidList = new ArrayList<>();
     }
 
     public String getUid() {
@@ -112,11 +114,19 @@ public class User {
         this.deviceToken = deviceToken;
     }
 
-    public ArrayList<String> getConversationList() {
+    public ArrayList<ChatUser> getConversationList() {
         return conversationList;
     }
 
-    public void setConversationList(ArrayList<String> conversationList) {
+    public void setConversationList(ArrayList<ChatUser> conversationList) {
         this.conversationList = conversationList;
+    }
+
+    public ArrayList<String> getChatWithUidList() {
+        return chatWithUidList;
+    }
+
+    public void setChatWithUidList(ArrayList<String> chatWithUidList) {
+        this.chatWithUidList = chatWithUidList;
     }
 }
