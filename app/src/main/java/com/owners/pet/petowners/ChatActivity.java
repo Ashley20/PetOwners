@@ -38,6 +38,7 @@ import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -85,6 +86,7 @@ public class ChatActivity extends AppCompatActivity {
             uid = intent.getStringExtra(getString(R.string.USER_PROFILE_UID));
             name = intent.getStringExtra(getString(R.string.USER_PROFILE_NAME));
 
+            Log.d(TAG, uid + " " + name);
             chatUserProfileImageRef = storageRef.child(getString(R.string.COLLECTION_USERS))
                     .child(uid).child("profile.jpg");
         }
@@ -191,6 +193,7 @@ public class ChatActivity extends AppCompatActivity {
      * Function which updates the other user's ChatWithUidList and ConversationList fields
      * This function simply packs up the current user's uid, name and bio information as a chatUser object
      * and stores it into its own conversationList for later use
+     *
      * @param currentUser
      * @param otherUser
      */
@@ -215,6 +218,7 @@ public class ChatActivity extends AppCompatActivity {
      * Function which updates the current user's ChatWithUidList and ConversationList fields
      * This function simply packs up the other user's uid, name and bio information as a chatUser object
      * and stores it into its own conversationList for later use
+     *
      * @param currentUser
      * @param otherUser
      */
@@ -241,20 +245,14 @@ public class ChatActivity extends AppCompatActivity {
             checkIfChatExistsWithTheUser();
         }
 
-        String content = messageEditText.getText().toString();
+        final String content = messageEditText.getText().toString();
         if (!TextUtils.isEmpty(content)) {
             messageEditText.setText("");
             // Create a new message and set the content, receiver and sender information
-            Message newMessage = new Message();
+            final Message newMessage = new Message();
             newMessage.setSender(currentUser.getUid());
             newMessage.setReceiver(uid);
             newMessage.setContent(content);
-
-
-            // Store the message in firestore
-            db.collection(getString(R.string.COLLECTION_MESSAGES))
-                    .document(currentUser.getUid())
-                    .collection(uid).document().set(newMessage);
 
             db.collection(getString(R.string.COLLECTION_MESSAGES))
                     .document(uid)
@@ -262,6 +260,28 @@ public class ChatActivity extends AppCompatActivity {
                     .document().set(newMessage);
 
 
+            // Store the message in firestore
+            db.collection(getString(R.string.COLLECTION_MESSAGES))
+                    .document(currentUser.getUid())
+                    .collection(uid).document().set(newMessage)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+
+
+                            HashMap<String, String> notificationData = new HashMap<>();
+                            notificationData.put("fromUid", currentUser.getUid());
+                            notificationData.put("from", currentUser.getDisplayName());
+                            notificationData.put("to", uid);
+                            notificationData.put("content", content);
+
+
+                            // Update notification database
+                            db.collection(getString(R.string.COLLECTION_NOTIFICATIONS))
+                                    .document()
+                                    .set(notificationData);
+                        }
+                    });
         }
 
     }
