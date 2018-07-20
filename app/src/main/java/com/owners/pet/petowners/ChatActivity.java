@@ -214,6 +214,7 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
+
     /**
      * Function which updates the current user's ChatWithUidList and ConversationList fields
      * This function simply packs up the other user's uid, name and bio information as a chatUser object
@@ -237,6 +238,8 @@ public class ChatActivity extends AppCompatActivity {
                 .document(currentUser.getUid())
                 .set(currentUser);
     }
+
+
 
     @OnClick(R.id.send_btn)
     public void sendMessage() {

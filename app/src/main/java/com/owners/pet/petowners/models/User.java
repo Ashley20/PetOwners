@@ -32,6 +32,7 @@ public class User {
         this.petList = new ArrayList<>();
         this.conversationList = new ArrayList<>();
         this.chatWithUidList = new ArrayList<>();
+        this.phoneNumber = "(123) 456 78 90";
     }
 
     public String getUid() {

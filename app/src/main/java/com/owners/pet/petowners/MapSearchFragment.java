@@ -178,28 +178,30 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         List<User> userList = queryDocumentSnapshots.toObjects(User.class);
                         for (User user : userList) {
-                            MarkerOptions markerOptions = new MarkerOptions()
-                                    .title(user.getName())
-                                    .position(new LatLng(user.getLatitude(), user.getLongtitude()));
+                            if(user != null && user.getLatitude() != null){
+                                LatLng latLng = new LatLng(user.getLatitude(), user.getLongtitude());
+                                MarkerOptions markerOptions = new MarkerOptions()
+                                        .title(user.getName())
+                                        .position(latLng);
 
-                            switch (user.getUserState()) {
-                                case User.WANTS_TO_ADOPT:
-                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
-                                    markerOptions.snippet(getString(R.string.USER_WANTS_TO_ADOPT_STATE));
-                                    break;
-                                case User.WANTS_TO_POST_FOR_ADOPTION:
-                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
-                                    markerOptions.snippet(getString(R.string.USER_WANTS_TO_POST_FOR_ADOPTION_STATE));
-                                    break;
-                                case User.NONE:
-                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                                    markerOptions.snippet(getString(R.string.USER_DEFAULT_STATE));
-                                    break;
+                                switch (user.getUserState()) {
+                                    case User.WANTS_TO_ADOPT:
+                                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                                        markerOptions.snippet(getString(R.string.USER_WANTS_TO_ADOPT_STATE));
+                                        break;
+                                    case User.WANTS_TO_POST_FOR_ADOPTION:
+                                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                                        markerOptions.snippet(getString(R.string.USER_WANTS_TO_POST_FOR_ADOPTION_STATE));
+                                        break;
+                                    case User.NONE:
+                                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                                        markerOptions.snippet(getString(R.string.USER_DEFAULT_STATE));
+                                        break;
+                                }
+
+                                Marker marker = mGoogleMap.addMarker(markerOptions);
+                                marker.setTag(user.getUid());
                             }
-
-                            Marker marker = mGoogleMap.addMarker(markerOptions);
-                            marker.setTag(user.getUid());
-
                         }
                     }
                 });

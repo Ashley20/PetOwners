@@ -9,13 +9,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.google.common.collect.Ordering;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.owners.pet.petowners.adapters.UserAdapter;
 import com.owners.pet.petowners.models.ChatUser;
 import com.owners.pet.petowners.models.User;
@@ -40,8 +44,8 @@ public class ChatFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
         ButterKnife.bind(this, rootView);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
 
         if (currentUser != null) {
@@ -51,9 +55,30 @@ public class ChatFragment extends Fragment {
                         @Override
                         public void onEvent(@javax.annotation.Nullable DocumentSnapshot snapshot, @javax.annotation.Nullable FirebaseFirestoreException e) {
                             if (snapshot != null && snapshot.exists()) {
-                                User user = snapshot.toObject(User.class);
+                                final User user = snapshot.toObject(User.class);
+                                int i = 0;
                                 if (user != null) {
-                                    loadConversations(user.getConversationList());
+                                    for(String uid : user.getChatWithUidList()){
+                                        if(uid != null){
+                                            final int finalI = i;
+                                            db.collection(getString(R.string.COLLECTION_MESSAGES))
+                                                    .document(currentUser.getUid())
+                                                    .collection(uid)
+                                                    .orderBy(getString(R.string.DATE_KEY), Query.Direction.DESCENDING)
+                                                    .limit(1)
+                                                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                                        @Override
+                                                        public void onEvent(@javax.annotation.Nullable QuerySnapshot snap, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                                                            if(snap != null){
+                                                                String lastMessage = snap.getDocuments().get(0).get("content").toString();
+                                                                user.getConversationList().get(finalI).setLastMessage(lastMessage);
+                                                                loadConversations(user.getConversationList());
+                                                            }
+                                                        }
+                                                    });
+                                        }
+                                        i++;
+                                    }
                                 }
                             }
                         }
@@ -66,6 +91,7 @@ public class ChatFragment extends Fragment {
 
     private void loadConversations(ArrayList<ChatUser> conversationList) {
         UserAdapter adapter = new UserAdapter(getContext(), conversationList);
+        adapter.notifyDataSetChanged();
         convListLv.setAdapter(adapter);
     }
 }

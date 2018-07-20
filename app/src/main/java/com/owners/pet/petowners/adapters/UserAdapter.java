@@ -1,6 +1,7 @@
 package com.owners.pet.petowners.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -9,12 +10,23 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.owners.pet.petowners.ChatActivity;
 import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.ChatUser;
+import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.Pet;
 
 import java.util.ArrayList;
@@ -32,7 +44,6 @@ public class UserAdapter extends ArrayAdapter<ChatUser> {
         this.chatUserList = chatUserList;
 
         storageRef = FirebaseStorage.getInstance().getReference();
-
     }
 
     @NonNull
@@ -53,7 +64,7 @@ public class UserAdapter extends ArrayAdapter<ChatUser> {
         // Update UI
         if (chatUser != null) {
             name.setText(chatUser.getName());
-            bio.setText(chatUser.getBiography());
+            bio.setText(chatUser.getLastMessage());
 
 
             StorageReference profileImagesRef = storageRef.child(mContext.getString(R.string.storage_users_ref))
@@ -63,10 +74,21 @@ public class UserAdapter extends ArrayAdapter<ChatUser> {
                     .load(profileImagesRef)
                     .placeholder(R.drawable.profile_icon)
                     .into(profilePic);
+
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent chatActivityIntent = new Intent(mContext, ChatActivity.class);
+                    chatActivityIntent.putExtra(mContext.getString(R.string.USER_PROFILE_UID), chatUser.getUid());
+                    chatActivityIntent.putExtra(mContext.getString(R.string.USER_PROFILE_NAME), chatUser.getName());
+                    mContext.startActivity(chatActivityIntent);
+                }
+            });
         }
 
         return convertView;
     }
+
 
     @Override
     public int getCount() {
@@ -76,4 +98,5 @@ public class UserAdapter extends ArrayAdapter<ChatUser> {
             return 0;
         }
     }
+
 }

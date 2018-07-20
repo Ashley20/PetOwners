@@ -6,12 +6,14 @@
     android:clickable="true"
     android:background="?android:attr/selectableItemBackground"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:focusable="true">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_profile_image_view"
         android:layout_marginLeft="@dimen/default_profile_margin_left"
         android:layout_marginTop="@dimen/default_profile_margin_top"
+        android:layout_marginBottom="@dimen/default_profile_margin_bottom"
         android:layout_width="@dimen/default_profile_width"
         android:layout_height="@dimen/default_profile_height"
         android:layout_alignParentTop="true"

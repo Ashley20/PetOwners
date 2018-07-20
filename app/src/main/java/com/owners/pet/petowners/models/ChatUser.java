@@ -4,6 +4,7 @@ public class ChatUser {
     private String name;
     private String biography;
     private String uid;
+    private String lastMessage;
 
     public ChatUser(){}
 
@@ -34,5 +35,13 @@ public class ChatUser {
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public String getLastMessage() {
+        return lastMessage;
+    }
+
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage = lastMessage;
     }
 }
