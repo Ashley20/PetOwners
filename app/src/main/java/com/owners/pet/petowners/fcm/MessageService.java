@@ -36,7 +36,6 @@ public class MessageService extends FirebaseMessagingService {
 
             // Create an explicit intent for an Activity in your app
             Intent intent = new Intent(this, ChatActivity.class);
-           // intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
             intent.putExtra(getString(R.string.USER_PROFILE_UID), user_profile_uid);
             intent.putExtra(getString(R.string.USER_PROFILE_NAME), user_profile_name);

@@ -16,4 +16,7 @@
     <color name="colorLightRed">#FFEBEE</color>
     <color name="colorLightAccent">#E1BEE7</color>
     <color name="colorGray300">#E0E0E0</color>
+    <color name="colorPurple900">#4A148C</color>
+    <color name="colorPurple500">#9C27B0</color>
+
 </resources>

@@ -96,6 +96,9 @@
     <string name="date">date</string>
     <string name="COLLECTION_NOTIFICATIONS">notifications</string>
     <string name="last_message">last message</string>
+    <string name="info_window_title">info window title</string>
+    <string name="info_window_body">info window body</string>
+    <string name="view_profile">* Tap to view profile..</string>
 
     <string-array name="genderList">
         <item>@string/gender_girl</item>

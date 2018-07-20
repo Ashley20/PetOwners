@@ -56,4 +56,10 @@
     <dimen name="message_text_view_padding">10dp</dimen>
     <dimen name="message_text_view_margin_right">68dp</dimen>
     <dimen name="date_margin_right">113dp</dimen>
+    <dimen name="info_window_title_margin_left">25dp</dimen>
+    <dimen name="info_window_body_margin_left">25dp</dimen>
+    <dimen name="info_window_body_margin_top">5dp</dimen>
+    <dimen name="info_window_layout_margin_top">5dp</dimen>
+    <dimen name="info_window_profile_image_margin_left">20dp</dimen>
+    <dimen name="info_window_layout_margin_right">10dp</dimen>
 </resources>

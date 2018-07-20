@@ -32,6 +32,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -43,6 +44,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.owners.pet.petowners.adapters.CustomInfoViewAdapter;
 import com.owners.pet.petowners.models.User;
 
 import java.io.IOException;
@@ -184,6 +186,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                                         .title(user.getName())
                                         .position(latLng);
 
+
                                 switch (user.getUserState()) {
                                     case User.WANTS_TO_ADOPT:
                                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
@@ -198,6 +201,10 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                                         markerOptions.snippet(getString(R.string.USER_DEFAULT_STATE));
                                         break;
                                 }
+
+                                //Set Custom InfoWindow Adapter
+                                CustomInfoViewAdapter adapter = new CustomInfoViewAdapter(getContext());
+                                mGoogleMap.setInfoWindowAdapter(adapter);
 
                                 Marker marker = mGoogleMap.addMarker(markerOptions);
                                 marker.setTag(user.getUid());
@@ -302,6 +309,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
 
     }
 
+
     @Override
     public void onInfoWindowClick(Marker marker) {
         // The uid of the user profile which wants to be displayed
@@ -317,5 +325,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
             }
         }
     }
+
+
 }
 
