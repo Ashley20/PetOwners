@@ -8,13 +8,52 @@
         android:id="@+id/search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:queryHint="@string/map_search_text"
-        android:iconifiedByDefault="false">
-    </SearchView>
+        android:iconifiedByDefault="false"
+        android:queryHint="@string/map_search_text" />
 
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/mapView"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </com.google.android.gms.maps.MapView>
+        android:layout_height="wrap_content">
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </com.google.android.gms.maps.MapView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="end|bottom">
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/state_0_cb"
+                android:drawableRight="@drawable/ic_marker_orange"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:drawableEnd="@drawable/ic_marker_orange"
+                android:checked="true"/>
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/state_1_cb"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:drawableLeft="@drawable/ic_marker_blue"
+                android:drawableStart="@drawable/ic_marker_blue"
+                android:checked="true"/>
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/state_2_cb"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:drawableLeft="@drawable/ic_marker_green"
+                android:drawableStart="@drawable/ic_marker_green"
+                android:checked="true"/>
+
+        </LinearLayout>
+
+    </FrameLayout>
+
 </LinearLayout>

@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -48,12 +49,14 @@ import com.owners.pet.petowners.adapters.CustomInfoViewAdapter;
 import com.owners.pet.petowners.models.User;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 
 public class MapSearchFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
@@ -64,6 +67,13 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
     MapView mMapView;
     @BindView(R.id.search)
     SearchView searchView;
+    @BindView(R.id.state_0_cb)
+    CheckBox checkBoxOrange;
+    @BindView(R.id.state_1_cb)
+    CheckBox checkBoxCyan;
+    @BindView(R.id.state_2_cb)
+    CheckBox checkBoxGreen;
+
     private GoogleMap mGoogleMap;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -71,6 +81,9 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
     private Location mLastKnownLocation;
     private boolean mLocationPermissionGranted;
     private FirebaseUser currentUser;
+    private ArrayList<Marker> orangeMarkers = new ArrayList<>();
+    private ArrayList<Marker> cyanMarkers = new ArrayList<>();
+    private ArrayList<Marker> greenMarkers = new ArrayList<>();
 
     public MapSearchFragment() {
     }
@@ -181,7 +194,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         List<User> userList = queryDocumentSnapshots.toObjects(User.class);
                         for (User user : userList) {
-                            if(user != null && user.getLatitude() != null){
+                            if (user != null && user.getLatitude() != null) {
                                 LatLng latLng = new LatLng(user.getLatitude(), user.getLongtitude());
                                 MarkerOptions markerOptions = new MarkerOptions()
                                         .title(user.getName())
@@ -194,16 +207,25 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
                                         markerOptions.snippet(getString(R.string.USER_WANTS_TO_ADOPT_STATE));
                                         markerOptionsMap.put(getString(R.string.COLOR_KEY), "HUE_ORANGE");
+                                        Marker markerOrange = mGoogleMap.addMarker(markerOptions);
+                                        markerOrange.setTag(markerOptionsMap);
+                                        orangeMarkers.add(markerOrange);
                                         break;
                                     case User.WANTS_TO_POST_FOR_ADOPTION:
                                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
                                         markerOptions.snippet(getString(R.string.USER_WANTS_TO_POST_FOR_ADOPTION_STATE));
                                         markerOptionsMap.put(getString(R.string.COLOR_KEY), "HUE_CYAN");
+                                        Marker markerCyan = mGoogleMap.addMarker(markerOptions);
+                                        markerCyan.setTag(markerOptionsMap);
+                                        cyanMarkers.add(markerCyan);
                                         break;
                                     case User.NONE:
                                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                                         markerOptions.snippet(getString(R.string.USER_DEFAULT_STATE));
                                         markerOptionsMap.put(getString(R.string.COLOR_KEY), "HUE_GREEN");
+                                        Marker markerGreen = mGoogleMap.addMarker(markerOptions);
+                                        markerGreen.setTag(markerOptionsMap);
+                                        greenMarkers.add(markerGreen);
                                         break;
                                 }
 
@@ -211,8 +233,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                                 CustomInfoViewAdapter adapter = new CustomInfoViewAdapter(getContext());
                                 mGoogleMap.setInfoWindowAdapter(adapter);
 
-                                Marker marker = mGoogleMap.addMarker(markerOptions);
-                                marker.setTag(markerOptionsMap);
+                                
                             }
                         }
                     }
@@ -317,16 +338,61 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
 
     @Override
     public void onInfoWindowClick(Marker marker) {
+        HashMap<String, String> tag = (HashMap<String, String>) marker.getTag();
         // The uid of the user profile which wants to be displayed
-        String uid = (String) marker.getTag();
-        if (uid != null ) {
-            if (currentUser.getUid().equals(uid)) {
-                Intent openCurrentUserProfileIntent = new Intent(getContext(), ProfileActivity.class);
-                startActivity(openCurrentUserProfileIntent);
-            } else {
-                Intent openOtherUsersProfileIntent = new Intent(getContext(), OthersProfileActivity.class);
-                openOtherUsersProfileIntent.putExtra(getString(R.string.USER_PROFILE_UID), uid);
-                startActivity(openOtherUsersProfileIntent);
+        if(tag != null){
+            String uid = tag.get(getString(R.string.UID_KEY));
+            if (uid != null) {
+                if (currentUser.getUid().equals(uid)) {
+                    Intent openCurrentUserProfileIntent = new Intent(getContext(), ProfileActivity.class);
+                    startActivity(openCurrentUserProfileIntent);
+                } else {
+                    Intent openOtherUsersProfileIntent = new Intent(getContext(), OthersProfileActivity.class);
+                    openOtherUsersProfileIntent.putExtra(getString(R.string.USER_PROFILE_UID), uid);
+                    startActivity(openOtherUsersProfileIntent);
+                }
+            }
+        }
+    }
+
+    @OnClick(R.id.state_0_cb)
+    public void updateOrangeMarkers() {
+        if (checkBoxOrange.isChecked()) {
+            for (Marker orangeMarker : orangeMarkers) {
+                orangeMarker.setVisible(true);
+            }
+
+        } else {
+            for (Marker orangeMarker : orangeMarkers) {
+                orangeMarker.setVisible(false);
+            }
+        }
+    }
+
+    @OnClick(R.id.state_1_cb)
+    public void updateCyanMarkers() {
+        if (checkBoxCyan.isChecked()) {
+            for (Marker cyanMarker : cyanMarkers) {
+                cyanMarker.setVisible(true);
+            }
+
+        } else {
+            for (Marker cyanMarker : cyanMarkers) {
+                cyanMarker.setVisible(false);
+            }
+        }
+    }
+
+    @OnClick(R.id.state_2_cb)
+    public void updateGreenMarkers() {
+        if (checkBoxGreen.isChecked()) {
+            for (Marker greenMarker : greenMarkers) {
+                greenMarker.setVisible(true);
+            }
+
+        } else {
+            for (Marker greenMarker : greenMarkers) {
+                greenMarker.setVisible(false);
             }
         }
     }
