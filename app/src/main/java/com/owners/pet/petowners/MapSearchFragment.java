@@ -48,6 +48,7 @@ import com.owners.pet.petowners.adapters.CustomInfoViewAdapter;
 import com.owners.pet.petowners.models.User;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -185,20 +186,24 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                                 MarkerOptions markerOptions = new MarkerOptions()
                                         .title(user.getName())
                                         .position(latLng);
-
+                                HashMap<String, String> markerOptionsMap = new HashMap<>();
+                                markerOptionsMap.put(getString(R.string.UID_KEY), user.getUid());
 
                                 switch (user.getUserState()) {
                                     case User.WANTS_TO_ADOPT:
                                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
                                         markerOptions.snippet(getString(R.string.USER_WANTS_TO_ADOPT_STATE));
+                                        markerOptionsMap.put(getString(R.string.COLOR_KEY), "HUE_ORANGE");
                                         break;
                                     case User.WANTS_TO_POST_FOR_ADOPTION:
                                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
                                         markerOptions.snippet(getString(R.string.USER_WANTS_TO_POST_FOR_ADOPTION_STATE));
+                                        markerOptionsMap.put(getString(R.string.COLOR_KEY), "HUE_CYAN");
                                         break;
                                     case User.NONE:
                                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                                         markerOptions.snippet(getString(R.string.USER_DEFAULT_STATE));
+                                        markerOptionsMap.put(getString(R.string.COLOR_KEY), "HUE_GREEN");
                                         break;
                                 }
 
@@ -207,7 +212,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                                 mGoogleMap.setInfoWindowAdapter(adapter);
 
                                 Marker marker = mGoogleMap.addMarker(markerOptions);
-                                marker.setTag(user.getUid());
+                                marker.setTag(markerOptionsMap);
                             }
                         }
                     }

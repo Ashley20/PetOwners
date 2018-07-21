@@ -18,5 +18,8 @@
     <color name="colorGray300">#E0E0E0</color>
     <color name="colorPurple900">#4A148C</color>
     <color name="colorPurple500">#9C27B0</color>
+    <color name="colorOrange900">#E65100</color>
+    <color name="colorBlue900">#01579B</color>
+    <color name="colorGreen900">#33691E</color>
 
 </resources>
