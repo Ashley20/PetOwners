@@ -21,5 +21,6 @@
     <color name="colorOrange900">#E65100</color>
     <color name="colorBlue900">#01579B</color>
     <color name="colorGreen900">#33691E</color>
+    <color name="colorGray700">#bdbdbd</color>
 
 </resources>

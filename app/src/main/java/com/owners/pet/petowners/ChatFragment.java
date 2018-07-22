@@ -22,9 +22,11 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.owners.pet.petowners.adapters.UserAdapter;
 import com.owners.pet.petowners.models.ChatUser;
+import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.User;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -70,8 +72,14 @@ public class ChatFragment extends Fragment {
                                                         @Override
                                                         public void onEvent(@javax.annotation.Nullable QuerySnapshot snap, @javax.annotation.Nullable FirebaseFirestoreException e) {
                                                             if(snap != null){
-                                                                String lastMessage = snap.getDocuments().get(0).get("content").toString();
-                                                                user.getConversationList().get(finalI).setLastMessage(lastMessage);
+                                                                Message m = snap.getDocuments().get(0).toObject(Message.class);
+                                                                if(m != null){
+                                                                    String lastMessage = m.getContent();
+                                                                    Date lastMessageDate = m.getDate();
+                                                                    user.getConversationList().get(finalI).setLastMessage(lastMessage);
+                                                                    user.getConversationList().get(finalI).setLastMessageDate(lastMessageDate);
+                                                                }
+
                                                                 loadConversations(user.getConversationList());
                                                             }
                                                         }

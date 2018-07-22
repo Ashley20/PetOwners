@@ -19,7 +19,7 @@
             android:id="@+id/app_icon"
             android:layout_width="@dimen/logo_width"
             android:layout_height="@dimen/logo_height"
-            android:background="@drawable/logo"
+            android:background="@drawable/ic_logo_petowners"
             android:contentDescription="@string/applogo_content_description"
             android:scaleType="centerCrop" />
 

@@ -1,10 +1,13 @@
 package com.owners.pet.petowners.models;
 
+import java.util.Date;
+
 public class ChatUser {
     private String name;
     private String biography;
     private String uid;
     private String lastMessage;
+    private Date lastMessageDate;
 
     public ChatUser(){}
 
@@ -43,5 +46,13 @@ public class ChatUser {
 
     public void setLastMessage(String lastMessage) {
         this.lastMessage = lastMessage;
+    }
+
+    public Date getLastMessageDate() {
+        return lastMessageDate;
+    }
+
+    public void setLastMessageDate(Date lastMessageDate) {
+        this.lastMessageDate = lastMessageDate;
     }
 }

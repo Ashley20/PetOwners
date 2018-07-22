@@ -29,7 +29,9 @@ import com.owners.pet.petowners.models.ChatUser;
 import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.Pet;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -60,11 +62,19 @@ public class UserAdapter extends ArrayAdapter<ChatUser> {
         CircleImageView profilePic = convertView.findViewById(R.id.user_profile_image_view);
         TextView name = convertView.findViewById(R.id.user_fullname);
         TextView bio = convertView.findViewById(R.id.user_bio);
+        TextView lastMessageTime = convertView.findViewById(R.id.last_message_time_text_view);
 
         // Update UI
         if (chatUser != null) {
             name.setText(chatUser.getName());
             bio.setText(chatUser.getLastMessage());
+
+            // Set date
+            Locale l = Locale.US;
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a", l);
+            if(chatUser.getLastMessageDate() != null){
+                lastMessageTime.setText(simpleDateFormat.format(chatUser.getLastMessageDate()));
+            }
 
 
             StorageReference profileImagesRef = storageRef.child(mContext.getString(R.string.storage_users_ref))

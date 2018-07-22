@@ -233,7 +233,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
                                 CustomInfoViewAdapter adapter = new CustomInfoViewAdapter(getContext());
                                 mGoogleMap.setInfoWindowAdapter(adapter);
 
-                                
+
                             }
                         }
                     }

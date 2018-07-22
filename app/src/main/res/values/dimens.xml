@@ -36,12 +36,12 @@
     <dimen name="pet_profile_pic_margin_top">16dp</dimen>
     <dimen name="dialog_input_field_margin_top">10dp</dimen>
     <dimen name="listview_margin_bottom">4dp</dimen>
-    <dimen name="default_profile_width">80dp</dimen>
-    <dimen name="default_profile_height">70dp</dimen>
+    <dimen name="default_profile_width">60dp</dimen>
+    <dimen name="default_profile_height">65dp</dimen>
     <dimen name="default_profile_margin_top">10dp</dimen>
     <dimen name="default_profile_margin_bottom">10dp</dimen>
     <dimen name="default_profile_margin_left">10dp</dimen>
-    <dimen name="user_fullname_margin_start">100dp</dimen>
+    <dimen name="user_fullname_margin_start">85dp</dimen>
     <dimen name="user_fullname_margin_top">20dp</dimen>
     <dimen name="user_bio_margin_top">48dp</dimen>
     <dimen name="message_text_view_margin_left">68dp</dimen>

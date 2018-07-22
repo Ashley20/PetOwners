@@ -130,4 +130,5 @@ public class User {
     public void setChatWithUidList(ArrayList<String> chatWithUidList) {
         this.chatWithUidList = chatWithUidList;
     }
+
 }
