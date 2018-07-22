@@ -12,6 +12,7 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="@dimen/custom_appbar_title_margin_left"
         android:layout_marginLeft="@dimen/custom_appbar_title_margin_left"
+        android:textColor="@color/colorWhite"
         style="@style/TextAppearance.AppCompat.Title"
         android:text="@string/chat_user_name"
         android:layout_alignParentLeft="true" />

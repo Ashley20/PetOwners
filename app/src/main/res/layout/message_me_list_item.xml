@@ -1,48 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/message_container_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/message_container_layout"
-    android:padding="@dimen/message_container_layout_padding"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:padding="@dimen/message_container_layout_padding">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/custom_message_profile_pic"
-        android:layout_width="@dimen/custom_profile_image_size"
-        android:layout_height="@dimen/custom_profile_image_size"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="@dimen/profile_pic_margin_right"
-        android:layout_marginRight="@dimen/profile_pic_margin_right"
-        android:src="@drawable/profile_icon"
-        app:civ_fill_color="@color/colorPrimaryText"
-        android:layout_alignParentRight="true" />
-
-    <TextView
-        android:id="@+id/message_text_view"
-        style="@style/TextAppearance.AppCompat.Medium"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_marginEnd="@dimen/message_text_view_margin_right"
-        android:layout_marginRight="@dimen/message_text_view_margin_right"
         android:background="@drawable/message_me_text_background"
-        android:padding="@dimen/message_text_view_padding"
-        android:text="@string/message"
-        android:textColor="@color/colorBlack"
-        android:layout_alignParentRight="true" />
+        android:orientation="horizontal"
+        android:layout_alignParentRight="true">
 
-    <TextView
-        android:id="@+id/date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/custom_message_profile_pic"
-        android:layout_marginEnd="@dimen/date_margin_right"
-        android:layout_marginRight="@dimen/date_margin_right"
-        android:text="@string/date"
-        android:layout_alignParentRight="true" />
+        <TextView
+            android:id="@+id/message_text_view"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/message_me_text_view_margin_right"
+            android:layout_marginRight="@dimen/message_me_text_view_margin_right"
+            android:padding="@dimen/message_text_view_padding"
+            android:text="@string/message"
+            android:textColor="@color/colorBlack" />
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/message_me_date_margin_right"
+            android:text="@string/date"
+            android:layout_marginEnd="@dimen/message_me_date_margin_right" />
+
+    </LinearLayout>
 
 
 </RelativeLayout>
+

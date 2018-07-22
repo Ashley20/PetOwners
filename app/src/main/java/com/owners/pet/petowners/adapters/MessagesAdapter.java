@@ -61,16 +61,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             if (message.getSender().equals(currentUser.getUid())) {
                 ((MeMessageViewHolder) holder).messageText.setText(message.getContent());
 
-                // Set profile pic
-                profileImagesRef = storageRef.child("users")
-                        .child(message.getSender())
-                        .child("profile.jpg");
-
-                GlideApp.with(mContext)
-                        .load(profileImagesRef)
-                        .placeholder(R.drawable.profile_icon)
-                        .into(((MeMessageViewHolder) holder).profilePic);
-
                 // Set date
                 Locale l = Locale.US;
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a", l);
@@ -120,8 +110,6 @@ public static class MessageViewHolder extends RecyclerView.ViewHolder {
 public static class MeMessageViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.message_text_view)
     TextView messageText;
-    @BindView(R.id.custom_message_profile_pic)
-    CircleImageView profilePic;
     @BindView(R.id.date)
     TextView date;
 

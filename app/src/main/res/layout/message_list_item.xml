@@ -13,29 +13,36 @@
         app:civ_fill_color="@color/colorPrimaryText"
         android:src="@drawable/profile_icon"/>
 
-    <TextView
-        android:id="@+id/message_text_view"
-        style="@style/TextAppearance.AppCompat.Medium"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="68dp"
-        android:layout_marginLeft="68dp"
-        android:background="@drawable/message_text_background"
-        android:padding="@dimen/message_text_view_padding"
-        android:text="@string/message"
-        android:textColor="@color/colorWhite"
-        android:layout_alignParentLeft="true" />
+        android:orientation="horizontal"
+        android:layout_marginStart="60dp"
+        android:layout_marginLeft="60dp"
+        android:background="@drawable/message_text_background">
 
-    <TextView
-        android:id="@+id/date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/message_text_view"
-        android:layout_below="@+id/custom_message_profile_pic"
-        android:text="@string/date"
-        android:layout_alignLeft="@+id/message_text_view" />
+        <TextView
+            android:id="@+id/message_text_view"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/message_text_view_padding"
+            android:layout_marginRight="@dimen/message_tv_margin_right"
+            android:text="@string/message"
+            android:textColor="@color/colorWhite"
+            android:layout_marginEnd="@dimen/message_tv_margin_right" />
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/date"
+            android:textColor="@color/colorWhite"
+            android:layout_marginRight="@dimen/message_date_margin_right"
+            android:layout_marginEnd="@dimen/message_date_margin_right" />
+
+    </LinearLayout>
+
 
 
 </RelativeLayout>

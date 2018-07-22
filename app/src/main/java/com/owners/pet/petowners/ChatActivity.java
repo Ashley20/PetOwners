@@ -109,6 +109,24 @@ public class ChatActivity extends AppCompatActivity {
                     .into(chatUserProfileImageIv);
 
             actionBar.setCustomView(custom_bar_view);
+
+
+            messageListRv.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v,
+                                           int left, int top, int right, int bottom,
+                                           int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    if (bottom < oldBottom) {
+                        messageListRv.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                messageListRv.smoothScrollToPosition(
+                                        messageListRv.getAdapter().getItemCount() - 1);
+                            }
+                        }, 100);
+                    }
+                }
+            });
         }
 
         messagesAdapter = new MessagesAdapter(messageList);
@@ -141,7 +159,7 @@ public class ChatActivity extends AppCompatActivity {
                             }
                             messagesAdapter.notifyDataSetChanged();
 
-                            messageListRv.getLayoutManager().scrollToPosition(messagesAdapter.getItemCount() - 4);
+                            messageListRv.getLayoutManager().scrollToPosition(messagesAdapter.getItemCount() - 1);
 
 
                         }
@@ -299,4 +317,6 @@ public class ChatActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+
 }

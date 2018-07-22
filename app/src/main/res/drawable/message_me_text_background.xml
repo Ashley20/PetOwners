@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/colorWhite" />
-    <corners android:radius="@dimen/message_text_background_drawable_radius" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:bottom="0px"
+        android:left="0px"
+        android:right="0px"
+        android:top="1px">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/colorGray300" />
+            <corners android:radius="5px" />
+        </shape>
+    </item>
+    <item
+        android:bottom="1px"
+        android:left="1px"
+        android:right="1px"
+        android:top="0px">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/colorWhite" />
+            <corners android:radius="5px" />
+        </shape>
+    </item>
+
+</layer-list>
