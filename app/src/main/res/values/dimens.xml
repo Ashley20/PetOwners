@@ -44,7 +44,7 @@
     <dimen name="user_fullname_margin_start">85dp</dimen>
     <dimen name="user_fullname_margin_top">20dp</dimen>
     <dimen name="user_bio_margin_top">48dp</dimen>
-    <dimen name="message_text_view_margin_left">2dp</dimen>
+    <dimen name="message_text_view_margin_left">4dp</dimen>
     <dimen name="custom_appbar_title_margin_left">1dp</dimen>
     <dimen name="custom_profile_image_size">50dp</dimen>
     <dimen name="custom_profile_image_margin_right">2dp</dimen>
@@ -52,7 +52,7 @@
     <dimen name="date_margin_start">103dp</dimen>
     <dimen name="recycler_view_margin_bottom">45dp</dimen>
     <dimen name="profile_pic_margin_right">14dp</dimen>
-    <dimen name="message_container_layout_padding">10dp</dimen>
+    <dimen name="message_container_layout_padding">5dp</dimen>
     <dimen name="message_text_view_padding">7dp</dimen>
     <dimen name="message_text_view_margin_right">68dp</dimen>
     <dimen name="date_margin_right">113dp</dimen>

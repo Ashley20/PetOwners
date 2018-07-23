@@ -26,6 +26,15 @@
         android:weightSum="@integer/message_bar_linear_layout_weight_sum"
         android:layout_alignParentLeft="true">
 
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/upload_image_btn"
+            android:layout_weight="@integer/upload_image_button_layout_weight"
+            android:src="@drawable/ic_upload_image"
+            android:background="@drawable/upload_image_button_background"
+            android:contentDescription="@string/upload_image_button_content_description" />
+
         <EditText
             android:id="@+id/message_edit_text"
             android:layout_width="wrap_content"
@@ -42,7 +51,7 @@
             android:id="@+id/send_btn"
             android:layout_width="wrap_content"
             android:layout_height="45dp"
-            android:background="@color/colorAccent"
+            android:background="@color/colorPrimary"
             android:layout_weight="@integer/send_btn_weight"
             android:contentDescription="@string/send_btn"
             android:src="@drawable/ic_send" />

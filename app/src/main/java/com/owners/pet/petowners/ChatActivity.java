@@ -1,7 +1,10 @@
 package com.owners.pet.petowners;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,11 +17,15 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -31,6 +38,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.ServerTimestamp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.adapters.MessagesAdapter;
 import com.owners.pet.petowners.models.ChatUser;
@@ -40,6 +48,7 @@ import com.owners.pet.petowners.models.User;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import javax.annotation.Nullable;
 
@@ -50,18 +59,21 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatActivity extends AppCompatActivity {
     private static final String TAG = ChatActivity.class.getSimpleName();
+    private static final int GALLERY_PICK_REQUEST = 1;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private String uid;
     private String name;
     private StorageReference storageRef;
     private StorageReference chatUserProfileImageRef;
+    private StorageReference imageMessagesRef;
     private FirebaseUser currentUser;
     private MessagesAdapter messagesAdapter;
-    private boolean chatAlreadyExists;
+    private ProgressDialog progressDialog;
 
     @BindView(R.id.message_edit_text)
     EditText messageEditText;
+
     @BindView(R.id.message_list_recycler_view)
     RecyclerView messageListRv;
 
@@ -74,9 +86,12 @@ public class ChatActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+        progressDialog = new ProgressDialog(this);
+
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         storageRef = FirebaseStorage.getInstance().getReference();
+        imageMessagesRef = storageRef.child("IMAGE_MESSAGES");
 
         // Get the current user
         currentUser = mAuth.getCurrentUser();
@@ -157,6 +172,7 @@ public class ChatActivity extends AppCompatActivity {
                                 Message message = s.toObject(Message.class);
                                 messageList.add(message);
                             }
+
                             messagesAdapter.notifyDataSetChanged();
 
                             messageListRv.getLayoutManager().scrollToPosition(messagesAdapter.getItemCount() - 1);
@@ -258,7 +274,6 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
-
     @OnClick(R.id.send_btn)
     public void sendMessage() {
 
@@ -273,6 +288,7 @@ public class ChatActivity extends AppCompatActivity {
             final Message newMessage = new Message();
             newMessage.setSender(currentUser.getUid());
             newMessage.setReceiver(uid);
+            newMessage.setType("text");
             newMessage.setContent(content);
 
             db.collection(getString(R.string.COLLECTION_MESSAGES))
@@ -307,6 +323,73 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
+
+    @OnClick(R.id.upload_image_btn)
+    public void uploadImage() {
+
+        if (currentUser != null) {
+            checkIfChatExistsWithTheUser();
+        }
+
+        Intent openGalleryIntent = new Intent();
+        openGalleryIntent.setType("image/*");
+        openGalleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+
+        startActivityForResult(Intent.createChooser(openGalleryIntent, "Complete action using"),
+                GALLERY_PICK_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == GALLERY_PICK_REQUEST && resultCode == RESULT_OK) {
+            final Uri imageUri = data.getData();
+            if (imageUri != null) {
+                progressDialog.setMessage("Image uploading");
+                progressDialog.show();
+
+                UploadTask uploadTask = imageMessagesRef
+                        .child(imageUri.getLastPathSegment()).putFile(imageUri);
+
+                Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        // Continue with the task to get the download URL
+                        return imageMessagesRef.child(imageUri.getLastPathSegment()).getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        progressDialog.dismiss();
+
+                        Uri downloadUri = task.getResult();
+
+                        Toast.makeText(getApplicationContext(), downloadUri.toString(), Toast.LENGTH_SHORT).show();
+
+                        Message imageMessage = new Message();
+                        imageMessage.setSender(currentUser.getUid());
+                        imageMessage.setReceiver(uid);
+                        imageMessage.setType("image");
+                        imageMessage.setContent(downloadUri.toString());
+
+                        db.collection(getString(R.string.COLLECTION_MESSAGES))
+                                .document(currentUser.getUid())
+                                .collection(uid)
+                                .document()
+                                .set(imageMessage);
+
+                        db.collection(getString(R.string.COLLECTION_MESSAGES))
+                                .document(uid)
+                                .collection(currentUser.getUid())
+                                .document()
+                                .set(imageMessage);
+                    }
+                });
+            }
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -316,6 +399,18 @@ public class ChatActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public static String random() {
+        Random generator = new Random();
+        StringBuilder randomStringBuilder = new StringBuilder();
+        int randomLength = generator.nextInt(5);
+        char tempChar;
+        for (int i = 0; i < randomLength; i++) {
+            tempChar = (char) (generator.nextInt(96) + 32);
+            randomStringBuilder.append(tempChar);
+        }
+        return randomStringBuilder.toString();
     }
 
 

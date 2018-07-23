@@ -8,6 +8,7 @@ public class Message {
     private String content;
     private String sender;
     private String receiver;
+    private String type;
 
     @ServerTimestamp
     private Date date;
@@ -45,5 +46,13 @@ public class Message {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
