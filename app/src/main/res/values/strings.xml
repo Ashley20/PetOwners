@@ -72,6 +72,7 @@
     <string name="explain_the_need_for_permission">The map feature needs your location to function properly</string>
     <string name="LATITUDE_KEY">latitude</string>
     <string name="LONGTITUDE_KEY">longtitude</string>
+    <string name="LOCATION_KEY">location</string>
     <string name="USER_WANTS_TO_ADOPT_STATE">Waiting to adopt a pet..</string>
     <string name="USER_WANTS_TO_POST_FOR_ADOPTION_STATE">Have a pet ready to be adopted..</string>
     <string name="USER_DEFAULT_STATE">Not interested</string>
@@ -121,6 +122,13 @@
     <string name="pet_type">Type</string>
     <string name="EXTRA_PET_UID">extra_pet_uid</string>
     <string name="EXTRA_PET_OWNER_UID">extra_pet_owner_uid</string>
+    <string name="service_not_available">Unable to fetch the addresss , please check network connection</string>
+    <string name="invalid_lat_long_used">The latitude, longtitude values provided are invalid</string>
+    <string name="no_address_found">No address found for the given location coordinates</string>
+    <string name="address_found">Address for the given location coordinates is found</string>
+    <string name="no_geocoder_available">No geocoder available</string>
+    <string name="EXTRA_PET_LOCATION">extra_pet_location</string>
+    <string name="pet_location">Location</string>
 
     <string-array name="genderList">
         <item>@string/gender_girl</item>

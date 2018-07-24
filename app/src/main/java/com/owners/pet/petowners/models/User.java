@@ -21,6 +21,7 @@ public class User {
     private String email;
     private Double latitude;
     private Double longtitude;
+    private String location;
     private ArrayList<Pet> petList;
     private ArrayList<ChatUser> conversationList;
     private ArrayList<String> chatWithUidList;
@@ -127,8 +128,18 @@ public class User {
         return chatWithUidList;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
     public void setChatWithUidList(ArrayList<String> chatWithUidList) {
         this.chatWithUidList = chatWithUidList;
+
+
     }
 
 }

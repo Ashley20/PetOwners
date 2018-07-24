@@ -39,9 +39,10 @@ public class MainActivity extends AppCompatActivity {
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-        // Add MessagesFragment and MapSearchFragment
-        viewPagerAdapter.addFragment(new ChatFragment(), getString(R.string.chat_fragment_tab_title));
+        // Add  MapSearchFragment and MessagesFragment
         viewPagerAdapter.addFragment(new MapSearchFragment(), getString(R.string.map_search_fragment_tab_title));
+        viewPagerAdapter.addFragment(new ChatFragment(), getString(R.string.chat_fragment_tab_title));
+
 
 
 

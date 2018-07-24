@@ -48,14 +48,36 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/pet_name"
-                    android:textSize="@dimen/pet_name_text_size"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                    android:textSize="@dimen/pet_name_text_size" />
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center">
+
+                    <ImageView
+                        android:id="@+id/marker_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/pet_location"
+                        android:src="@drawable/ic_marker_green" />
+
+                    <TextView
+                        android:id="@+id/pet_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/marker_icon"
+                        android:layout_toRightOf="@id/marker_icon"
+                        android:text="@string/pet_location"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                </RelativeLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
                     android:layout_marginTop="@dimen/pet_age_gender_container_margin_top"
+                    android:gravity="center"
                     android:orientation="horizontal">
 
                     <TextView
@@ -69,10 +91,10 @@
                         android:id="@+id/vertical_divider"
                         android:layout_width="@dimen/vertical_divider_width"
                         android:layout_height="@dimen/vertical_divider_height"
-                        android:layout_marginLeft="@dimen/vertical_divider_margin"
-                        android:layout_marginStart="@dimen/vertical_divider_margin"
-                        android:layout_marginRight="@dimen/vertical_divider_margin"
                         android:layout_marginEnd="@dimen/vertical_divider_margin"
+                        android:layout_marginLeft="@dimen/vertical_divider_margin"
+                        android:layout_marginRight="@dimen/vertical_divider_margin"
+                        android:layout_marginStart="@dimen/vertical_divider_margin"
                         android:background="@color/colorPrimaryDarkTwo" />
 
                     <TextView
@@ -107,5 +129,6 @@
         app:fabSize="normal"
         app:layout_anchor="@id/collapsing_toolbar_layout"
         app:layout_anchorGravity="right|bottom" />
+
 
 </android.support.design.widget.CoordinatorLayout>

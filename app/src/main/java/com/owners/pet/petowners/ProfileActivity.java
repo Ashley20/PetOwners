@@ -296,6 +296,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
                     Pet pet = new Pet();
                     pet.setOwnerUid(currentUser.getUid());
                     pet.setOwner(currentUser.getDisplayName());
+                    pet.setLocation(user.getLocation());
                     pet.setName(petName.getText().toString());
                     pet.setAbout(petAbout.getText().toString());
                     pet.setGender(genderSpinner.getSelectedItem().toString());

@@ -2,6 +2,7 @@ package com.owners.pet.petowners;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,6 +10,8 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -22,6 +25,7 @@ import android.widget.CheckBox;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -47,11 +51,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.owners.pet.petowners.adapters.CustomInfoViewAdapter;
 import com.owners.pet.petowners.models.User;
+import com.owners.pet.petowners.services.Constants;
+import com.owners.pet.petowners.services.FetchAddressIntentService;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 
 import butterknife.BindView;
@@ -59,7 +66,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class MapSearchFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
+public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
+        GoogleMap.OnInfoWindowClickListener {
     public static final String TAG = MapSearchFragment.class.getSimpleName();
 
     public static final int LOCATION_REQUEST = 1;
@@ -84,6 +92,9 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
     private ArrayList<Marker> orangeMarkers = new ArrayList<>();
     private ArrayList<Marker> cyanMarkers = new ArrayList<>();
     private ArrayList<Marker> greenMarkers = new ArrayList<>();
+    private Geocoder geocoder;
+    public AddressResultReceiver mResultReceiver;
+    private List<Address> addresses;
 
     public MapSearchFragment() {
     }
@@ -97,6 +108,8 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
         ButterKnife.bind(this, rootView);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        geocoder = new Geocoder(getContext(), Locale.getDefault());
+        mResultReceiver = new AddressResultReceiver(null);
 
         mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
@@ -241,52 +254,61 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
     }
 
 
+    @SuppressLint("MissingPermission")
     private void getDeviceLocation() {
         updateLocationUI();
         if (mLocationPermissionGranted) {
-            try {
-                mFusedLocationProviderClient.getLastLocation()
-                        .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
-                            @Override
-                            public void onSuccess(Location location) {
-                                if (location != null) {
-                                    mLastKnownLocation = location;
-                                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                            new LatLng(mLastKnownLocation.getLatitude(),
-                                                    mLastKnownLocation.getLongitude()), 15));
-                                    // Save the last known location into firestore database
-                                    saveLocationIntoDb(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-                                } else {
-                                    Log.d(TAG, "Current location is null. Using defaults.");
-                                   /* mGoogleMap.moveCamera(CameraUpdateFactory
-                                            .newLatLngZoom(new LatLng(-33.8523341, 151.2106085), 15)); */
-                                    mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
-                                    placeMarkers(mGoogleMap);
-                                }
-                            }
-                        });
 
-            } catch (SecurityException e) {
-            }
+            mFusedLocationProviderClient.getLastLocation()
+                    .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            mLastKnownLocation = location;
+
+                            if (mLastKnownLocation == null) {
+                                mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
+                                return;
+                            }
+                            if (!Geocoder.isPresent()) {
+                                Toast.makeText(getContext(),
+                                        R.string.no_geocoder_available,
+                                        Toast.LENGTH_LONG).show();
+                                return;
+                            }
+
+                            startIntentService();
+
+                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                    new LatLng(mLastKnownLocation.getLatitude(),
+                                            mLastKnownLocation.getLongitude()), 15));
+                        }
+                    });
+
+            placeMarkers(mGoogleMap);
         }
+
     }
 
     /**
-     * Funtion which saves the user's lastknownlocation in firestore database
+     * Funtion which stores the user's latitude,
+     * longtitude, actual address information into
+     * firestore database.
      *
-     * @param latitude
-     * @param longitude
+     * @param userLocation The address string coming from reverse geocoding
      */
-    private void saveLocationIntoDb(double latitude, double longitude) {
+    private void saveLocationIntoDb(String userLocation) {
         if (currentUser != null) {
+
             DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
-            user.update(getString(R.string.LATITUDE_KEY), latitude);
-            user.update(getString(R.string.LONGTITUDE_KEY), longitude).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    placeMarkers(mGoogleMap);
-                }
-            });
+            user.update(getString(R.string.LOCATION_KEY), userLocation);
+            user.update(getString(R.string.LATITUDE_KEY), mLastKnownLocation.getLatitude());
+            user.update(getString(R.string.LONGTITUDE_KEY), mLastKnownLocation.getLongitude())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            placeMarkers(mGoogleMap);
+                        }
+                    });
         }
     }
 
@@ -340,7 +362,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
     public void onInfoWindowClick(Marker marker) {
         HashMap<String, String> tag = (HashMap<String, String>) marker.getTag();
         // The uid of the user profile which wants to be displayed
-        if(tag != null){
+        if (tag != null) {
             String uid = tag.get(getString(R.string.UID_KEY));
             if (uid != null) {
                 if (currentUser.getUid().equals(uid)) {
@@ -394,6 +416,39 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback, G
             for (Marker greenMarker : greenMarkers) {
                 greenMarker.setVisible(false);
             }
+        }
+    }
+
+    protected void startIntentService() {
+        Intent intent = new Intent(getActivity(), FetchAddressIntentService.class);
+        intent.putExtra(Constants.RECEIVER, mResultReceiver);
+        intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastKnownLocation);
+        getActivity().startService(intent);
+    }
+
+    class AddressResultReceiver extends ResultReceiver {
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+            if (resultData == null) {
+                return;
+            }
+
+            if (resultCode == Constants.SUCCESS_RESULT) {
+                String mAddress = resultData.getString(Constants.RESULT_DATA_KEY);
+                Log.d(TAG, mAddress);
+
+                // Now we have the address store it into firestore database
+                saveLocationIntoDb(mAddress);
+            } else {
+                String errorMessage = resultData.getString(Constants.RESULT_DATA_KEY);
+                Log.d(TAG, errorMessage);
+            }
+
         }
     }
 

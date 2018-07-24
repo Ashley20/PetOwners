@@ -14,6 +14,7 @@ public class Pet {
     private String name;
     private String gender;
     private String type;
+    private String location;
     private boolean adoptionState;
 
 
@@ -85,5 +86,13 @@ public class Pet {
 
     public void setAbout(String about) {
         this.about = about;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

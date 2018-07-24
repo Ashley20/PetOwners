@@ -36,11 +36,15 @@
         <activity android:name=".ProfileActivity" />
         <activity android:name=".OthersProfileActivity" />
 
-        <service android:name=".fcm.MessageService">
+        <service android:name=".services.MessageService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <service
+            android:name=".services.FetchAddressIntentService"
+            android:exported="false"/>
 
         <activity android:name=".ChatActivity" />
         <activity
