@@ -9,17 +9,21 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/linearlayout_margin_size"
         android:layout_marginRight="@dimen/linearlayout_margin_size"
+        android:layout_marginTop="@dimen/linearlayout_margin_size"
         android:orientation="vertical">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/pet_profile_pic"
-            android:layout_width="200dp"
-            android:layout_height="100dp"
+            android:layout_width="@dimen/pet_profile_pic_width"
+            android:layout_height="@dimen/pet_profile_pic_height"
             android:layout_gravity="center"
+            app:civ_fill_color="@color/colorPrimaryLight"
+            app:civ_border_color="@color/colorWhite"
             android:layout_marginTop="@dimen/pet_profile_pic_margin_top"
             android:src="@drawable/pets_icon"
             android:contentDescription="@string/pet_profile_pic"
             android:scaleType="centerCrop" />
+
 
         <!--                 Pet Name Field                   -->
         <android.support.design.widget.TextInputLayout
@@ -38,31 +42,54 @@
                 android:textSize="@dimen/input_text_size" />
         </android.support.design.widget.TextInputLayout>
 
-        <!--                 Pet Type Field                   -->
-        <android.support.design.widget.TextInputLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dialog_input_field_margin_top"
-            android:textColorHint="@color/colorBlack">
-            <Spinner
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/pet_type_spinner">
-            </Spinner>
-        </android.support.design.widget.TextInputLayout>
+            android:orientation="horizontal">
 
-        <!--                 Pet Gender Field                   -->
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dialog_input_field_margin_top"
-            android:textColorHint="@color/colorBlack">
-            <Spinner
-                android:layout_width="match_parent"
+            <!--                 Pet Type Field                   -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/pet_gender_spinner">
-            </Spinner>
-        </android.support.design.widget.TextInputLayout>
+                android:layout_marginTop="@dimen/dialog_input_field_margin_top"
+                android:layout_marginLeft="@dimen/pet_type_margin_left"
+                android:textColorHint="@color/colorBlack"
+                android:layout_marginStart="@dimen/pet_type_margin_left">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pick_pet_type"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/pet_type_spinner">
+                </Spinner>
+            </android.support.design.widget.TextInputLayout>
+
+            <!--                 Pet Gender Field                   -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dialog_input_field_margin_top"
+                android:layout_marginLeft="@dimen/dialog_input_field_margin_left"
+                android:textColorHint="@color/colorBlack"
+                android:layout_marginStart="@dimen/dialog_input_field_margin_left">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pick_pet_gender"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/pet_gender_spinner">
+                </Spinner>
+            </android.support.design.widget.TextInputLayout>
+
+        </LinearLayout>
+
+
 
         <!--                 Pet Adoption Field                   -->
         <android.support.design.widget.TextInputLayout

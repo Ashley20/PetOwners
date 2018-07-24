@@ -13,7 +13,7 @@
     <string name="user_fullname">User Name</string>
     <string name="email_text">Email:</string>
     <string name="phone_icon">Phone</string>
-    <string name="phone_text_example">(123) 456-7890</string>
+    <string name="phone_text_example">(123) 456/7890</string>
     <string name="email_text_example">email</string>
     <string name="pet_information_text">Pets</string>
     <string name="pet_icon">Pet image</string>
@@ -54,12 +54,12 @@
     <string name="pet_profile_pic">Pet profile picture</string>
     <string name="pet_name_edit_text">Pet name</string>
     <string name="pet_age_edit_text">Pet age</string>
-    <string name="cancel_button">CANCEL</string>
+    <string name="cancel_button">Cancel</string>
     <string name="add_pet_dialog_button">ADD</string>
     <string name="gender_girl">Girl</string>
     <string name="gender_boy">Boy</string>
-    <string name="add_pet_cancel_dialog_button">CANCEL</string>
-    <string name="dialog_adoption_checkbox_text">Check it if the pet is waiting to be adopted.</string>
+    <string name="add_pet_cancel_dialog_button">Cancel</string>
+    <string name="dialog_adoption_checkbox_text">Is for adoption?</string>
     <string name="add_a_new_pet_title">Add a new pet</string>
     <string name="type_cat">Cat</string>
     <string name="type_dog">Dog</string>
@@ -69,7 +69,7 @@
     <string name="log_out">Log Out</string>
     <string name="logout_icon">Log out</string>
     <string name="map_search_text">Search a place</string>
-    <string name="explain_the_need_for_permission">The map feature needs your location to funtion properly</string>
+    <string name="explain_the_need_for_permission">The map feature needs your location to function properly</string>
     <string name="LATITUDE_KEY">latitude</string>
     <string name="LONGTITUDE_KEY">longtitude</string>
     <string name="USER_WANTS_TO_ADOPT_STATE">Waiting to adopt a pet..</string>
@@ -103,6 +103,24 @@
     <string name="COLOR_KEY">color</string>
     <string name="upload_image_button_content_description">Upload image</string>
     <string name="upload_image">uploaded image file</string>
+    <string name="pet_name">Pet name</string>
+    <string name="pet_gender">Gender</string>
+    <string name="pet_age">Age</string>
+    <string name="pet_bio">Yummm yum yummm..</string>
+    <string name="pet_owner">Owner</string>
+    <string name="pet_adoption_state">State</string>
+    <string name="EXTRA_PET_NAME">extra_pet_name</string>
+    <string name="EXTRA_PET_GENDER">extra_pet_gender</string>
+    <string name="EXTRA_PET_ABOUT">extra_pet_about</string>
+    <string name="EXTRA_PET_OWNER">extra_pet_owner</string>
+    <string name="EXTRA_PET_TYPE">extra_pet_type</string>
+    <string name="EXTRA_PET_ADOPTION_STATE">extra_pet_adoption_state</string>
+    <string name="pick_pet_gender">Pick gender</string>
+    <string name="pick_pet_type">Pick type</string>
+    <string name="pet_age_checkbox_text">Pick birthday</string>
+    <string name="pet_type">Type</string>
+    <string name="EXTRA_PET_UID">extra_pet_uid</string>
+    <string name="EXTRA_PET_OWNER_UID">extra_pet_owner_uid</string>
 
     <string-array name="genderList">
         <item>@string/gender_girl</item>

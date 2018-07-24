@@ -108,7 +108,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 } else {
                     ((MessageViewHolder) holder).uploadImageView.setVisibility(View.VISIBLE);
-                  
+
                     Picasso.get()
                             .load(message.getContent())
                             .resize(200, 200)

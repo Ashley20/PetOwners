@@ -2,17 +2,41 @@ package com.owners.pet.petowners.models;
 
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Date;
+import java.util.UUID;
+
 public class Pet {
 
+    private String petUid;
+    private String ownerUid;
     private String owner;
     private String about;
     private String name;
     private String gender;
     private String type;
-    private boolean wants_to_be_adopted;
+    private boolean adoptionState;
 
 
     public Pet() {
+        if(this.getPetUid() == null){
+            this.petUid = UUID.randomUUID().toString();
+        }
+    }
+
+    public String getPetUid() {
+        return petUid;
+    }
+
+    public void setPetUid(String petUid) {
+        this.petUid = petUid;
+    }
+
+    public String getOwnerUid() {
+        return ownerUid;
+    }
+
+    public void setOwnerUid(String ownerUid) {
+        this.ownerUid = ownerUid;
     }
 
     public String getOwner() {
@@ -31,12 +55,12 @@ public class Pet {
         this.name = name;
     }
 
-    public boolean isWants_to_be_adopted() {
-        return wants_to_be_adopted;
+    public boolean getAdoptionState() {
+        return adoptionState;
     }
 
-    public void setWants_to_be_adopted(boolean wants_to_be_adopted) {
-        this.wants_to_be_adopted = wants_to_be_adopted;
+    public void setAdoptionState(boolean adoptionState) {
+        this.adoptionState = adoptionState;
     }
 
     public String getGender() {

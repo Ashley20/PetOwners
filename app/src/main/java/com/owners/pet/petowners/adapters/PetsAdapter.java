@@ -1,6 +1,7 @@
 package com.owners.pet.petowners.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.owners.pet.petowners.PetProfileActivity;
 import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.Pet;
 
@@ -44,8 +46,25 @@ public class PetsAdapter extends ArrayAdapter<Pet>{
         if (pet != null) {
             petIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.pets_icon));
             petName.setText(pet.getName());
-            petState.setText(pet.isWants_to_be_adopted() ? mContext.getString(R.string.waits_for_adoption_text)
+            petState.setText(pet.getAdoptionState() ? mContext.getString(R.string.waits_for_adoption_text)
                     : mContext.getString(R.string.no_adoption));
+
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent petProfileIntent = new Intent(mContext, PetProfileActivity.class);
+                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_OWNER_UID), pet.getOwnerUid());
+                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_UID), pet.getPetUid());
+                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_NAME), pet.getName());
+                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_GENDER), pet.getGender());
+                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_ABOUT), pet.getAbout());
+                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_OWNER), pet.getOwner());
+                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_TYPE), pet.getType());
+                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_ADOPTION_STATE), pet.getAdoptionState());
+
+                    mContext.startActivity(petProfileIntent);
+                }
+            });
 
         }
 

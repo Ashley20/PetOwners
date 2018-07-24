@@ -98,8 +98,10 @@ public class ChatFragment extends Fragment {
 
 
     private void loadConversations(ArrayList<ChatUser> conversationList) {
-        UserAdapter adapter = new UserAdapter(getContext(), conversationList);
-        adapter.notifyDataSetChanged();
-        convListLv.setAdapter(adapter);
+        if(getContext() != null){
+            UserAdapter adapter = new UserAdapter(getContext(), conversationList);
+            adapter.notifyDataSetChanged();
+            convListLv.setAdapter(adapter);
+        }
     }
 }

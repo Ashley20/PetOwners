@@ -8,6 +8,17 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!-- Gray theme. -->
+    <style name="GrayTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryTwo</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkTwo</item>
+        <item name="colorAccent">@color/colorAccentTwo</item>
+        <item name="coordinatorLayoutStyle">@style/Widget.Design.CoordinatorLayout</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+
     <style name="MyButton" parent="Theme.AppCompat.Light">
         <item name="colorControlHighlight">@color/colorPurple500</item>
         <item name="colorButtonNormal">@color/colorPurple900</item>

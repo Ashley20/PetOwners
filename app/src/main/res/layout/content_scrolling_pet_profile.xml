@@ -1,0 +1,96 @@
+<android.support.v4.widget.NestedScrollView
+    android:id="@+id/pet_information_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="40dp"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/scrolling_linearlayout_margin_top"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/pet_bio_text_view"
+            app:fontFamily="@font/helvetica_neueit"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_marginStart="@dimen/bio_margin_left"
+            android:layout_marginLeft="@dimen/bio_margin_left"
+            android:layout_marginTop="@dimen/bio_margin_top"
+            android:layout_marginBottom="@dimen/bio_margin_bottom"
+            android:text="@string/pet_bio"
+            android:textColor="@color/colorSecondaryText" />
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:layout_marginLeft="@dimen/owner_relative_layout_margin_left"
+            android:layout_marginStart="@dimen/owner_relative_layout_margin_left"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="@dimen/activity_horizontal_margin">
+
+            <TextView
+                android:id="@+id/owner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@string/pet_owner"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimaryText"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+            <TextView
+                android:id="@+id/owner_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/owner"
+                android:text="@string/user_fullname"
+                android:layout_marginTop="@dimen/owner_text_view_margin_top"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/colorSecondaryText" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:layout_marginLeft="@dimen/owner_relative_layout_margin_left"
+            android:layout_marginStart="@dimen/owner_relative_layout_margin_left"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="@dimen/activity_horizontal_margin">
+
+            <TextView
+                android:id="@+id/pet_adoption_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@string/pet_adoption_state"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimaryText"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+            <TextView
+                android:id="@+id/pet_adoption_state_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/pet_adoption_state"
+                android:text="@string/pet_adoption_state"
+                android:layout_marginTop="@dimen/owner_text_view_margin_top"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/colorSecondaryText" />
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+</android.support.v4.widget.NestedScrollView>

@@ -42,7 +42,9 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".ChatActivity"/>
+        <activity android:name=".ChatActivity" />
+        <activity
+            android:name=".PetProfileActivity"  android:theme="@style/GrayTheme"/>
     </application>
 
 </manifest>

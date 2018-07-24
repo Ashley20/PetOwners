@@ -4,15 +4,15 @@
     android:id="@+id/message_container_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="5dp">
+    android:padding="@dimen/message_container_layout_padding">
 
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/message_container"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginLeft="@dimen/message_container_linear_layout_margin_left"
+        android:layout_marginStart="@dimen/message_container_linear_layout_margin_left"
         android:background="@drawable/message_text_background"
         android:orientation="horizontal">
 
@@ -40,8 +40,8 @@
 
     <ImageView
         android:id="@+id/upload_image_view"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="@dimen/upload_image_size"
+        android:layout_height="@dimen/upload_image_size"
         android:contentDescription="@string/upload_image" />
 
 </RelativeLayout>

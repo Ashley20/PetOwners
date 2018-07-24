@@ -51,6 +51,7 @@ import com.owners.pet.petowners.adapters.PetsAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.google.firebase.storage.StorageException.ERROR_OBJECT_NOT_FOUND;
 
@@ -255,6 +256,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
                     }
 
                 }
+
         }
     }
 
@@ -265,7 +267,6 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
         View view = getLayoutInflater().inflate(R.layout.add_pet_custom_dialog, null);
         builder.setTitle(getString(R.string.add_a_new_pet_title));
 
-        ImageView petProfilePicture = (ImageView) view.findViewById(R.id.pet_profile_pic);
         final EditText petName = (EditText) view.findViewById(R.id.pet_name_edit_text);
         final EditText petAbout = (EditText) view.findViewById(R.id.about_pet_edit_text);
         final CheckBox petAdoptionState = (CheckBox) view.findViewById(R.id.pet_adoption_state);
@@ -285,6 +286,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
         typeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         typeSpinner.setAdapter(typeAdapter);
 
+
         // Set positive and negative buttons
         builder.setPositiveButton(getString(R.string.add_pet_dialog_button), new DialogInterface.OnClickListener() {
             @Override
@@ -292,12 +294,13 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
                 if (!TextUtils.isEmpty(petName.getText().toString())) {
                     // With the given information create a new pet.
                     Pet pet = new Pet();
+                    pet.setOwnerUid(currentUser.getUid());
                     pet.setOwner(currentUser.getDisplayName());
                     pet.setName(petName.getText().toString());
                     pet.setAbout(petAbout.getText().toString());
                     pet.setGender(genderSpinner.getSelectedItem().toString());
                     pet.setType(typeSpinner.getSelectedItem().toString());
-                    pet.setWants_to_be_adopted(petAdoptionState.isChecked());
+                    pet.setAdoptionState(petAdoptionState.isChecked());
 
                     addAnewPet(pet);
 

@@ -365,8 +365,6 @@ public class ChatActivity extends AppCompatActivity {
 
                         Uri downloadUri = task.getResult();
 
-                        Toast.makeText(getApplicationContext(), downloadUri.toString(), Toast.LENGTH_SHORT).show();
-
                         Message imageMessage = new Message();
                         imageMessage.setSender(currentUser.getUid());
                         imageMessage.setReceiver(uid);
