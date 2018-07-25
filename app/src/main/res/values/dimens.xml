@@ -83,4 +83,5 @@
     <dimen name="pet_location_margin_left">7dp</dimen>
     <dimen name="delete_icon_margin_right">7dp</dimen>
     <dimen name="delete_icon_relative_layout_margin_top">10dp</dimen>
+    <dimen name="buttons_container_margin_top">20dp</dimen>
 </resources>

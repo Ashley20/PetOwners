@@ -140,6 +140,9 @@
     <string name="PET_UID_KEY">petUid</string>
     <string name="successful_pet_deletion_message">Pet successfully deleted</string>
     <string name="failed_pet_deletion_message">Failed to delete the pet</string>
+    <string name="send_message_to_owner">SEND MESSAGE TO OWNER</string>
+    <string name="display_owner_profile">DISPLAY OWNER PROFILE</string>
+    <string name="or_text">OR</string>
 
     <string-array name="genderList">
         <item>@string/gender_girl</item>

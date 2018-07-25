@@ -19,9 +19,14 @@
     </style>
 
 
-    <style name="MyButton" parent="Theme.AppCompat.Light">
-        <item name="colorControlHighlight">@color/colorPurple500</item>
-        <item name="colorButtonNormal">@color/colorPurple900</item>
+    <style name="BtnMessage" parent="Theme.AppCompat.Light">
+        <item name="colorControlHighlight">@color/colorAccentTwo</item>
+        <item name="colorButtonNormal">@color/colorAccentTwo</item>
+    </style>
+
+    <style name="BtnProfile" parent="Theme.AppCompat.Light">
+        <item name="colorControlHighlight">@color/colorAccentTwo</item>
+        <item name="colorButtonNormal">@color/colorWhite</item>
     </style>
 
 </resources>

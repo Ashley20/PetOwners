@@ -89,6 +89,43 @@
 
         </RelativeLayout>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttons_container"
+            android:layout_marginTop="@dimen/buttons_container_margin_top"
+            android:gravity="center">
+
+            <Button
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:padding="15dp"
+                android:id="@+id/send_message_to_owner_btn"
+                android:layout_gravity="center"
+                android:layout_below="@id/display_owner_profile_btn"
+                android:theme="@style/BtnMessage"
+                android:layout_marginTop="5dp"
+                android:textSize="22sp"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/colorWhite"
+                android:text="@string/send_message_to_owner"/>
+
+
+            <Button
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/display_owner_profile_btn"
+                android:layout_gravity="center"
+                android:padding="15dp"
+                android:textAlignment="center"
+                android:theme="@style/BtnProfile"
+                android:textSize="22sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/colorBlack"
+                android:text="@string/display_owner_profile"/>
+
+        </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"

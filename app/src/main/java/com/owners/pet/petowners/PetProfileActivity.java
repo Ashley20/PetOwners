@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,7 +53,11 @@ public class PetProfileActivity extends AppCompatActivity {
     @BindView(R.id.pet_location)
     TextView petLocationTv;
     @BindView(R.id.edit_pet_fab)
-    FloatingActionButton fab;
+    FloatingActionButton editFab;
+    @BindView(R.id.send_message_to_owner_btn)
+    Button sendMessageBtn;
+    @BindView(R.id.display_owner_profile_btn)
+    Button displayProfileBtn;
     @BindView(R.id.delete_pet_container)
     RelativeLayout deletePetContainer;
 
@@ -63,6 +68,7 @@ public class PetProfileActivity extends AppCompatActivity {
     private FirebaseUser currentUser;
     private String petUid;
     private String petOwnerUid;
+    private String petOwnerName;
     private ProgressDialog progressDialog;
 
 
@@ -113,6 +119,32 @@ public class PetProfileActivity extends AppCompatActivity {
             return;
         }
 
+    }
+
+    @OnClick(R.id.display_owner_profile_btn)
+    public void displayOwnerProfile(){
+        if(currentUser.getUid().equals(petOwnerUid)){
+            return;
+        }
+        Intent othersProfileActivity =
+                new Intent(getApplicationContext(), OthersProfileActivity.class);
+        othersProfileActivity.putExtra(getString(R.string.USER_PROFILE_UID), petOwnerUid);
+        startActivity(othersProfileActivity);
+    }
+
+    @OnClick(R.id.send_message_to_owner_btn)
+    public void sendMessageToOwner(){
+        if(currentUser.getUid().equals(petOwnerUid)){
+            return;
+        }
+
+        if(petOwnerUid != null && petOwnerName != null){
+            Intent chatActivity =
+                    new Intent(getApplicationContext(), ChatActivity.class);
+            chatActivity.putExtra(getString(R.string.USER_PROFILE_UID), petOwnerUid);
+            chatActivity.putExtra(getString(R.string.USER_PROFILE_NAME), petOwnerName);
+            startActivity(chatActivity);
+        }
     }
 
     @OnClick(R.id.delete_pet_container)
@@ -210,6 +242,8 @@ public class PetProfileActivity extends AppCompatActivity {
     private void loadPetProfile(Bundle extras) {
         petOwnerUid = extras.getString(getString(R.string.EXTRA_PET_OWNER_UID));
         petUid = extras.getString(getString(R.string.EXTRA_PET_UID));
+        petOwnerName = extras.getString(getString(R.string.EXTRA_PET_OWNER));
+
         petNameTv.setText(extras.getString(getString(R.string.EXTRA_PET_NAME)));
         petBioTv.setText(extras.getString(getString(R.string.EXTRA_PET_ABOUT)));
         petLocationTv.setText(extras.getString(getString(R.string.EXTRA_PET_LOCATION)));
@@ -225,17 +259,33 @@ public class PetProfileActivity extends AppCompatActivity {
                     .into(petProfilePic);
         }
 
-        if(!currentUser.getUid().equals(petOwnerUid)){
-            /*If the profile is being viewed by someone other than the owner of the pet
-            then dont show the delete pet and edit pet fields */
-            fab.setVisibility(View.INVISIBLE);
-            deletePetContainer.setVisibility(View.INVISIBLE);
-        }
-
         petAdoptionStateTv.setText(extras.getBoolean(
                 getString(R.string.EXTRA_PET_ADOPTION_STATE))
                 ? getString(R.string.waits_for_adoption_text)
                 : getString(R.string.no_adoption));
+
+        setVisibilityOptions();
+
+    }
+
+
+    /**
+     * This function sets the visibility options
+     * based on the rights of the
+     * user displaying the profile..
+     */
+    private void setVisibilityOptions() {
+        if(!currentUser.getUid().equals(petOwnerUid)){
+            /* If the profile is being viewed by someone other than the owner of the pet
+            then dont show the delete pet and edit pet fields */
+            editFab.setVisibility(View.INVISIBLE);
+            deletePetContainer.setVisibility(View.INVISIBLE);
+        }else{
+            /* Don't show the send message and display owner profile buttons
+            to the owner fab to the owner of the pet */
+            sendMessageBtn.setVisibility(View.INVISIBLE);
+            displayProfileBtn.setVisibility(View.INVISIBLE);
+        }
     }
 
 
