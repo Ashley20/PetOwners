@@ -64,17 +64,7 @@ public class PetsAdapter extends ArrayAdapter<Pet> {
                 @Override
                 public void onClick(View view) {
                     Intent petProfileIntent = new Intent(mContext, PetProfileActivity.class);
-                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_OWNER_UID), pet.getOwnerUid());
                     petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_UID), pet.getPetUid());
-                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_NAME), pet.getName());
-                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_GENDER), pet.getGender());
-                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_ABOUT), pet.getAbout());
-                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_LOCATION), pet.getLocation());
-                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_OWNER), pet.getOwner());
-                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_TYPE), pet.getType());
-                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_ADOPTION_STATE), pet.getAdoptionState());
-                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_PROFILE_IMAGE_URI), pet.getProfileImageUri());
-
                     mContext.startActivity(petProfileIntent);
                 }
             });

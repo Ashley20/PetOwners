@@ -410,7 +410,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
             }
         });
 
-        builder.setNegativeButton(getString(R.string.add_pet_cancel_dialog_button), new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.cancel_dialog_button), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();

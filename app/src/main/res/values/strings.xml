@@ -58,7 +58,7 @@
     <string name="add_pet_dialog_button">ADD</string>
     <string name="gender_girl">Girl</string>
     <string name="gender_boy">Boy</string>
-    <string name="add_pet_cancel_dialog_button">Cancel</string>
+    <string name="cancel_dialog_button">Cancel</string>
     <string name="dialog_adoption_checkbox_text">Is for adoption?</string>
     <string name="add_a_new_pet_title">Add a new pet</string>
     <string name="type_cat">Cat</string>
@@ -143,6 +143,10 @@
     <string name="send_message_to_owner">SEND MESSAGE TO OWNER</string>
     <string name="display_owner_profile">DISPLAY OWNER PROFILE</string>
     <string name="or_text">OR</string>
+    <string name="edit_pet_title">Edit your pet</string>
+    <string name="edit_pet_dialog_button">Edit</string>
+    <string name="successful_pet_edition_message">Successfully edited the pet information</string>
+    <string name="name_and_about_field_cannot_be_empty">Fields name and about cannot be left empty</string>
 
     <string-array name="genderList">
         <item>@string/gender_girl</item>
