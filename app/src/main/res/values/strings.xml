@@ -129,6 +129,12 @@
     <string name="no_geocoder_available">No geocoder available</string>
     <string name="EXTRA_PET_LOCATION">extra_pet_location</string>
     <string name="pet_location">Location</string>
+    <string name="IMAGE_UPLOAD_ERROR">Image could not be saved please try again..</string>
+    <string name="USER_PROFILE_IMAGE_URI_KEY">profileImageUri</string>
+    <string name="EXTRA_PET_PROFILE_IMAGE_URI">extra_pet_profile_image_uri</string>
+    <string name="PROFILE_IMAGE_URI_KEY">profileImageUri</string>
+    <string name="OWNER_UID_KEY">ownerUid</string>
+    <string name="please_select_pet_profile">Please select an image for the pet</string>
 
     <string-array name="genderList">
         <item>@string/gender_girl</item>

@@ -22,7 +22,7 @@ public class User {
     private Double latitude;
     private Double longtitude;
     private String location;
-    private ArrayList<Pet> petList;
+    private String profileImageUri;
     private ArrayList<ChatUser> conversationList;
     private ArrayList<String> chatWithUidList;
     private int userState;
@@ -30,7 +30,6 @@ public class User {
 
     public User() {
         this.userState = NONE;
-        this.petList = new ArrayList<>();
         this.conversationList = new ArrayList<>();
         this.chatWithUidList = new ArrayList<>();
         this.phoneNumber = "(123) 456 78 90";
@@ -66,14 +65,6 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
-    }
-
-    public ArrayList<Pet> getPetList() {
-        return petList;
-    }
-
-    public void setPetList(ArrayList<Pet> petList) {
-        this.petList = petList;
     }
 
     public int getUserState() {
@@ -139,7 +130,13 @@ public class User {
     public void setChatWithUidList(ArrayList<String> chatWithUidList) {
         this.chatWithUidList = chatWithUidList;
 
-
     }
 
+    public String getProfileImageUri() {
+        return profileImageUri;
+    }
+
+    public void setProfileImageUri(String profileImageUri) {
+        this.profileImageUri = profileImageUri;
+    }
 }

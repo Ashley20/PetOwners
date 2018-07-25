@@ -29,6 +29,7 @@ import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.models.User;
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -83,12 +84,13 @@ public class UsersActivity extends AppCompatActivity {
 
             @Override
             protected void onBindViewHolder(@NonNull final UsersViewHolder holder, int position, @NonNull final User model) {
-                profileImagesRef = storageReference.child("users").child(model.getUid()).child("profile.jpg");
 
-                GlideApp.with(getApplicationContext())
-                        .load(profileImagesRef)
-                        .placeholder(R.drawable.profile_icon)
-                        .into(holder.userProfileImage);
+                if(model.getProfileImageUri() != null){
+                    Picasso.get()
+                            .load(model.getProfileImageUri())
+                            .placeholder(R.drawable.profile_icon)
+                            .into(holder.userProfileImage);
+                }
 
                 holder.userFullName.setText(model.getName());
                 holder.userBio.setText(model.getBiography());

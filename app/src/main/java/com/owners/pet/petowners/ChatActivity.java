@@ -44,6 +44,7 @@ import com.owners.pet.petowners.adapters.MessagesAdapter;
 import com.owners.pet.petowners.models.ChatUser;
 import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.User;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,7 +104,7 @@ public class ChatActivity extends AppCompatActivity {
 
             Log.d(TAG, uid + " " + name);
             chatUserProfileImageRef = storageRef.child(getString(R.string.COLLECTION_USERS))
-                    .child(uid).child("profile.jpg");
+                    .child(uid).child(getString(R.string.storage_profile_ref));
         }
 
         final ActionBar actionBar = getSupportActionBar();
@@ -115,13 +116,27 @@ public class ChatActivity extends AppCompatActivity {
             View custom_bar_view = inflater.inflate(R.layout.custom_chat_actionbar, null);
 
             TextView chatUserNameTv = custom_bar_view.findViewById(R.id.chat_user_name);
-            CircleImageView chatUserProfileImageIv = custom_bar_view.findViewById(R.id.chat_profile_image);
+            final CircleImageView chatUserProfileImageIv = custom_bar_view.findViewById(R.id.chat_profile_image);
 
             chatUserNameTv.setText(name);
-            GlideApp.with(getApplicationContext())
-                    .load(chatUserProfileImageRef)
-                    .placeholder(R.drawable.profile_icon)
-                    .into(chatUserProfileImageIv);
+            db.collection(getString(R.string.COLLECTION_USERS))
+                    .document(uid)
+                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
+                            if (snapshot != null && snapshot.exists()) {
+                                User chatUser = snapshot.toObject(User.class);
+                                if (chatUser != null) {
+                                    if (chatUser.getProfileImageUri() != null) {
+                                        Picasso.get()
+                                                .load(chatUser.getProfileImageUri())
+                                                .placeholder(R.drawable.profile_icon)
+                                                .into(chatUserProfileImageIv);
+                                    }
+                                }
+                            }
+                        }
+                    });
 
             actionBar.setCustomView(custom_bar_view);
 
@@ -397,18 +412,6 @@ public class ChatActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    public static String random() {
-        Random generator = new Random();
-        StringBuilder randomStringBuilder = new StringBuilder();
-        int randomLength = generator.nextInt(5);
-        char tempChar;
-        for (int i = 0; i < randomLength; i++) {
-            tempChar = (char) (generator.nextInt(96) + 32);
-            randomStringBuilder.append(tempChar);
-        }
-        return randomStringBuilder.toString();
     }
 
 

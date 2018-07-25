@@ -16,11 +16,13 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.owners.pet.petowners.Glide.GlideApp;
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -102,6 +104,9 @@ public class PetProfileActivity extends AppCompatActivity {
 
     @OnClick(R.id.edit_pet_fab)
     public void editPetInformation() {
+        if(!currentUser.getUid().equals(petOwnerUid)){
+            return;
+        }
 
     }
 
@@ -113,6 +118,7 @@ public class PetProfileActivity extends AppCompatActivity {
         if(!currentUser.getUid().equals(petOwnerUid)){
             return;
         }
+
         Intent imagePickerIntent = new Intent(Intent.ACTION_PICK);
         imagePickerIntent.setType("image/*");
         startActivityForResult(imagePickerIntent, IMAGE_PICKER);
@@ -126,6 +132,11 @@ public class PetProfileActivity extends AppCompatActivity {
         switch (requestCode) {
             case IMAGE_PICKER:
                 if (resultCode == RESULT_OK) {
+                    petProfilePictureRef = storageRef.child(getString(R.string.COLLECTION_PETS))
+                            .child(petOwnerUid)
+                            .child(petUid)
+                            .child(getString(R.string.storage_profile_ref));
+
                     final Uri imageUri = data.getData();
 
                     // Store the picked image into firebase storage
@@ -144,7 +155,19 @@ public class PetProfileActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                 progressDialog.dismiss();
-                                loadPetProfilePicture();
+                                petProfilePictureRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        DocumentReference pet = db.collection(getString(R.string.COLLECTION_PETS))
+                                                .document(petUid);
+                                        pet.update(getString(R.string.PROFILE_IMAGE_URI_KEY), uri.toString());
+
+                                        Picasso.get()
+                                                .load(uri)
+                                                .placeholder(R.drawable.pets_icon)
+                                                .into(petProfilePic);
+                                    }
+                                });
                             }
                         });
                     }
@@ -169,6 +192,14 @@ public class PetProfileActivity extends AppCompatActivity {
         petTypeTv.setText(extras.getString(getString(R.string.EXTRA_PET_TYPE)));
         petOwnerTv.setText(extras.getString(getString(R.string.EXTRA_PET_OWNER)));
 
+        String petProfileImageUri = extras.getString(getString(R.string.EXTRA_PET_PROFILE_IMAGE_URI));
+        if(petProfileImageUri != null){
+            Picasso.get()
+                    .load(petProfileImageUri)
+                    .placeholder(R.drawable.pets_icon)
+                    .into(petProfilePic);
+        }
+
         if(!currentUser.getUid().equals(petOwnerUid)){
             fab.setVisibility(View.INVISIBLE);
         }
@@ -178,21 +209,8 @@ public class PetProfileActivity extends AppCompatActivity {
                 ? getString(R.string.waits_for_adoption_text)
                 : getString(R.string.no_adoption));
 
-        petProfilePictureRef = storageRef.child(petOwnerUid)
-                .child(petUid)
-                .child(getString(R.string.storage_profile_ref));
 
-        loadPetProfilePicture();
     }
 
-    /**
-     * This function loads the pet profile picture
-     * from firebase storage
-     */
-    private void loadPetProfilePicture() {
-        GlideApp.with(getApplicationContext())
-                .load(petProfilePictureRef)
-                .placeholder(R.drawable.pets_icon)
-                .into(petProfilePic);
-    }
+
 }

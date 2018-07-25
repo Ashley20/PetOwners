@@ -15,6 +15,7 @@ public class Pet {
     private String gender;
     private String type;
     private String location;
+    private String profileImageUri;
     private boolean adoptionState;
 
 
@@ -94,5 +95,13 @@ public class Pet {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getProfileImageUri() {
+        return profileImageUri;
+    }
+
+    public void setProfileImageUri(String profileImageUri) {
+        this.profileImageUri = profileImageUri;
     }
 }

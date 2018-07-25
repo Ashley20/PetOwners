@@ -1,5 +1,6 @@
 package com.owners.pet.petowners;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -34,8 +35,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
@@ -45,8 +49,12 @@ import com.owners.pet.petowners.models.Pet;
 import com.owners.pet.petowners.models.User;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.owners.pet.petowners.adapters.PetsAdapter;
+import com.squareup.picasso.Picasso;
+
+import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -57,10 +65,11 @@ import static com.google.firebase.storage.StorageException.ERROR_OBJECT_NOT_FOUN
 
 public class ProfileActivity extends AppCompatActivity implements OnFailureListener {
     private static final int PICK_IMAGE = 1;
+    public static final int PICK_PET_IMAGE = 2;
     private static final String TAG = ProfileActivity.class.getSimpleName();
 
     @BindView(R.id.profile_picture_image_view)
-    ImageView profile_picture;
+    CircleImageView profile_picture;
     @BindView(R.id.phone_edit_text)
     EditText phone;
     @BindView(R.id.email_edit_text)
@@ -79,7 +88,12 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
     private FirebaseStorage storage;
     private StorageReference storageRef;
     private StorageReference profileImagesRef;
+    private StorageReference petProfilePictureRef;
     private User user;
+    CircleImageView petPic = null;
+    private Uri petSelectedImageUri;
+    private ProgressDialog progressDialog;
+    private ArrayList<Pet> petList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +101,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
         setContentView(R.layout.activity_profile);
 
         ButterKnife.bind(this);
+        progressDialog = new ProgressDialog(this);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -102,8 +117,8 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
         storageRef = FirebaseStorage.getInstance().getReference();
 
         currentUser = mAuth.getCurrentUser();
-        profileImagesRef = storageRef.child(getString(R.string.storage_users_ref))
-                .child(currentUser.getUid()).child(getString(R.string.storage_profile_ref));
+        profileImagesRef = storageRef.child("users")
+                .child(currentUser.getUid()).child("profile.jpg");
     }
 
     @Override
@@ -120,9 +135,6 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
     private void loadUserProfileInformation() {
         // If the user is not null then update the UI with current user's profile information
         if (currentUser != null) {
-            // Set profile picture from firebase storage
-            setProfilePicture();
-
             db.collection(getString(R.string.COLLECTION_USERS))
                     .document(currentUser.getUid())
                     .get()
@@ -138,7 +150,16 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
                                         email.setText(user.getEmail());
                                         phone.setText(user.getPhoneNumber());
                                         bio.setText(user.getBiography());
-                                        loadPets(user.getPetList());
+
+                                        if (user.getProfileImageUri() != null) {
+                                            Picasso.get()
+                                                    .load(user.getProfileImageUri())
+                                                    .resize(150, 150)
+                                                    .centerCrop()
+                                                    .into(profile_picture);
+                                        }
+
+                                        loadPets();
                                     }
                                 }
                             }
@@ -147,17 +168,29 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
         }
     }
 
-    private void setProfilePicture() {
-        GlideApp.with(getApplicationContext())
-                .load(profileImagesRef)
-                .placeholder(R.drawable.profile_icon)
-                .into(profile_picture);
-    }
 
-    private void loadPets(ArrayList<Pet> petList) {
-        PetsAdapter petsAdapter = new PetsAdapter(this, petList);
+    private void loadPets() {
+        final PetsAdapter petsAdapter = new PetsAdapter(this, petList);
         pets_list_view.setAdapter(petsAdapter);
-        setListViewHeightBasedOnChildren(pets_list_view);
+
+        db.collection(getString(R.string.COLLECTION_PETS))
+                .whereEqualTo(getString(R.string.OWNER_UID_KEY), currentUser.getUid())
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snap, @Nullable FirebaseFirestoreException e) {
+                        if(snap != null){
+                            if (petList != null) {
+                                petList.clear();
+                            }
+                            for (DocumentSnapshot s : snap.getDocuments()) {
+                                Pet pet = s.toObject(Pet.class);
+                                petList.add(pet);
+                            }
+                            petsAdapter.notifyDataSetChanged();
+                            setListViewHeightBasedOnChildren(pets_list_view);
+                        }
+                    }
+                });
 
     }
 
@@ -235,6 +268,8 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
         switch (requestCode) {
             case PICK_IMAGE:
                 if (resultCode == RESULT_OK) {
+                    progressDialog.setMessage("Image uploading..");
+                    progressDialog.show();
                     final Uri imageUri = data.getData();
 
                     // Update user photo
@@ -244,18 +279,47 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
                             @Override
                             public void onFailure(@NonNull Exception exception) {
                                 // Handle unsuccessful uploads
+                                Toast.makeText(getApplicationContext(),
+                                        getString(R.string.IMAGE_UPLOAD_ERROR), Toast.LENGTH_SHORT).show();
+                                progressDialog.dismiss();
                             }
                         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                GlideApp.with(getApplicationContext())
-                                        .load(profileImagesRef)
-                                        .into(profile_picture);
+                                profileImagesRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        progressDialog.dismiss();
+                                        Picasso.get()
+                                                .load(uri)
+                                                .placeholder(R.drawable.profile_icon)
+                                                .into(profile_picture);
+
+                                        DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS))
+                                                .document(currentUser.getUid());
+                                        user.update(getString(R.string.USER_PROFILE_IMAGE_URI_KEY), uri.toString());
+
+                                    }
+                                });
+
                             }
                         });
                     }
 
                 }
+                break;
+
+            case PICK_PET_IMAGE:
+                if (resultCode == RESULT_OK) {
+                    petSelectedImageUri = data.getData();
+                    // Update user photo
+                    if (petSelectedImageUri != null && petPic != null) {
+                        Picasso.get()
+                                .load(petSelectedImageUri)
+                                .into(petPic);
+                    }
+                }
+                break;
 
         }
     }
@@ -263,10 +327,13 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
 
     @OnClick(R.id.add_pet_fab)
     public void displayAddPetDialog() {
+        petSelectedImageUri = null;
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = getLayoutInflater().inflate(R.layout.add_pet_custom_dialog, null);
         builder.setTitle(getString(R.string.add_a_new_pet_title));
 
+        petPic = (CircleImageView) view.findViewById(R.id.pet_profile_pic);
         final EditText petName = (EditText) view.findViewById(R.id.pet_name_edit_text);
         final EditText petAbout = (EditText) view.findViewById(R.id.about_pet_edit_text);
         final CheckBox petAdoptionState = (CheckBox) view.findViewById(R.id.pet_adoption_state);
@@ -286,6 +353,15 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
         typeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         typeSpinner.setAdapter(typeAdapter);
 
+        petPic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent imagePickerIntent = new Intent(Intent.ACTION_PICK);
+                imagePickerIntent.setType("image/*");
+                startActivityForResult(imagePickerIntent, PICK_PET_IMAGE);
+            }
+        });
+
 
         // Set positive and negative buttons
         builder.setPositiveButton(getString(R.string.add_pet_dialog_button), new DialogInterface.OnClickListener() {
@@ -293,7 +369,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (!TextUtils.isEmpty(petName.getText().toString())) {
                     // With the given information create a new pet.
-                    Pet pet = new Pet();
+                    final Pet pet = new Pet();
                     pet.setOwnerUid(currentUser.getUid());
                     pet.setOwner(currentUser.getDisplayName());
                     pet.setLocation(user.getLocation());
@@ -303,8 +379,30 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
                     pet.setType(typeSpinner.getSelectedItem().toString());
                     pet.setAdoptionState(petAdoptionState.isChecked());
 
-                    addAnewPet(pet);
+                    petProfilePictureRef = storageRef.child(getString(R.string.COLLECTION_PETS))
+                            .child(user.getUid())
+                            .child(pet.getPetUid())
+                            .child(getString(R.string.storage_profile_ref));
 
+                    // Store pet profile picture into firebase storage
+                    if(petSelectedImageUri != null){
+                        UploadTask uploadTask = petProfilePictureRef.putFile(petSelectedImageUri);
+                        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                petProfilePictureRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        pet.setProfileImageUri(uri.toString());
+                                        addAnewPet(pet);
+                                    }
+                                });
+                            }
+                        });
+
+                    }else {
+                        addAnewPet(pet);
+                    }
                 } else {
                     Toast.makeText(getApplicationContext(), getString(R.string.fill_in_required_fields_text),
                             Toast.LENGTH_SHORT).show();
@@ -331,17 +429,15 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
 
 
     /**
-     * Creates a new pet for the current user
-     *
+     * Creates a new pet and
+     * stores it into pets section in the database
      * @param pet
      */
-    private void addAnewPet(Pet pet) {
+    private void addAnewPet(final Pet pet) {
 
-        user.getPetList().add(pet);
-
-        db.collection(getString(R.string.COLLECTION_USERS))
-                .document(currentUser.getUid())
-                .set(user)
+        db.collection(getString(R.string.COLLECTION_PETS))
+                .document(pet.getPetUid())
+                .set(pet)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -349,8 +445,6 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
-        pets_list_view.deferNotifyDataSetChanged();
-        setListViewHeightBasedOnChildren(pets_list_view);
 
     }
 

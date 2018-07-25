@@ -2,6 +2,7 @@ package com.owners.pet.petowners.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -28,6 +29,7 @@ import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.ChatUser;
 import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.Pet;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ public class UserAdapter extends ArrayAdapter<ChatUser> {
     private Context mContext;
     private ArrayList<ChatUser> chatUserList;
     private StorageReference storageRef;
+    private StorageReference profileImageRef;
 
     public UserAdapter (Context context, ArrayList<ChatUser> chatUserList) {
         super(context,0, chatUserList);
@@ -59,7 +62,7 @@ public class UserAdapter extends ArrayAdapter<ChatUser> {
 
         final ChatUser chatUser = chatUserList.get(position);
 
-        CircleImageView profilePic = convertView.findViewById(R.id.user_profile_image_view);
+        final CircleImageView profilePic = convertView.findViewById(R.id.user_profile_image_view);
         TextView name = convertView.findViewById(R.id.user_fullname);
         TextView bio = convertView.findViewById(R.id.user_bio);
         TextView lastMessageTime = convertView.findViewById(R.id.last_message_time_text_view);
@@ -69,21 +72,27 @@ public class UserAdapter extends ArrayAdapter<ChatUser> {
             name.setText(chatUser.getName());
             bio.setText(chatUser.getLastMessage());
 
+            profileImageRef = storageRef.child(mContext.getString(R.string.COLLECTION_USERS))
+                    .child(chatUser.getUid())
+                    .child(mContext.getString(R.string.storage_profile_ref));
+
+            profileImageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Picasso.get()
+                            .load(uri)
+                            .placeholder(R.drawable.profile_icon)
+                            .into(profilePic);
+                }
+            });
+
+
             // Set date
             Locale l = Locale.US;
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a", l);
             if(chatUser.getLastMessageDate() != null){
                 lastMessageTime.setText(simpleDateFormat.format(chatUser.getLastMessageDate()));
             }
-
-
-            StorageReference profileImagesRef = storageRef.child(mContext.getString(R.string.storage_users_ref))
-                    .child(chatUser.getUid()).child(mContext.getString(R.string.storage_profile_ref));
-
-            GlideApp.with(mContext)
-                    .load(profileImagesRef)
-                    .placeholder(R.drawable.profile_icon)
-                    .into(profilePic);
 
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -60,8 +60,8 @@ public class ChatFragment extends Fragment {
                                 final User user = snapshot.toObject(User.class);
                                 int i = 0;
                                 if (user != null) {
-                                    for(String uid : user.getChatWithUidList()){
-                                        if(uid != null){
+                                    for (String uid : user.getChatWithUidList()) {
+                                        if (uid != null) {
                                             final int finalI = i;
                                             db.collection(getString(R.string.COLLECTION_MESSAGES))
                                                     .document(currentUser.getUid())
@@ -71,9 +71,9 @@ public class ChatFragment extends Fragment {
                                                     .addSnapshotListener(new EventListener<QuerySnapshot>() {
                                                         @Override
                                                         public void onEvent(@javax.annotation.Nullable QuerySnapshot snap, @javax.annotation.Nullable FirebaseFirestoreException e) {
-                                                            if(snap != null){
+                                                            if (snap != null) {
                                                                 Message m = snap.getDocuments().get(0).toObject(Message.class);
-                                                                if(m != null){
+                                                                if (m != null) {
                                                                     String lastMessage = m.getContent();
                                                                     Date lastMessageDate = m.getDate();
                                                                     user.getConversationList().get(finalI).setLastMessage(lastMessage);
@@ -98,7 +98,7 @@ public class ChatFragment extends Fragment {
 
 
     private void loadConversations(ArrayList<ChatUser> conversationList) {
-        if(getContext() != null){
+        if (getContext() != null) {
             UserAdapter adapter = new UserAdapter(getContext(), conversationList);
             adapter.notifyDataSetChanged();
             convListLv.setAdapter(adapter);

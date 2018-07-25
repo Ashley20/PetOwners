@@ -17,22 +17,20 @@ import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.PetProfileActivity;
 import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.Pet;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class PetsAdapter extends ArrayAdapter<Pet>{
+public class PetsAdapter extends ArrayAdapter<Pet> {
     private Context mContext;
     private ArrayList<Pet> petList;
-    private StorageReference storageRef;
-    private StorageReference petProfilePictureRef;
 
     public PetsAdapter(Context context, ArrayList<Pet> petList) {
-        super(context,0, petList);
+        super(context, 0, petList);
         this.mContext = context;
         this.petList = petList;
-        storageRef = FirebaseStorage.getInstance().getReference();
     }
 
     @NonNull
@@ -53,15 +51,12 @@ public class PetsAdapter extends ArrayAdapter<Pet>{
         // Update UI
         if (pet != null) {
 
-            petProfilePictureRef = storageRef
-                    .child(pet.getOwnerUid())
-                    .child(pet.getPetUid())
-                    .child(mContext.getString(R.string.storage_profile_ref));
-
-            GlideApp.with(mContext)
-                    .load(petProfilePictureRef)
-                    .placeholder(R.drawable.pets_icon)
-                    .into(petThumbnail);
+            if (pet.getProfileImageUri() != null) {
+                Picasso.get()
+                        .load(pet.getProfileImageUri())
+                        .placeholder(R.drawable.pets_icon)
+                        .into(petThumbnail);
+            }
 
             petName.setText(pet.getName());
             petState.setText(pet.getAdoptionState() ? mContext.getString(R.string.waits_for_adoption_text)
@@ -80,6 +75,7 @@ public class PetsAdapter extends ArrayAdapter<Pet>{
                     petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_OWNER), pet.getOwner());
                     petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_TYPE), pet.getType());
                     petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_ADOPTION_STATE), pet.getAdoptionState());
+                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_PROFILE_IMAGE_URI), pet.getProfileImageUri());
 
                     mContext.startActivity(petProfileIntent);
                 }
@@ -92,9 +88,9 @@ public class PetsAdapter extends ArrayAdapter<Pet>{
 
     @Override
     public int getCount() {
-        if(petList != null){
+        if (petList != null) {
             return petList.size();
-        }else {
+        } else {
             return 0;
         }
     }

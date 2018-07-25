@@ -27,7 +27,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
@@ -39,9 +42,14 @@ import com.owners.pet.petowners.models.User;
 import java.util.ArrayList;
 
 import com.owners.pet.petowners.adapters.PetsAdapter;
+import com.squareup.picasso.Picasso;
+
+import javax.annotation.Nullable;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.google.firebase.storage.StorageException.ERROR_OBJECT_NOT_FOUND;
 
@@ -50,7 +58,8 @@ public class OthersProfileActivity extends AppCompatActivity{
     private static final String FIREBASE_STORAGE_IMAGES_REFERENCE_URL = "gs://petowners.appspot.com";
     public static final String TAG = OthersProfileActivity.class.getSimpleName();
 
-    @BindView(R.id.profile_picture_image_view) ImageView profile_picture;
+    @BindView(R.id.profile_picture_image_view)
+    CircleImageView profile_picture;
     @BindView(R.id.phone_text_view) TextView phone;
     @BindView(R.id.email_text_view) TextView email;
     @BindView(R.id.bio_text_view) TextView bio;
@@ -67,6 +76,7 @@ public class OthersProfileActivity extends AppCompatActivity{
     private StorageReference profileImagesRef;
     private User user;
     private String uid;
+    private ArrayList<Pet> petList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +101,8 @@ public class OthersProfileActivity extends AppCompatActivity{
         Intent intent = getIntent();
         if(intent != null){
             uid = intent.getStringExtra(getString(R.string.USER_PROFILE_UID));
-            profileImagesRef = storageRef.child("users").child(uid).child("profile.jpg");
+            profileImagesRef = storageRef.child(getString(R.string.COLLECTION_USERS))
+                    .child(uid).child(getString(R.string.storage_profile_ref));
         }
     }
 
@@ -104,9 +115,6 @@ public class OthersProfileActivity extends AppCompatActivity{
     private void loadUserProfileInformation() {
         // If the uid is not null then update the UI profile information
         if (uid != null) {
-            // Set profile picture from firebase storage
-            setProfilePicture();
-
             db.collection(getString(R.string.COLLECTION_USERS))
                     .document(uid)
                     .get()
@@ -122,7 +130,15 @@ public class OthersProfileActivity extends AppCompatActivity{
                                         email.setText(user.getEmail());
                                         phone.setText(user.getPhoneNumber());
                                         bio.setText(user.getBiography());
-                                        loadPets(user.getPetList());
+
+                                        if(user.getProfileImageUri() != null){
+                                            Picasso.get()
+                                                    .load(user.getProfileImageUri())
+                                                    .placeholder(R.drawable.profile_icon)
+                                                    .into(profile_picture);
+                                        }
+
+                                        loadPets();
                                     }
                                 }
                             }
@@ -131,17 +147,29 @@ public class OthersProfileActivity extends AppCompatActivity{
         }
     }
 
-    private void setProfilePicture() {
-        GlideApp.with(getApplicationContext())
-                .load(profileImagesRef)
-                .placeholder(R.drawable.profile_icon)
-                .into(profile_picture);
-    }
 
-    private void loadPets(ArrayList<Pet> petList) {
-        PetsAdapter petsAdapter = new PetsAdapter(this, petList);
+    private void loadPets() {
+        final PetsAdapter petsAdapter = new PetsAdapter(this, petList);
         pets_list_view.setAdapter(petsAdapter);
-        setListViewHeightBasedOnChildren(pets_list_view);
+
+        db.collection(getString(R.string.COLLECTION_PETS))
+                .whereEqualTo(getString(R.string.OWNER_UID_KEY), uid)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snap, @Nullable FirebaseFirestoreException e) {
+                        if(snap != null){
+                            if (petList != null) {
+                                petList.clear();
+                            }
+                            for (DocumentSnapshot s : snap.getDocuments()) {
+                                Pet pet = s.toObject(Pet.class);
+                                petList.add(pet);
+                            }
+                            petsAdapter.notifyDataSetChanged();
+                            setListViewHeightBasedOnChildren(pets_list_view);
+                        }
+                    }
+                });
 
     }
 
