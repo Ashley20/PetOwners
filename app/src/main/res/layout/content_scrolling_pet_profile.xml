@@ -30,7 +30,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
             android:layout_marginLeft="@dimen/owner_relative_layout_margin_left"
             android:layout_marginStart="@dimen/owner_relative_layout_margin_left"
             android:clickable="true"
@@ -62,7 +61,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
             android:layout_marginLeft="@dimen/owner_relative_layout_margin_left"
             android:layout_marginStart="@dimen/owner_relative_layout_margin_left"
             android:clickable="true"
@@ -88,6 +86,47 @@
                 android:layout_marginTop="@dimen/owner_text_view_margin_top"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/colorSecondaryText" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/delete_pet_container"
+            android:background="?attr/selectableItemBackground"
+            android:layout_marginLeft="@dimen/owner_relative_layout_margin_left"
+            android:layout_marginStart="@dimen/owner_relative_layout_margin_left"
+            android:layout_marginTop="@dimen/delete_icon_relative_layout_margin_top"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="@dimen/activity_horizontal_margin">
+
+            <ImageView
+                android:id="@+id/delete_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@string/pet_owner"
+                android:textStyle="bold"
+                android:layout_marginRight="@dimen/delete_icon_margin_right"
+                android:src="@drawable/ic_delete"
+                android:textColor="@color/colorPrimaryText"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:layout_marginEnd="@dimen/delete_icon_margin_right"
+                android:contentDescription="@string/delete_icon_content_description" />
+
+            <TextView
+                android:id="@+id/delete_pet_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/delete_icon"
+                android:text="@string/delete_pet_text_view"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/colorAccentTwo"
+                android:textStyle="bold"
+                android:layout_toRightOf="@id/delete_icon" />
 
         </RelativeLayout>
 

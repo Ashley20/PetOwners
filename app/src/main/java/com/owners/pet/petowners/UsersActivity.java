@@ -25,9 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
-import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.models.User;
 import com.squareup.picasso.Picasso;
 

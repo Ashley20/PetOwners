@@ -39,7 +39,6 @@ import com.google.firebase.firestore.ServerTimestamp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.adapters.MessagesAdapter;
 import com.owners.pet.petowners.models.ChatUser;
 import com.owners.pet.petowners.models.Message;

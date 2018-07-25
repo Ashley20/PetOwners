@@ -10,10 +10,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -21,7 +25,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.owners.pet.petowners.Glide.GlideApp;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -50,6 +53,8 @@ public class PetProfileActivity extends AppCompatActivity {
     TextView petLocationTv;
     @BindView(R.id.edit_pet_fab)
     FloatingActionButton fab;
+    @BindView(R.id.delete_pet_container)
+    RelativeLayout deletePetContainer;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -110,11 +115,31 @@ public class PetProfileActivity extends AppCompatActivity {
 
     }
 
+    @OnClick(R.id.delete_pet_container)
+    public void deletePet(){
+        if(!currentUser.getUid().equals(petOwnerUid)){
+            return;
+        }
+        db.collection(getString(R.string.COLLECTION_PETS))
+                .document(petUid)
+                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(getApplicationContext(), getString(R.string.successful_pet_deletion_message),
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                }else{
+                    Toast.makeText(getApplicationContext(), getString(R.string.failed_pet_deletion_message),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+    }
+
     @OnClick(R.id.pet_profile_picture_image_view)
     public void pickProfilePicture() {
-        /*If another person other than the owner of the pet
-        is viewing the pet profile then
-        don't let a pet profile image upload */
         if(!currentUser.getUid().equals(petOwnerUid)){
             return;
         }
@@ -201,15 +226,16 @@ public class PetProfileActivity extends AppCompatActivity {
         }
 
         if(!currentUser.getUid().equals(petOwnerUid)){
+            /*If the profile is being viewed by someone other than the owner of the pet
+            then dont show the delete pet and edit pet fields */
             fab.setVisibility(View.INVISIBLE);
+            deletePetContainer.setVisibility(View.INVISIBLE);
         }
 
         petAdoptionStateTv.setText(extras.getBoolean(
                 getString(R.string.EXTRA_PET_ADOPTION_STATE))
                 ? getString(R.string.waits_for_adoption_text)
                 : getString(R.string.no_adoption));
-
-
     }
 
 

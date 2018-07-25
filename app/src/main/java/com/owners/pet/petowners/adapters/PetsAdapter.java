@@ -11,9 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.owners.pet.petowners.Glide.GlideApp;
+
 import com.owners.pet.petowners.PetProfileActivity;
 import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.Pet;

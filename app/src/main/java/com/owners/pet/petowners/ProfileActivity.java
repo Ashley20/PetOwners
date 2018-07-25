@@ -44,7 +44,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.models.Pet;
 import com.owners.pet.petowners.models.User;
 

@@ -135,6 +135,11 @@
     <string name="PROFILE_IMAGE_URI_KEY">profileImageUri</string>
     <string name="OWNER_UID_KEY">ownerUid</string>
     <string name="please_select_pet_profile">Please select an image for the pet</string>
+    <string name="delete_pet_text_view">Delete Pet</string>
+    <string name="delete_icon_content_description">Delete</string>
+    <string name="PET_UID_KEY">petUid</string>
+    <string name="successful_pet_deletion_message">Pet successfully deleted</string>
+    <string name="failed_pet_deletion_message">Failed to delete the pet</string>
 
     <string-array name="genderList">
         <item>@string/gender_girl</item>

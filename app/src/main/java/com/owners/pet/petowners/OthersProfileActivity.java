@@ -32,10 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
-import com.owners.pet.petowners.Glide.GlideApp;
-import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.Pet;
 import com.owners.pet.petowners.models.User;
 

@@ -81,4 +81,6 @@
     <dimen name="pet_profile_pic_width">200dp</dimen>
     <dimen name="pet_profile_pic_height">150dp</dimen>
     <dimen name="pet_location_margin_left">7dp</dimen>
+    <dimen name="delete_icon_margin_right">7dp</dimen>
+    <dimen name="delete_icon_relative_layout_margin_top">10dp</dimen>
 </resources>

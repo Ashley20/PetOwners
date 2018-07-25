@@ -24,11 +24,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.owners.pet.petowners.ChatActivity;
-import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.ChatUser;
-import com.owners.pet.petowners.models.Message;
-import com.owners.pet.petowners.models.Pet;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;

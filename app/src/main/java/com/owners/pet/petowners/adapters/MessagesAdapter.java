@@ -17,7 +17,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.owners.pet.petowners.Glide.GlideApp;
 import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.Message;
 import com.squareup.picasso.Picasso;
