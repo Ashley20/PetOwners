@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/widget_item_layout">
+
+    <TextView
+        android:id="@+id/user_fullname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="11dp"
+        android:maxEms="@integer/user_fullname_max_ems"
+        android:text="@string/user_fullname"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textColor="@color/colorBlack"
+        android:textSize="17sp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="20dp" />
+
+    <TextView
+        android:id="@+id/last_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/user_fullname"
+        android:layout_below="@+id/user_fullname"
+        android:fontFamily="@font/helvetica_neueit"
+        android:maxLines="@integer/user_bio_maxiumum_lines"
+        android:text="@string/last_message"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/colorBlack"
+        android:textSize="14sp"
+        android:layout_alignLeft="@+id/user_fullname" />
+
+    <TextView
+        android:id="@+id/last_message_time_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/user_fullname"
+        android:layout_marginEnd="64dp"
+        android:text="@string/date"
+        android:textColor="@color/colorBlack" />
+
+</RelativeLayout>

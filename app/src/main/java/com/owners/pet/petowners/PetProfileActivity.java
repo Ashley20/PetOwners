@@ -146,11 +146,14 @@ public class PetProfileActivity extends AppCompatActivity {
         View view = getLayoutInflater().inflate(R.layout.add_pet_custom_dialog, null);
         builder.setTitle(getString(R.string.edit_pet_title));
 
+        final CircleImageView petProfilePic = (CircleImageView) view.findViewById(R.id.pet_profile_pic);
         final EditText petNameEditText = (EditText) view.findViewById(R.id.pet_name_edit_text);
         final EditText petAboutEditText = (EditText) view.findViewById(R.id.about_pet_edit_text);
         final CheckBox petAdoptionStateCheckBox = (CheckBox) view.findViewById(R.id.pet_adoption_state);
         final Spinner genderSpinner = (Spinner) view.findViewById(R.id.pet_gender_spinner);
         final Spinner typeSpinner = (Spinner) view.findViewById(R.id.pet_type_spinner);
+
+        petProfilePic.setVisibility(View.GONE);
 
         petNameEditText.setText(currentPet.getName());
         petAboutEditText.setText(currentPet.getAbout());

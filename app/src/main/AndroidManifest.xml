@@ -35,20 +35,36 @@
         <activity android:name=".SignupActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".OthersProfileActivity" />
+        <activity android:name=".ChatActivity" />
+        <activity
+            android:name=".PetProfileActivity"
+            android:theme="@style/GrayTheme" />
+
+
 
         <service android:name=".services.MessageService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service
             android:name=".services.FetchAddressIntentService"
-            android:exported="false"/>
+            android:exported="false" />
 
-        <activity android:name=".ChatActivity" />
-        <activity
-            android:name=".PetProfileActivity"  android:theme="@style/GrayTheme"/>
+        <service
+            android:name=".widget.ListWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+
+        <receiver android:name=".widget.PetOwnersWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/pet_owners_widget_provider_info" />
+        </receiver>
     </application>
 
 </manifest>

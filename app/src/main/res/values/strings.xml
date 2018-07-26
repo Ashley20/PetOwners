@@ -157,4 +157,7 @@
         <item>@string/type_cat</item>
         <item>@string/type_dog</item>
     </string-array>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="empty_view">No chats found</string>
 </resources>

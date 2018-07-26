@@ -43,6 +43,7 @@ import com.owners.pet.petowners.adapters.MessagesAdapter;
 import com.owners.pet.petowners.models.ChatUser;
 import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.User;
+import com.owners.pet.petowners.widget.PetOwnersWidgetProvider;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -331,6 +332,7 @@ public class ChatActivity extends AppCompatActivity {
                             db.collection(getString(R.string.COLLECTION_NOTIFICATIONS))
                                     .document()
                                     .set(notificationData);
+
                         }
                     });
         }

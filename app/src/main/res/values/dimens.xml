@@ -84,4 +84,12 @@
     <dimen name="delete_icon_margin_right">7dp</dimen>
     <dimen name="delete_icon_relative_layout_margin_top">10dp</dimen>
     <dimen name="buttons_container_margin_top">20dp</dimen>
+
+    <!--
+Refer to App Widget Documentation for margin information
+http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
+    -->
+    <dimen name="widget_margin">8dp</dimen>
+    <dimen name="widget_date_margin_left">2dp</dimen>
+    <dimen name="widget_date_margin_right">26dp</dimen>
 </resources>

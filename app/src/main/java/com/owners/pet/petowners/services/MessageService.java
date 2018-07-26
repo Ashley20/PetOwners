@@ -12,6 +12,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.owners.pet.petowners.ChatActivity;
 import com.owners.pet.petowners.R;
+import com.owners.pet.petowners.widget.PetOwnersWidgetProvider;
 
 public class MessageService extends FirebaseMessagingService {
     public static final String TAG = FirebaseMessagingService.class.getSimpleName();
@@ -21,6 +22,8 @@ public class MessageService extends FirebaseMessagingService {
         super.onMessageReceived(remoteMessage);
 
         Log.d(TAG, remoteMessage.getData().toString());
+        // this will send the broadcast to update the appwidget
+        PetOwnersWidgetProvider.sendRefreshBroadcast(this);
 
         if (remoteMessage.getNotification() != null) {
             String notificationTitle = remoteMessage.getNotification().getTitle();
