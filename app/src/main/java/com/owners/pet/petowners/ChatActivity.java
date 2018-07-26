@@ -42,6 +42,7 @@ import com.google.firebase.storage.UploadTask;
 import com.owners.pet.petowners.adapters.MessagesAdapter;
 import com.owners.pet.petowners.models.ChatUser;
 import com.owners.pet.petowners.models.Message;
+import com.owners.pet.petowners.models.Notification;
 import com.owners.pet.petowners.models.User;
 import com.owners.pet.petowners.widget.PetOwnersWidgetProvider;
 import com.squareup.picasso.Picasso;
@@ -319,19 +320,23 @@ public class ChatActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
+                            Notification notification = new Notification();
+                            notification.setFromUid(currentUser.getUid());
+                            notification.setFrom(currentUser.getDisplayName());
+                            notification.setTo(uid);
+                            notification.setContent(content);
 
-
-                            HashMap<String, String> notificationData = new HashMap<>();
+                         /*   HashMap<String, String> notificationData = new HashMap<>();
                             notificationData.put("fromUid", currentUser.getUid());
                             notificationData.put("from", currentUser.getDisplayName());
                             notificationData.put("to", uid);
-                            notificationData.put("content", content);
+                            notificationData.put("content", content); */
 
 
                             // Update notification database
                             db.collection(getString(R.string.COLLECTION_NOTIFICATIONS))
                                     .document()
-                                    .set(notificationData);
+                                    .set(notification);
 
                         }
                     });

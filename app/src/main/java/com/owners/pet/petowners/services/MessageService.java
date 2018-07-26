@@ -22,8 +22,6 @@ public class MessageService extends FirebaseMessagingService {
         super.onMessageReceived(remoteMessage);
 
         Log.d(TAG, remoteMessage.getData().toString());
-        // this will send the broadcast to update the appwidget
-        PetOwnersWidgetProvider.sendRefreshBroadcast(this);
 
         if (remoteMessage.getNotification() != null) {
             String notificationTitle = remoteMessage.getNotification().getTitle();

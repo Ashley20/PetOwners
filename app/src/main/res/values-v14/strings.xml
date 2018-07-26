@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="empty_view">No chats found</string>
+    <string name="empty_view">No pets found</string>
 </resources>
