@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.owners.pet.petowners.adapters.PetsAdapter;
+import com.owners.pet.petowners.widget.PetOwnersWidgetProvider;
 import com.squareup.picasso.Picasso;
 
 import javax.annotation.Nullable;
@@ -442,6 +443,9 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(getApplicationContext(), getString(R.string.successful_pet_addition_message),
                                 Toast.LENGTH_SHORT).show();
+
+                        // We have added a new pet  so update the widget
+                        PetOwnersWidgetProvider.sendRefreshBroadcast(getApplicationContext());
                     }
                 });
 

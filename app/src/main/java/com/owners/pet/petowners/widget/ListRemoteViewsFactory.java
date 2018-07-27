@@ -46,7 +46,8 @@ public class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFac
     public void onDataSetChanged() {
         currentUser = mAuth.getCurrentUser();
 
-        if (!mPetList.isEmpty()) return;
+       // if (!mPetList.isEmpty()) return;
+
 
         if (currentUser != null) {
             db.collection(mContext.getString(R.string.COLLECTION_PETS))
@@ -57,16 +58,12 @@ public class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFac
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "Task is successfull.");
+                                mPetList = new ArrayList<Pet>();
                                 for (QueryDocumentSnapshot snap : task.getResult()) {
                                     Pet pet = snap.toObject(Pet.class);
                                     Log.d(TAG, pet.getAbout());
                                     mPetList.add(pet);
                                 }
-
-                                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
-                                ComponentName thisWidget = new ComponentName(mContext, PetOwnersWidgetProvider.class);
-                                int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
-                                appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
 
                             } else {
                                 Log.d(TAG, "Task failed.");
@@ -93,6 +90,7 @@ public class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFac
         RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.pet_owners_widget_provider);
         Pet pet = mPetList.get(i);
         views.setTextViewText(R.id.pet_name, pet.getName());
+        views.setTextViewText(R.id.pet_bio, pet.getAbout());
 
 
         Intent fillInIntent = new Intent();

@@ -24,7 +24,7 @@ android:id="@+id/widget_item_layout">
     android:layout_marginLeft="20dp" />
 
 <TextView
-    android:id="@+id/notification_message"
+    android:id="@+id/pet_bio"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignStart="@id/pet_name"

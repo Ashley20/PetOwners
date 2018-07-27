@@ -37,6 +37,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.owners.pet.petowners.models.Pet;
+import com.owners.pet.petowners.widget.PetOwnersWidgetProvider;
 import com.squareup.picasso.Picasso;
 
 import javax.annotation.Nullable;
@@ -196,6 +197,9 @@ public class PetProfileActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(),
                                     getString(R.string.successful_pet_edition_message),
                                     Toast.LENGTH_SHORT).show();
+
+                            // We have edited the pet  so update the widget
+                            PetOwnersWidgetProvider.sendRefreshBroadcast(getApplicationContext());
                         }
                     });
 
@@ -263,6 +267,8 @@ public class PetProfileActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Toast.makeText(getApplicationContext(), getString(R.string.successful_pet_deletion_message),
                             Toast.LENGTH_SHORT).show();
+                    // We have deleted a pet so update the widget
+                    PetOwnersWidgetProvider.sendRefreshBroadcast(getApplicationContext());
                     finish();
                 } else {
                     Toast.makeText(getApplicationContext(), getString(R.string.failed_pet_deletion_message),
