@@ -57,7 +57,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.owners.pet.petowners.adapters.CustomInfoViewAdapter;
-import com.owners.pet.petowners.models.Pet;
 import com.owners.pet.petowners.models.User;
 import com.owners.pet.petowners.services.Constants;
 import com.owners.pet.petowners.services.FetchAddressByLatLngIntentService;
@@ -134,7 +133,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
         });
 
         updateValuesFromBundle(savedInstanceState);
-        
+
 
         mLocationCallback = new LocationCallback() {
             @Override
@@ -149,7 +148,9 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
                     // ...
                     Log.d(TAG, (location.getProvider()));
                 }
-            };
+            }
+
+            ;
         };
 
         return rootView;
@@ -325,6 +326,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
                         List<User> userList = queryDocumentSnapshots.toObjects(User.class);
                         for (User user : userList) {
                             if (user != null && user.getLatitude() != null) {
+
                                 LatLng latLng = new LatLng(user.getLatitude(), user.getLongtitude());
                                 MarkerOptions markerOptions = new MarkerOptions()
                                         .title(user.getName())
@@ -414,7 +416,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
     private void startLocationUpdates() {
         mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest,
                 mLocationCallback,
-                null );
+                null);
     }
 
     /**
@@ -432,12 +434,12 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
             user.update(getString(R.string.LATITUDE_KEY), mLastKnownLocation.getLatitude());
             user.update(getString(R.string.LONGTITUDE_KEY), mLastKnownLocation.getLongitude())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Log.d(TAG, "Location is saved into firestore");
-                    placeMarkers(mGoogleMap);
-                }
-            });
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "Location is saved into firestore");
+                            placeMarkers(mGoogleMap);
+                        }
+                    });
 
 
         }
@@ -502,43 +504,30 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
     @OnClick(R.id.state_0_cb)
     public void updateOrangeMarkers() {
-        if (checkBoxOrange.isChecked()) {
-            for (Marker orangeMarker : orangeMarkers) {
-                orangeMarker.setVisible(true);
-            }
-
-        } else {
-            for (Marker orangeMarker : orangeMarkers) {
-                orangeMarker.setVisible(false);
-            }
-        }
+        updateMarkerVisibility(orangeMarkers, checkBoxOrange.isChecked());
     }
 
     @OnClick(R.id.state_1_cb)
     public void updateCyanMarkers() {
-        if (checkBoxCyan.isChecked()) {
-            for (Marker cyanMarker : cyanMarkers) {
-                cyanMarker.setVisible(true);
-            }
-
-        } else {
-            for (Marker cyanMarker : cyanMarkers) {
-                cyanMarker.setVisible(false);
-            }
-        }
+        updateMarkerVisibility(cyanMarkers, checkBoxCyan.isChecked());
     }
 
     @OnClick(R.id.state_2_cb)
     public void updateGreenMarkers() {
-        if (checkBoxGreen.isChecked()) {
-            for (Marker greenMarker : greenMarkers) {
-                greenMarker.setVisible(true);
-            }
+        updateMarkerVisibility(greenMarkers, checkBoxGreen.isChecked());
+    }
 
-        } else {
-            for (Marker greenMarker : greenMarkers) {
-                greenMarker.setVisible(false);
-            }
+
+    /**
+     * Function which updates the markers visibility based on
+     * the visibility parameter it takes
+     *
+     * @param markerList
+     * @param visibility
+     */
+    public void updateMarkerVisibility(ArrayList<Marker> markerList, Boolean visibility) {
+        for (Marker marker : markerList) {
+            marker.setVisible(visibility);
         }
     }
 

@@ -36,8 +36,8 @@
     <dimen name="pet_profile_pic_margin_top">16dp</dimen>
     <dimen name="dialog_input_field_margin_top">25dp</dimen>
     <dimen name="listview_margin_bottom">4dp</dimen>
-    <dimen name="default_profile_width">60dp</dimen>
-    <dimen name="default_profile_height">65dp</dimen>
+    <dimen name="default_profile_width">150dp</dimen>
+    <dimen name="default_profile_height">150dp</dimen>
     <dimen name="default_profile_margin_top">10dp</dimen>
     <dimen name="default_profile_margin_bottom">10dp</dimen>
     <dimen name="default_profile_margin_left">10dp</dimen>
@@ -56,11 +56,11 @@
     <dimen name="message_text_view_padding">7dp</dimen>
     <dimen name="message_text_view_margin_right">68dp</dimen>
     <dimen name="date_margin_right">113dp</dimen>
-    <dimen name="info_window_title_margin_left">25dp</dimen>
-    <dimen name="info_window_body_margin_left">25dp</dimen>
+    <dimen name="info_window_title_margin_left">77dp</dimen>
+    <dimen name="info_window_body_margin_left">20dp</dimen>
     <dimen name="info_window_body_margin_top">5dp</dimen>
     <dimen name="info_window_layout_margin_top">5dp</dimen>
-    <dimen name="info_window_profile_image_margin_left">20dp</dimen>
+    <dimen name="info_window_profile_image_margin_left">70dp</dimen>
     <dimen name="info_window_layout_margin_right">10dp</dimen>
     <dimen name="message_tv_margin_right">10dp</dimen>
     <dimen name="message_date_margin_right">3dp</dimen>
@@ -92,4 +92,7 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="widget_margin">8dp</dimen>
     <dimen name="widget_date_margin_left">2dp</dimen>
     <dimen name="widget_date_margin_right">26dp</dimen>
+    <dimen name="info_window_title_margin_top">7dp</dimen>
+    <dimen name="info_window_layout_margin_left">10dp</dimen>
+    <dimen name="info_window_body_margin_right">20dp</dimen>
 </resources>
