@@ -161,4 +161,7 @@
     <string name="add_widget">Add widget</string>
     <string name="empty_view">No pets found</string>
     <string name="notification_message">Notification message</string>
+    <string name="upload_icon">Upload</string>
+    <string name="invalid_place_name_used">There is no such place</string>
+    <string name="no_address_found_with_the_place_name">No address found with this place name</string>
 </resources>

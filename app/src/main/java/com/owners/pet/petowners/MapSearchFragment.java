@@ -3,7 +3,6 @@ package com.owners.pet.petowners;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -11,10 +10,10 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -25,7 +24,6 @@ import android.widget.CheckBox;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -34,27 +32,21 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.owners.pet.petowners.adapters.CustomInfoViewAdapter;
 import com.owners.pet.petowners.models.User;
 import com.owners.pet.petowners.services.Constants;
-import com.owners.pet.petowners.services.FetchAddressIntentService;
-
-import java.io.IOException;
+import com.owners.pet.petowners.services.FetchAddressByLatLngIntentService;
+import com.owners.pet.petowners.services.FetchAddressByNameIntentService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -150,18 +142,8 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
             @Override
             public boolean onQueryTextSubmit(String place) {
                 Geocoder geocoder = new Geocoder(getContext());
-                try {
-                    List<Address> likelyAddressesList = geocoder.getFromLocationName(place, 1);
-                    if (likelyAddressesList != null) {
-                        Address address = likelyAddressesList.get(0);
-                        Toast.makeText(getContext(), address.getLocality(), Toast.LENGTH_SHORT).show();
-                        goToLocation(address.getLatitude(), address.getLongitude(), 15);
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+                // Start the service
+                startFetchAddressByNameService(place);
                 return true;
             }
 
@@ -276,7 +258,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
                                 return;
                             }
 
-                            startIntentService();
+                            startFetchAddressByLatLngIntentService();
 
                             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
@@ -419,10 +401,17 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
         }
     }
 
-    protected void startIntentService() {
-        Intent intent = new Intent(getActivity(), FetchAddressIntentService.class);
+    protected void startFetchAddressByLatLngIntentService() {
+        Intent intent = new Intent(getActivity(), FetchAddressByLatLngIntentService.class);
         intent.putExtra(Constants.RECEIVER, mResultReceiver);
         intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastKnownLocation);
+        getActivity().startService(intent);
+    }
+
+    protected void startFetchAddressByNameService(String placeName) {
+        Intent intent = new Intent(getActivity(), FetchAddressByNameIntentService.class);
+        intent.putExtra(Constants.RECEIVER, mResultReceiver);
+        intent.putExtra(Constants.PLACE_NAME_DATA_EXTRA, placeName);
         getActivity().startService(intent);
     }
 
@@ -433,21 +422,54 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if(resultData != null){
+                String ACTION = resultData.getString(Constants.ACTION);
+                if(ACTION != null){
+                    switch (ACTION){
+                        case Constants.ACTION_FETCH_ADDRESS_FROM_LOCATION:
+                            if (resultCode == Constants.SUCCESS_RESULT) {
+                                String mAddress = resultData.getString(Constants.RESULT_DATA_KEY);
+                                Log.d(TAG, mAddress);
 
-            if (resultData == null) {
-                return;
+                                // Now we have the address store it into firestore database
+                                saveLocationIntoDb(mAddress);
+                            } else {
+                                String errorMessage = resultData.getString(Constants.RESULT_DATA_KEY);
+                                Log.d(TAG, errorMessage);
+                            }
+                            break;
+
+                        case Constants.ACTION_FETCH_ADDRESS_FROM_NAME:
+                            if (resultCode == Constants.SUCCESS_RESULT) {
+                                final String locality = resultData.getString(Constants.LOCATION_PLACE_NAME);
+                                final Double latitude = resultData.getDouble(Constants.LOCATION_LATITUDE);
+                                final Double longitude = resultData.getDouble(Constants.LOCATION_LONGITUDE);
+                                Log.d(TAG, latitude + " " + longitude + " " + locality);
+
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // Now we have the locality show it to the user and go to that location
+                                        Toast.makeText(getContext(), locality, Toast.LENGTH_SHORT).show();
+                                        goToLocation(latitude, longitude, 15);
+                                    }
+                                });
+
+                            } else {
+                                final String errorMessage = resultData.getString(Constants.ERROR_MESSAGE);
+                                Log.d(TAG, errorMessage);
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+
+                    }
+                }
             }
 
-            if (resultCode == Constants.SUCCESS_RESULT) {
-                String mAddress = resultData.getString(Constants.RESULT_DATA_KEY);
-                Log.d(TAG, mAddress);
-
-                // Now we have the address store it into firestore database
-                saveLocationIntoDb(mAddress);
-            } else {
-                String errorMessage = resultData.getString(Constants.RESULT_DATA_KEY);
-                Log.d(TAG, errorMessage);
-            }
 
         }
     }

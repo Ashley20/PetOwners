@@ -29,13 +29,16 @@ public class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFac
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private FirebaseUser currentUser;
+    private int mAppWidgetId;
 
 
-    ListRemoteViewsFactory(Context context) {
+    ListRemoteViewsFactory(Context context, Intent intent) {
         mContext = context;
         mPetList = new ArrayList<Pet>();
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
+        mAppWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                AppWidgetManager.INVALID_APPWIDGET_ID);
     }
 
     @Override
@@ -44,9 +47,9 @@ public class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFac
 
     @Override
     public void onDataSetChanged() {
+
         currentUser = mAuth.getCurrentUser();
 
-       // if (!mPetList.isEmpty()) return;
 
 
         if (currentUser != null) {
@@ -58,12 +61,13 @@ public class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFac
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "Task is successfull.");
-                                mPetList = new ArrayList<Pet>();
+                                mPetList.clear();
                                 for (QueryDocumentSnapshot snap : task.getResult()) {
                                     Pet pet = snap.toObject(Pet.class);
                                     Log.d(TAG, pet.getAbout());
                                     mPetList.add(pet);
                                 }
+
 
                             } else {
                                 Log.d(TAG, "Task failed.");

@@ -19,14 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class FetchAddressIntentService extends IntentService {
-    public static final String TAG = FetchAddressIntentService.class.getSimpleName();
+public class FetchAddressByLatLngIntentService extends IntentService {
+    public static final String TAG = FetchAddressByLatLngIntentService.class.getSimpleName();
     protected ResultReceiver mReceiver;
-    public FetchAddressIntentService(){
-        super("FetchAddressIntentService");
+    public FetchAddressByLatLngIntentService(){
+        super("FetchAddressByLatLngIntentService");
     }
 
-    public FetchAddressIntentService(String name) {
+    public FetchAddressByLatLngIntentService(String name) {
         super(name);
     }
 
@@ -84,6 +84,7 @@ public class FetchAddressIntentService extends IntentService {
     private void deliverResultToReceiver(int resultCode, String message) {
         Bundle bundle = new Bundle();
         bundle.putString(Constants.RESULT_DATA_KEY, message);
+        bundle.putString(Constants.ACTION, Constants.ACTION_FETCH_ADDRESS_FROM_LOCATION);
         mReceiver.send(resultCode, bundle);
     }
 }
