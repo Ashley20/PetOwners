@@ -52,9 +52,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.owners.pet.petowners.adapters.CustomInfoViewAdapter;
+import com.owners.pet.petowners.models.Pet;
 import com.owners.pet.petowners.models.User;
 import com.owners.pet.petowners.services.Constants;
 import com.owners.pet.petowners.services.FetchAddressByLatLngIntentService;
@@ -247,7 +250,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(5000);
+        mLocationRequest.setInterval(FASTEST_INTERVAL);
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
@@ -421,7 +424,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
      *
      * @param userLocation The address string coming from reverse geocoding
      */
-    private void saveLocationIntoDb(String userLocation) {
+    private void saveLocationIntoDb(final String userLocation) {
         if (currentUser != null) {
 
             DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
@@ -429,12 +432,14 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
             user.update(getString(R.string.LATITUDE_KEY), mLastKnownLocation.getLatitude());
             user.update(getString(R.string.LONGTITUDE_KEY), mLastKnownLocation.getLongitude())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "Save Location into db");
-                            placeMarkers(mGoogleMap);
-                        }
-                    });
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.d(TAG, "Location is saved into firestore");
+                    placeMarkers(mGoogleMap);
+                }
+            });
+
+
         }
     }
 
