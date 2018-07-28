@@ -78,6 +78,10 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
     public static final int LOCATION_REQUEST = 1;
     private static final int REQUEST_CHECK_SETTINGS = 2;
+    private static final String REQUESTING_LOCATION_UPDATES_KEY = "REQUESTING_LOCATON_UPDATES_KEY";
+    private long UPDATE_INTERVAL = 300000;  /* 5min */
+    private long FASTEST_INTERVAL = 5000; /* 5 sec */
+
     @BindView(R.id.mapView)
     MapView mMapView;
     @BindView(R.id.search)
@@ -102,6 +106,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
     private List<Address> addresses;
     LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
+    private boolean mRequestingLocationUpdates;
 
     public MapSearchFragment() {
     }
@@ -125,6 +130,9 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
             }
         });
 
+        updateValuesFromBundle(savedInstanceState);
+        
+
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -132,14 +140,28 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
+                    mLastKnownLocation = location;
+                    startFetchAddressByLatLngIntentService();
                     // Update UI with location data
                     // ...
-                    Log.d(TAG, location.toString());
+                    Log.d(TAG, (location.getProvider()));
                 }
             };
         };
 
         return rootView;
+    }
+
+    private void updateValuesFromBundle(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            return;
+        }
+
+        // Update the value of mRequestingLocationUpdates from the Bundle.
+        if (savedInstanceState.keySet().contains(REQUESTING_LOCATION_UPDATES_KEY)) {
+            mRequestingLocationUpdates = savedInstanceState.getBoolean(
+                    REQUESTING_LOCATION_UPDATES_KEY);
+        }
     }
 
 
@@ -157,6 +179,33 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mRequestingLocationUpdates) {
+            Log.d(TAG, "onResume : location updates started");
+            startLocationUpdates();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY,
+                mRequestingLocationUpdates);
+        Log.d(TAG, "onSaveInstanceState");
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause : location updates stopped");
+        stopLocationUpdates();
+    }
+
+    private void stopLocationUpdates() {
+        mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
+    }
 
     @SuppressLint("MissingPermission")
     @Override
@@ -198,8 +247,8 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
@@ -214,7 +263,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
                 // All location settings are satisfied. The client can initialize
                 // location requests here.
                 // ...
-
+                mRequestingLocationUpdates = true;
                 getDeviceLocation();
             }
         });
@@ -513,11 +562,14 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         // All required changes were successfully made
+                        mRequestingLocationUpdates = true;
                         getDeviceLocation();
                         break;
                     case Activity.RESULT_CANCELED:
                         // The user was asked to change settings, but chose not to
+                        mRequestingLocationUpdates = false;
                         Toast.makeText(getContext(), "Location Service not Enabled", Toast.LENGTH_SHORT).show();
+                        placeMarkers(mGoogleMap);
                         break;
                     default:
                         break;
