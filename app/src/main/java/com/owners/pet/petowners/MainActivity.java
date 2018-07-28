@@ -3,10 +3,12 @@ package com.owners.pet.petowners;
 
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,11 +20,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
     private FirebaseAuth mAuth;
     @BindView(R.id.tab_layout) TabLayout tabLayout;
     @BindView(R.id.view_pager) ViewPager viewPager;
 
     private ViewPagerAdapter viewPagerAdapter;
+    private Fragment  mapSearchFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +44,10 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         // Add  MapSearchFragment and MessagesFragment
-        viewPagerAdapter.addFragment(new MapSearchFragment(), getString(R.string.map_search_fragment_tab_title));
-        viewPagerAdapter.addFragment(new ChatFragment(), getString(R.string.chat_fragment_tab_title));
+        mapSearchFragment = new MapSearchFragment();
+        Fragment chatFragment = new ChatFragment();
+        viewPagerAdapter.addFragment(mapSearchFragment, getString(R.string.map_search_fragment_tab_title));
+        viewPagerAdapter.addFragment(chatFragment, getString(R.string.chat_fragment_tab_title));
 
 
 
@@ -72,5 +78,10 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mapSearchFragment.onActivityResult(requestCode, resultCode, data);
     }
 }

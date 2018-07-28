@@ -3,7 +3,9 @@ package com.owners.pet.petowners;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -24,8 +26,16 @@ import android.widget.CheckBox;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,7 +46,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -47,10 +59,12 @@ import com.owners.pet.petowners.models.User;
 import com.owners.pet.petowners.services.Constants;
 import com.owners.pet.petowners.services.FetchAddressByLatLngIntentService;
 import com.owners.pet.petowners.services.FetchAddressByNameIntentService;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executor;
 
 
 import butterknife.BindView;
@@ -63,6 +77,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
     public static final String TAG = MapSearchFragment.class.getSimpleName();
 
     public static final int LOCATION_REQUEST = 1;
+    private static final int REQUEST_CHECK_SETTINGS = 2;
     @BindView(R.id.mapView)
     MapView mMapView;
     @BindView(R.id.search)
@@ -75,7 +90,6 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
     CheckBox checkBoxGreen;
 
     private GoogleMap mGoogleMap;
-    private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Location mLastKnownLocation;
@@ -84,9 +98,10 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
     private ArrayList<Marker> orangeMarkers = new ArrayList<>();
     private ArrayList<Marker> cyanMarkers = new ArrayList<>();
     private ArrayList<Marker> greenMarkers = new ArrayList<>();
-    private Geocoder geocoder;
     public AddressResultReceiver mResultReceiver;
     private List<Address> addresses;
+    LocationRequest mLocationRequest;
+    private LocationCallback mLocationCallback;
 
     public MapSearchFragment() {
     }
@@ -98,9 +113,9 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
         View rootView = inflater.inflate(R.layout.fragment_search_map, container, false);
 
         ButterKnife.bind(this, rootView);
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        geocoder = new Geocoder(getContext(), Locale.getDefault());
+        Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
         mResultReceiver = new AddressResultReceiver(null);
 
         mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
@@ -109,6 +124,20 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
                 currentUser = firebaseAuth.getCurrentUser();
             }
         });
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    // Update UI with location data
+                    // ...
+                    Log.d(TAG, location.toString());
+                }
+            };
+        };
 
         return rootView;
     }
@@ -129,6 +158,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
     }
 
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         MapsInitializer.initialize(getContext());
@@ -136,7 +166,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mGoogleMap.setOnInfoWindowClickListener(this);
 
-        getLocationPermission();
+        createLocationRequest();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -154,6 +184,59 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
         });
 
+    }
+
+    private boolean checkPermissions() {
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            askLocationPermission();
+            return false;
+        }
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+
+        SettingsClient client = LocationServices.getSettingsClient(getContext());
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+        task.addOnSuccessListener(new OnSuccessListener<LocationSettingsResponse>() {
+            @Override
+            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                // All location settings are satisfied. The client can initialize
+                // location requests here.
+                // ...
+
+                getDeviceLocation();
+            }
+        });
+
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (e instanceof ResolvableApiException) {
+                    // Location settings are not satisfied, but this can be fixed
+                    // by showing the user a dialog.
+                    try {
+                        // Show the dialog by calling startResolutionForResult(),
+                        // and check the result in onActivityResult().
+                        ResolvableApiException resolvable = (ResolvableApiException) e;
+                        resolvable.startResolutionForResult(getActivity(),
+                                REQUEST_CHECK_SETTINGS);
+                    } catch (IntentSender.SendIntentException sendEx) {
+                        // Ignore the error.
+                    }
+                }
+            }
+        });
     }
 
     private void updateLocationUI() {
@@ -238,31 +321,35 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
     @SuppressLint("MissingPermission")
     private void getDeviceLocation() {
-        updateLocationUI();
-        if (mLocationPermissionGranted) {
 
+        if (checkPermissions()) {
             mFusedLocationProviderClient.getLastLocation()
                     .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
                             mLastKnownLocation = location;
 
-                            if (mLastKnownLocation == null) {
-                                mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
-                                return;
-                            }
-                            if (!Geocoder.isPresent()) {
-                                Toast.makeText(getContext(),
-                                        R.string.no_geocoder_available,
-                                        Toast.LENGTH_LONG).show();
-                                return;
+                            if (mLastKnownLocation != null) {
+
+                                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                        new LatLng(mLastKnownLocation.getLatitude(),
+                                                mLastKnownLocation.getLongitude()), 15));
+
+                                if (!Geocoder.isPresent()) {
+                                    Toast.makeText(getContext(),
+                                            R.string.no_geocoder_available,
+                                            Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+
+                                startFetchAddressByLatLngIntentService();
+                                Log.d(TAG, "Last known location is not null");
+                            } else {
+                                Log.d(TAG, "Last known location is null so start location updates");
+                                // Last known location is null so we need to request location updates
+                                startLocationUpdates();
                             }
 
-                            startFetchAddressByLatLngIntentService();
-
-                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                    new LatLng(mLastKnownLocation.getLatitude(),
-                                            mLastKnownLocation.getLongitude()), 15));
                         }
                     });
 
@@ -271,8 +358,15 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
     }
 
+    @SuppressLint("MissingPermission")
+    private void startLocationUpdates() {
+        mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest,
+                mLocationCallback,
+                null );
+    }
+
     /**
-     * Funtion which stores the user's latitude,
+     * Function which stores the user's latitude,
      * longtitude, actual address information into
      * firestore database.
      *
@@ -288,6 +382,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "Save Location into db");
                             placeMarkers(mGoogleMap);
                         }
                     });
@@ -309,18 +404,11 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
     }
 
 
-    public void getLocationPermission() {
-
-        if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mLocationPermissionGranted = true;
-            getDeviceLocation();
-        } else {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST);
-        }
-
+    public void askLocationPermission() {
+        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST);
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
@@ -328,11 +416,10 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
             case LOCATION_REQUEST: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mLocationPermissionGranted = true;
                     getDeviceLocation();
+
                 } else {
-                    mLocationPermissionGranted = false;
-                    updateLocationUI();
+                    mGoogleMap.setMyLocationEnabled(false);
                 }
             }
         }
@@ -415,6 +502,30 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
         getActivity().startService(intent);
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //super.onActivityResult(requestCode, resultCode, data);
+        final LocationSettingsStates states = LocationSettingsStates.fromIntent(data);
+        switch (requestCode) {
+            case REQUEST_CHECK_SETTINGS:
+                Log.d(TAG, "on activity result for the fragment");
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        // All required changes were successfully made
+                        getDeviceLocation();
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        // The user was asked to change settings, but chose not to
+                        Toast.makeText(getContext(), "Location Service not Enabled", Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        break;
+                }
+                break;
+        }
+    }
+
     class AddressResultReceiver extends ResultReceiver {
         public AddressResultReceiver(Handler handler) {
             super(handler);
@@ -422,10 +533,10 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            if(resultData != null){
+            if (resultData != null) {
                 String ACTION = resultData.getString(Constants.ACTION);
-                if(ACTION != null){
-                    switch (ACTION){
+                if (ACTION != null) {
+                    switch (ACTION) {
                         case Constants.ACTION_FETCH_ADDRESS_FROM_LOCATION:
                             if (resultCode == Constants.SUCCESS_RESULT) {
                                 String mAddress = resultData.getString(Constants.RESULT_DATA_KEY);
