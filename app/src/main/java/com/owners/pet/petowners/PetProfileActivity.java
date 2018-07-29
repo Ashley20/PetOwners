@@ -353,7 +353,7 @@ public class PetProfileActivity extends AppCompatActivity {
         petOwnerName = currentPet.getOwner();
         petNameTv.setText(currentPet.getName());
         petBioTv.setText(currentPet.getAbout());
-        petLocationTv.setText(currentPet.getLocation());
+        petLocationTv.setText(getString(R.string.adminArea_country_placeholder, currentPet.getAdminArea(), currentPet.getCountry()));
         petGenderTv.setText(currentPet.getGender());
         petTypeTv.setText(currentPet.getType());
         petOwnerTv.setText(currentPet.getOwner());

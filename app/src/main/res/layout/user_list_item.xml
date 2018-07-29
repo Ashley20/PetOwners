@@ -6,22 +6,23 @@
     android:clickable="true"
     android:background="?android:attr/selectableItemBackground"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
     android:focusable="true">
 
     <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="@dimen/user_list_item_profile_width"
+        android:layout_height="@dimen/user_list_item_profile_height"
         android:id="@+id/user_profile_image_view"
         android:layout_marginLeft="@dimen/default_profile_margin_left"
         android:layout_marginTop="@dimen/default_profile_margin_top"
         android:layout_marginBottom="@dimen/default_profile_margin_bottom"
-        android:layout_width="@dimen/default_profile_width"
-        android:layout_height="@dimen/default_profile_height"
+        android:layout_marginRight="@dimen/user_list_item_profile_margin_right"
         android:layout_alignParentTop="true"
         app:civ_border_color="@color/colorPrimaryText"
         app:civ_circle_background_color="@color/colorPrimaryText"
         android:scaleType="centerCrop"
         android:src="@drawable/profile_icon"
-        android:layout_marginStart="@dimen/default_profile_margin_left" />
+        android:layout_marginStart="@dimen/default_profile_margin_left"
+        android:layout_marginEnd="@dimen/user_list_item_profile_margin_right" />
 
     <TextView
         android:id="@+id/user_fullname"
@@ -29,27 +30,27 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:layout_marginStart="117dp"
+        android:layout_marginTop="22dp"
         android:maxEms="@integer/user_fullname_max_ems"
-        android:layout_marginStart="@dimen/user_fullname_margin_start"
-        android:layout_marginTop="@dimen/user_fullname_margin_top"
         android:text="@string/user_fullname"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         android:textSize="17sp"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="@dimen/user_fullname_margin_start" />
+        android:layout_marginLeft="117dp" />
 
     <TextView
         android:id="@+id/user_bio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/user_fullname"
-        android:layout_marginTop="@dimen/user_bio_margin_top"
-        android:maxLines="@integer/user_bio_maxiumum_lines"
+        android:layout_below="@+id/user_fullname"
+        android:layout_alignStart="@id/user_fullname"
+        android:layout_centerHorizontal="true"
         android:fontFamily="@font/helvetica_neueit"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:maxLines="@integer/user_bio_maxiumum_lines"
         android:text="@string/user_bio"
-        android:layout_alignLeft="@+id/user_fullname" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:layout_alignLeft="@id/user_fullname" />
 
     <TextView
         android:id="@+id/last_message_time_text_view"
@@ -57,8 +58,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/user_fullname"
-        android:layout_marginEnd="26dp"
+        android:layout_marginEnd="@dimen/last_message_time_text_view_margin_right"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="26dp" />
+        android:layout_marginRight="@dimen/last_message_time_text_view_margin_right" />
 
 </RelativeLayout>

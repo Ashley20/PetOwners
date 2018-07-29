@@ -16,6 +16,7 @@ import android.os.Looper;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -99,13 +100,11 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
     private FirebaseFirestore db;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Location mLastKnownLocation;
-    private boolean mLocationPermissionGranted;
     private FirebaseUser currentUser;
     private ArrayList<Marker> orangeMarkers = new ArrayList<>();
     private ArrayList<Marker> cyanMarkers = new ArrayList<>();
     private ArrayList<Marker> greenMarkers = new ArrayList<>();
     public AddressResultReceiver mResultReceiver;
-    private List<Address> addresses;
     LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
     private boolean mRequestingLocationUpdates;
@@ -136,11 +135,17 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
 
         mLocationCallback = new LocationCallback() {
+            @SuppressLint("MissingPermission")
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 if (locationResult == null) {
+                    mGoogleMap.setMyLocationEnabled(false);
+                    mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
                     return;
                 }
+                mGoogleMap.setMyLocationEnabled(true);
+                mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
+
                 for (Location location : locationResult.getLocations()) {
                     mLastKnownLocation = location;
                     startFetchAddressByLatLngIntentService();
@@ -251,7 +256,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(FASTEST_INTERVAL);
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
@@ -292,21 +297,6 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
         });
     }
 
-    private void updateLocationUI() {
-        try {
-            if (mLocationPermissionGranted) {
-                mGoogleMap.setMyLocationEnabled(true);
-                mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
-            } else {
-                mGoogleMap.setMyLocationEnabled(false);
-                mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
-                mLastKnownLocation = null;
-
-            }
-        } catch (SecurityException e) {
-            Log.e("Exception: %s", e.getMessage());
-        }
-    }
 
     /**
      * Places markers on the map where users are located based on their state.
@@ -385,6 +375,9 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
                             if (mLastKnownLocation != null) {
 
+                                mGoogleMap.setMyLocationEnabled(true);
+                                mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
+
                                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                         new LatLng(mLastKnownLocation.getLatitude(),
                                                 mLastKnownLocation.getLongitude()), 15));
@@ -419,18 +412,20 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
                 null);
     }
 
+
     /**
      * Function which stores the user's latitude,
-     * longtitude, actual address information into
+     * longtitude, country and admin area information into
      * firestore database.
-     *
-     * @param userLocation The address string coming from reverse geocoding
+     * @param adminArea
+     * @param countryName
      */
-    private void saveLocationIntoDb(final String userLocation) {
+    private void saveLocationIntoDb(final String adminArea, final String countryName) {
         if (currentUser != null) {
 
             DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
-            user.update(getString(R.string.LOCATION_KEY), userLocation);
+            user.update(getString(R.string.ADMIN_AREA_KEY), adminArea);
+            user.update(getString(R.string.COUNTRY_KEY), countryName);
             user.update(getString(R.string.LATITUDE_KEY), mLastKnownLocation.getLatitude());
             user.update(getString(R.string.LONGTITUDE_KEY), mLastKnownLocation.getLongitude())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -546,6 +541,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
     }
 
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -562,6 +558,8 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
                     case Activity.RESULT_CANCELED:
                         // The user was asked to change settings, but chose not to
                         mRequestingLocationUpdates = false;
+                        mGoogleMap.setMyLocationEnabled(false);
+                        mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
                         Toast.makeText(getContext(), "Location Service not Enabled", Toast.LENGTH_SHORT).show();
                         placeMarkers(mGoogleMap);
                         break;
@@ -585,13 +583,13 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
                     switch (ACTION) {
                         case Constants.ACTION_FETCH_ADDRESS_FROM_LOCATION:
                             if (resultCode == Constants.SUCCESS_RESULT) {
-                                String mAddress = resultData.getString(Constants.RESULT_DATA_KEY);
-                                Log.d(TAG, mAddress);
+                                String adminArea = resultData.getString(Constants.LOCATION_ADMIN_AREA);
+                                String countryName = resultData.getString(Constants.LOCATION_COUNTRY_NAME);
 
                                 // Now we have the address store it into firestore database
-                                saveLocationIntoDb(mAddress);
+                                saveLocationIntoDb(adminArea, countryName);
                             } else {
-                                String errorMessage = resultData.getString(Constants.RESULT_DATA_KEY);
+                                String errorMessage = resultData.getString(Constants.ERROR_MESSAGE);
                                 Log.d(TAG, errorMessage);
                             }
                             break;

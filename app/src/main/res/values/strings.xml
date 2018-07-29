@@ -164,4 +164,9 @@
     <string name="upload_icon">Upload</string>
     <string name="invalid_place_name_used">There is no such place</string>
     <string name="no_address_found_with_the_place_name">No address found with this place name</string>
+    <string name="ADMIN_AREA_KEY">adminArea</string>
+    <string name="COUNTRY_KEY">country</string>
+
+
+    <string name="adminArea_country_placeholder">%1$s , %2$s</string>
 </resources>

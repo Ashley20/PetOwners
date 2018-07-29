@@ -21,7 +21,8 @@ public class User {
     private String email;
     private Double latitude;
     private Double longtitude;
-    private String location;
+    private String adminArea;
+    private String country;
     private String profileImageUri;
     private ArrayList<ChatUser> conversationList;
     private ArrayList<String> chatWithUidList;
@@ -119,13 +120,6 @@ public class User {
         return chatWithUidList;
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
 
     public void setChatWithUidList(ArrayList<String> chatWithUidList) {
         this.chatWithUidList = chatWithUidList;
@@ -138,5 +132,21 @@ public class User {
 
     public void setProfileImageUri(String profileImageUri) {
         this.profileImageUri = profileImageUri;
+    }
+
+    public String getAdminArea() {
+        return adminArea;
+    }
+
+    public void setAdminArea(String adminArea) {
+        this.adminArea = adminArea;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 }

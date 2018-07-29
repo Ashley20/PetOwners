@@ -14,7 +14,8 @@ public class Pet {
     private String name;
     private String gender;
     private String type;
-    private String location;
+    private String adminArea;
+    private String country;
     private String profileImageUri;
     private boolean adoptionState;
 
@@ -89,12 +90,20 @@ public class Pet {
         this.about = about;
     }
 
-    public String getLocation() {
-        return location;
+    public String getAdminArea() {
+        return adminArea;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setAdminArea(String adminArea) {
+        this.adminArea = adminArea;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     public String getProfileImageUri() {

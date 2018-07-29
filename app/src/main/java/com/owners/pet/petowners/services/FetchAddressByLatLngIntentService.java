@@ -70,20 +70,23 @@ public class FetchAddressByLatLngIntentService extends IntentService {
                 errorMessage = getString(R.string.no_address_found);
                 Log.e(TAG, errorMessage);
             }
-            deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage);
+            deliverResultToReceiver(Constants.FAILURE_RESULT, "","", errorMessage);
         } else {
             Address address = addresses.get(0);
-            String userAddress = address.getAdminArea() + "," + address.getCountryName();
+            String adminArea = address.getAdminArea();
+            String countryName = address.getCountryName();
 
             Log.i(TAG, getString(R.string.address_found));
-            Log.i(TAG, userAddress);
-            deliverResultToReceiver(Constants.SUCCESS_RESULT, userAddress);
+            Log.i(TAG, adminArea + " " + countryName);
+            deliverResultToReceiver(Constants.SUCCESS_RESULT, adminArea, countryName, errorMessage);
         }
     }
 
-    private void deliverResultToReceiver(int resultCode, String message) {
+    private void deliverResultToReceiver(int resultCode, String adminArea, String countryName, String errorMessage) {
         Bundle bundle = new Bundle();
-        bundle.putString(Constants.RESULT_DATA_KEY, message);
+        bundle.putString(Constants.LOCATION_ADMIN_AREA, adminArea);
+        bundle.putString(Constants.LOCATION_COUNTRY_NAME, countryName);
+        bundle.putString(Constants.ERROR_MESSAGE, errorMessage);
         bundle.putString(Constants.ACTION, Constants.ACTION_FETCH_ADDRESS_FROM_LOCATION);
         mReceiver.send(resultCode, bundle);
     }
