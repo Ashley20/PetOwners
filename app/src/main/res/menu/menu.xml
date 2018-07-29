@@ -13,4 +13,10 @@
         app:showAsAction="never">
     </item>
 
+    <item
+        android:id="@+id/explore"
+        android:title="@string/menu_option_explore"
+        app:showAsAction="never">
+    </item>
+
 </menu>

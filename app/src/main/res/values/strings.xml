@@ -169,4 +169,8 @@
 
 
     <string name="adminArea_country_placeholder">%1$s , %2$s</string>
+    <string name="menu_option_explore">Explore</string>
+    <string name="pets">Pets</string>
+    <string name="home">Home</string>
+    <string name="pet_card_image">Pet Image</string>
 </resources>

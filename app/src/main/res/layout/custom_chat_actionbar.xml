@@ -30,6 +30,4 @@
         app:civ_fill_color="@color/colorPrimaryDark"
         android:layout_alignParentRight="true" />
 
-
-
 </RelativeLayout>

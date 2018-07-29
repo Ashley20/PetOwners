@@ -74,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
                 Intent usersActivityIntent = new Intent(this, UsersActivity.class);
                 startActivity(usersActivityIntent);
                 return true;
+            case R.id.explore:
+                Intent exploreActivityIntent = new Intent(this, ExploreActivity.class);
+                startActivity(exploreActivityIntent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
 

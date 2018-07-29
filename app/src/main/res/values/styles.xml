@@ -18,6 +18,14 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <!-- Pink theme. -->
+    <style name="PinkTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryThree</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryThree</item>
+        <item name="colorAccent">@color/colorAccentThree</item>
+    </style>
+
 
     <style name="BtnMessage" parent="Theme.AppCompat.Light">
         <item name="colorControlHighlight">@color/colorAccentTwo</item>

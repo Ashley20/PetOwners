@@ -44,7 +44,9 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-storage:3.2.1'
     // FirebaseUI for Cloud Firestore
     implementation 'com.firebaseui:firebase-ui-firestore:4.1.0'
-    //Arch
+    implementation 'com.yuyakaido.android:card-stack-view:1.0.0-beta9'
+    implementation "com.android.support:cardview-v7:$supportLibraryVersion"
+    // Arch
     implementation "android.arch.core:runtime:1.1.1"
     implementation "android.arch.core:common:1.1.1"
     implementation 'com.android.support:multidex:1.0.3'
