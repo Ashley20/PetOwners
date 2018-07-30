@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/category_pref_discovery">
+
+        <Preference
+            android:selectable="false"
+            android:title="@string/pref_show_me" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key=""
+            android:title="@string/gender_girl" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key=""
+            android:title="@string/gender_boy" />
+
+
+        <Preference
+            android:layout="@layout/item_divider"
+            android:selectable="false" />
+
+
+        <ListPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/dialog_title_select_type"
+            android:entries="@array/pref_select_type_entries"
+            android:entryValues="@array/pref_select_type_values"
+            android:key="@string/key_select_type"
+            android:title="@string/title_select_type" />
+
+
+        <Preference
+            android:layout="@layout/item_divider"
+            android:selectable="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key=""
+            android:summaryOff="@string/summary_off_adoption_state"
+            android:summaryOn="@string/summary_on_adoption_state"
+            android:title="@string/title_adoption_state" />
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

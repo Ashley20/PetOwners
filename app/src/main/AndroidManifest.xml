@@ -70,6 +70,7 @@
                 android:resource="@xml/pet_owners_widget_provider_info" />
         </receiver>
 
+        <activity android:name=".SettingsActivity"></activity>
     </application>
 
 </manifest>

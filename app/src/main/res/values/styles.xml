@@ -6,6 +6,12 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="preferenceTheme">@style/PrefsTheme</item>
+    </style>
+
+    <style name="PrefsTheme" parent="PreferenceThemeOverlay.v14.Material">
+        <item name="android:divider">@null</item>
+        <item name="android:dividerHeight">0dp</item>
     </style>
 
     <!-- Gray theme. -->
@@ -36,5 +42,7 @@
         <item name="colorControlHighlight">@color/colorAccentTwo</item>
         <item name="colorButtonNormal">@color/colorWhite</item>
     </style>
+
+
 
 </resources>

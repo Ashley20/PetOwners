@@ -173,4 +173,18 @@
     <string name="pets">Pets</string>
     <string name="home">Home</string>
     <string name="pet_card_image">Pet Image</string>
+    <string name="category_pref_discovery">Discovery Settings</string>
+    <string name="pref_show_me">Show me</string>
+    <string name="pref_adoption_state">Adoption State</string>
+    <string name="title_adoption_state">Adoption State</string>
+    <string name="summary_on_adoption_state">On</string>
+    <string name="summary_off_adoption_state">Off</string>
+    <string name="pref_location">Location</string>
+    <string name="title_dialog_country">Select a country</string>
+    <string name="key_country">key_country</string>
+    <string name="summary_country">Country for the pets</string>
+    <string name="title_country">Country</string>
+    <string name="key_select_type">key_select_type</string>
+    <string name="title_select_type">Pet Type</string>
+    <string name="dialog_title_select_type">Select pet type</string>
 </resources>

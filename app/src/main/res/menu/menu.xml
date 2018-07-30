@@ -19,4 +19,10 @@
         app:showAsAction="never">
     </item>
 
+    <item
+        android:id="@+id/settings"
+        android:title="@string/menu_option_settings"
+        app:showAsAction="never">
+    </item>
+
 </menu>
