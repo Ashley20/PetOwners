@@ -136,6 +136,12 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="widget_image_view_margin_right">10dp</dimen>
     <dimen name="widget_list_view_margin_top">50dp</dimen>
     <dimen name="widget_empty_view_text_size">22sp</dimen>
+    <dimen name="widget_list_item_pet_name_margin_left">20dp</dimen>
+    <dimen name="widget_list_item_pet_name_margin_top">8dp</dimen>
+    <dimen name="widget_list_item_pet_name_text_size">17sp</dimen>
+    <dimen name="widget_list_item_pet_bio_margin_bottom">5dp</dimen>
+    <dimen name="widget_list_item_pet_bio_text_size">14sp</dimen>
+    <dimen name="widget_bar_height">40dp</dimen>
 
 
     <item name="card_stack_view_swipe_threshould" type="dimen" format="float">0.75</item>

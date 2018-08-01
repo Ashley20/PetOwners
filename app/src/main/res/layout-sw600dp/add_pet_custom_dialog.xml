@@ -9,9 +9,11 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginLeft="@dimen/add_pet_custom_dialog_margin_left"
-        android:layout_marginRight="@dimen/add_pet_custom_dialog_margin_rightgit b"
+        android:layout_marginRight="@dimen/add_pet_custom_dialog_margin_right"
         android:layout_marginTop="@dimen/add_pet_custom_dialog_margin_top"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginStart="@dimen/add_pet_custom_dialog_margin_left"
+        android:layout_marginEnd="@dimen/add_pet_custom_dialog_margin_right">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/pet_profile_pic"

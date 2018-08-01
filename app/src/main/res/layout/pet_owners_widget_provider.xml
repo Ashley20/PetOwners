@@ -13,15 +13,15 @@ android:id="@+id/widget_item_layout">
     android:layout_height="wrap_content"
     android:layout_alignParentStart="true"
     android:layout_alignParentTop="true"
-    android:layout_marginStart="20dp"
-    android:layout_marginTop="8dp"
+    android:layout_marginStart="@dimen/widget_list_item_pet_name_margin_left"
+    android:layout_marginTop="@dimen/widget_list_item_pet_name_margin_top"
     android:maxEms="@integer/user_fullname_max_ems"
     android:text="@string/pet_name"
     android:textAppearance="@style/TextAppearance.AppCompat.Title"
     android:textColor="@color/colorBlack"
-    android:textSize="17sp"
+    android:textSize="@dimen/widget_list_item_pet_name_text_size"
     android:layout_alignParentLeft="true"
-    android:layout_marginLeft="20dp" />
+    android:layout_marginLeft="@dimen/widget_list_item_pet_name_margin_left" />
 
 <TextView
     android:id="@+id/pet_bio"
@@ -30,12 +30,12 @@ android:id="@+id/widget_item_layout">
     android:layout_alignStart="@id/pet_name"
     android:layout_below="@id/pet_name"
     android:fontFamily="@font/helvetica_neueit"
-    android:layout_marginBottom="5dp"
+    android:layout_marginBottom="@dimen/widget_list_item_pet_bio_margin_bottom"
     android:maxLines="@integer/user_bio_maxiumum_lines"
     android:text="@string/pet_bio"
     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
     android:textColor="@color/colorBlack"
-    android:textSize="14sp"
+    android:textSize="@dimen/widget_list_item_pet_bio_text_size"
     android:layout_alignLeft="@id/pet_name" />
 
 
