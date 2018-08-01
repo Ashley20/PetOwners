@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/linearlayout_margin_size"
         android:layout_marginRight="@dimen/linearlayout_margin_size"
+        android:layout_marginTop="@dimen/linearlayout_margin_top"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 

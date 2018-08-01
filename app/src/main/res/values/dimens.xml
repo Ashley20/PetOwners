@@ -2,6 +2,7 @@
 <resources>
     <dimen name="input_text_size">18sp</dimen>
     <dimen name="linearlayout_margin_size">24dp</dimen>
+    <dimen name="linearlayout_margin_top">0dp</dimen>
     <dimen name="logo_width">250dp</dimen>
     <dimen name="logo_height">250dp</dimen>
     <dimen name="email_field_margin_top">15dp</dimen>
