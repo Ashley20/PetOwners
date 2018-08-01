@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -62,10 +63,26 @@ public class ExploreActivity extends AppCompatActivity {
                 PreferenceManager.getDefaultSharedPreferences(this);
         adapter = new CardAdapter(this);
 
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         setup();
         arrangeFilters(sharedPreferences);
         applyFilters();
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void applyFilters() {
