@@ -22,11 +22,13 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private FirebaseAuth mAuth;
-    @BindView(R.id.tab_layout) TabLayout tabLayout;
-    @BindView(R.id.view_pager) ViewPager viewPager;
+    @BindView(R.id.tab_layout)
+    TabLayout tabLayout;
+    @BindView(R.id.view_pager)
+    ViewPager viewPager;
 
     private ViewPagerAdapter viewPagerAdapter;
-    private Fragment  mapSearchFragment;
+    private Fragment mapSearchFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null){
+        if (actionBar != null) {
             actionBar.setElevation(0);
         }
 
@@ -48,8 +50,6 @@ public class MainActivity extends AppCompatActivity {
         Fragment chatFragment = new ChatFragment();
         viewPagerAdapter.addFragment(mapSearchFragment, getString(R.string.map_search_fragment_tab_title));
         viewPagerAdapter.addFragment(chatFragment, getString(R.string.chat_fragment_tab_title));
-
-
 
 
         viewPager.setAdapter(viewPagerAdapter);

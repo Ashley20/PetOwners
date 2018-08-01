@@ -147,16 +147,6 @@
     <string name="edit_pet_dialog_button">Edit</string>
     <string name="successful_pet_edition_message">Successfully edited the pet information</string>
     <string name="name_and_about_field_cannot_be_empty">Fields name and about cannot be left empty</string>
-
-    <string-array name="genderList">
-        <item>@string/gender_girl</item>
-        <item>@string/gender_boy</item>
-    </string-array>
-
-    <string-array name="petTypeList">
-        <item>@string/type_cat</item>
-        <item>@string/type_dog</item>
-    </string-array>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="empty_view">No pets found</string>
@@ -173,18 +163,33 @@
     <string name="pets">Pets</string>
     <string name="home">Home</string>
     <string name="pet_card_image">Pet Image</string>
-    <string name="category_pref_discovery">Discovery Settings</string>
-    <string name="pref_show_me">Show me</string>
     <string name="pref_adoption_state">Adoption State</string>
-    <string name="title_adoption_state">Adoption State</string>
+    <string name="PET_ADOPTION_STATE_KEY">adoptionState</string>
+
+
+    <!-- Preferences titles & summaries-->
+    <string name="category_pref_discovery">Discovery Settings</string>
+    <string name="title_adoption_state">Ready for adoption?</string>
     <string name="summary_on_adoption_state">On</string>
     <string name="summary_off_adoption_state">Off</string>
-    <string name="pref_location">Location</string>
-    <string name="title_dialog_country">Select a country</string>
-    <string name="key_country">key_country</string>
-    <string name="summary_country">Country for the pets</string>
-    <string name="title_country">Country</string>
-    <string name="key_select_type">key_select_type</string>
     <string name="title_select_type">Pet Type</string>
     <string name="dialog_title_select_type">Select pet type</string>
+    <string name="pref_show_me">Show me</string>
+
+
+    <!-- Preferences keys-->
+    <string name="key_select_type" translatable="false">key_select_type</string>
+    <string name="key_country" translatable="false">key_country</string>
+    <string name="key_gender_girl" translatable="false">key_gender_girl</string>
+    <string name="key_gender_boy" translatable="false">key_gender_boy</string>
+    <string name="key_adoption_state" translatable="false">key_adoption_state</string>
+    <string name="default_pet_type">0</string>
+    <string name="PET_GENDER_KEY">gender</string>
+    <string name="PET_TYPE_KEY">type</string>
+    <string name="action_settings">Settings</string>
+    <string name="profile">Profile</string>
+    <string name="adoption_state_filter">adoption_state_filter</string>
+    <string name="show_me_filter">show_me_filter</string>
+    <string name="pet_type_filter">pet_type_filter</string>
+    <string name="card_image_view">Pet Image</string>
 </resources>

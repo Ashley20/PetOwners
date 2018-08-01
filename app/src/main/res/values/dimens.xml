@@ -107,4 +107,36 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="explore_home_image_button_margin_bottom">8dp</dimen>
     <dimen name="explore_home_image_button_margin_right">24dp</dimen>
     <dimen name="explore_home_image_button_margin_top">16dp</dimen>
+    <dimen name="card_stack_view_layout_height">0dp</dimen>
+    <dimen name="card_stack_view_padding_bottom">16dp</dimen>
+    <dimen name="card_stack_view_padding_left">6dp</dimen>
+    <dimen name="card_stack_view_padding_right">6dp</dimen>
+    <dimen name="card_stack_view_padding_top">16dp</dimen>
+    <dimen name="swipe_left_fab_margin_left">40dp</dimen>
+    <dimen name="swipe_left_fab_margin_right">35dp</dimen>
+    <dimen name="swipe_right_fab_margin_right">40dp</dimen>
+    <dimen name="swipe_right_fab_margin_left">35dp</dimen>
+    <dimen name="card_view_corner_radius">8dp</dimen>
+    <dimen name="card_pet_info_container_padding">16dp</dimen>
+    <dimen name="card_pet_name_text_size">26sp</dimen>
+    <dimen name="card_pet_location_text_size">20sp</dimen>
+    <dimen name="item_divider_height">1dp</dimen>
+    <dimen name="item_divider_margin_bottom">8dp</dimen>
+    <dimen name="item_divider_margin_top">8dp</dimen>
+    <dimen name="card_corner_radius">8dp</dimen>
+    <dimen name="card_elevation">0dp</dimen>
+    <dimen name="pet_thumbnail_size">50dp</dimen>
+    <dimen name="user_list_item_fullname_margin_top">22dp</dimen>
+    <dimen name="user_list_item_fullname_margin_start">97dp</dimen>
+    <dimen name="user_list_item_fullname_text_size">17sp</dimen>
+    <dimen name="widget_image_view_width">50dp</dimen>
+    <dimen name="widget_image_view_height">40dp</dimen>
+    <dimen name="widget_image_view_margin_top">15dp</dimen>
+    <dimen name="widget_image_view_margin_right">10dp</dimen>
+    <dimen name="widget_list_view_margin_top">50dp</dimen>
+    <dimen name="widget_empty_view_text_size">22sp</dimen>
+
+
+    <item name="card_stack_view_swipe_threshould" type="dimen" format="float">0.75</item>
+    <item name="card_stack_view_scaleDiff" type="dimen" format="float">0.02</item>
 </resources>

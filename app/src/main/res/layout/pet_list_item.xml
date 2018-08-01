@@ -9,8 +9,8 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/pet_thumbnail"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/pet_thumbnail_size"
+        android:layout_height="@dimen/pet_thumbnail_size"
         android:layout_centerVertical="true"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
@@ -38,6 +38,6 @@
         android:layout_centerHorizontal="true"
         android:text="@string/waits_for_adoption_text"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        android:textColor="#727272" />
+        android:textColor="@color/colorPetState" />
 
 </RelativeLayout>

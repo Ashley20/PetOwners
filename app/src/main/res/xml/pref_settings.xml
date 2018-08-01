@@ -7,13 +7,13 @@
             android:title="@string/pref_show_me" />
 
         <SwitchPreference
-            android:defaultValue="true"
-            android:key=""
+            android:defaultValue="@bool/default_show_me_gender_girl"
+            android:key="@string/key_gender_girl"
             android:title="@string/gender_girl" />
 
         <SwitchPreference
-            android:defaultValue="true"
-            android:key=""
+            android:defaultValue="@bool/default_show_me_gender_boy"
+            android:key="@string/key_gender_boy"
             android:title="@string/gender_boy" />
 
 
@@ -23,7 +23,7 @@
 
 
         <ListPreference
-            android:defaultValue="0"
+            android:defaultValue="@string/default_pet_type"
             android:dialogTitle="@string/dialog_title_select_type"
             android:entries="@array/pref_select_type_entries"
             android:entryValues="@array/pref_select_type_values"
@@ -36,8 +36,8 @@
             android:selectable="false" />
 
         <CheckBoxPreference
-            android:defaultValue="true"
-            android:key=""
+            android:defaultValue="@bool/default_pet_adoption_state"
+            android:key="@string/key_adoption_state"
             android:summaryOff="@string/summary_off_adoption_state"
             android:summaryOn="@string/summary_on_adoption_state"
             android:title="@string/title_adoption_state" />

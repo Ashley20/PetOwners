@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="default_pet_adoption_state">true</bool>
+    <bool name="default_show_me_gender_girl">true</bool>
+    <bool name="default_show_me_gender_boy">true</bool>
+    <bool name="card_use_compat_padding">true</bool>
+</resources>

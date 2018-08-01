@@ -4,31 +4,70 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ExploreActivity"
-    android:orientation="vertical">
+    android:weightSum="@integer/card_fab_linear_layout_weight_sum"
+    android:orientation="vertical"
+    tools:context=".ExploreActivity">
 
-    <com.yuyakaido.android.cardstackview.CardStackView
-        android:id="@+id/card_stack_view"
+        <com.yuyakaido.android.cardstackview.CardStackView
+            android:id="@+id/card_stack_view"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_stack_view_layout_height"
+            android:layout_weight="@integer/card_stack_view_layout_weight"
+            android:background="@color/colorWhite"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/card_stack_view_padding_bottom"
+            android:paddingLeft="@dimen/card_stack_view_padding_left"
+            android:paddingRight="@dimen/card_stack_view_padding_right"
+            android:paddingTop="@dimen/card_stack_view_padding_top"
+            android:paddingStart="@dimen/card_stack_view_padding_left"
+            android:paddingEnd="@dimen/card_stack_view_padding_right"
+            app:elevationEnabled="true"
+            app:leftOverlay="@layout/overlay_left"
+            app:rightOverlay="@layout/overlay_right"
+            app:scaleDiff="@dimen/card_stack_view_scaleDiff"
+            app:stackFrom="top"
+            app:swipeDirection="freedom_no_bottom"
+            app:swipeEnabled="true"
+            app:swipeThreshold="@dimen/card_stack_view_swipe_threshould"
+            app:topOverlay="@layout/overlay_top"
+            app:translationDiff="@integer/card_stack_view_translationDiff"
+            app:visibleCount="@integer/card_stack_view_visible_count" />
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="32dp"
-        android:paddingBottom="32dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:clipToPadding="false"
-        app:visibleCount="3"
-        app:swipeThreshold="0.75"
-        app:translationDiff="12"
-        app:scaleDiff="0.02"
-        app:stackFrom="top"
-        app:elevationEnabled="true"
-        app:swipeEnabled="true"
-        app:swipeDirection="freedom_no_bottom"
-        app:leftOverlay="@layout/overlay_left"
-        app:rightOverlay="@layout/overlay_right"
-        app:topOverlay="@layout/overlay_top" />
+        android:layout_height="wrap_content"
+        android:layout_weight="@integer/fab_container_layout_weight"
+        android:background="@color/colorWhite"
+        android:gravity="center"
+        android:orientation="horizontal">
 
 
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/swipe_left_fab"
+            android:src="@drawable/ic_left"
+            android:layout_marginLeft="@dimen/swipe_left_fab_margin_left"
+            android:layout_marginRight="@dimen/swipe_left_fab_margin_right"
+            android:layout_marginStart="@dimen/swipe_left_fab_margin_left"
+            android:layout_marginEnd="@dimen/swipe_left_fab_margin_right" />
 
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/view_pet_profile_fab"
+            android:src="@drawable/ic_eye" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/swipe_right_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_right"
+            android:layout_marginRight="@dimen/swipe_right_fab_margin_right"
+            android:layout_marginLeft="@dimen/swipe_right_fab_margin_left"
+            android:layout_marginStart="@dimen/swipe_right_fab_margin_left"
+            android:layout_marginEnd="@dimen/swipe_right_fab_margin_right" />
+
+    </LinearLayout>
 
 </LinearLayout>

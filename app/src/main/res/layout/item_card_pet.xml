@@ -7,12 +7,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:cardUseCompatPadding="true"
-    card_view:cardCornerRadius="8dp"
+    card_view:cardCornerRadius="@dimen/card_view_corner_radius"
     card_view:cardBackgroundColor="@android:color/white">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/pet_card_image"
@@ -25,7 +25,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:padding="@dimen/card_pet_info_container_padding"
             android:background="@drawable/background_black_gradation"
             android:layout_alignParentBottom="true">
 
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
-                android:textSize="26sp"/>
+                android:textSize="@dimen/card_pet_name_text_size"/>
 
             <TextView
                 android:id="@+id/card_pet_location"
@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"/>
+                android:textSize="@dimen/card_pet_location_text_size"/>
 
         </LinearLayout>
 

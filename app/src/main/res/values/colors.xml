@@ -34,4 +34,8 @@
     <color name="colorGreen900">#33691E</color>
     <color name="colorGray700">#bdbdbd</color>
 
+    <color name="colorItemDivider">#B6B6B6</color>
+    <color name="colorCardBackground">#88000000</color>
+    <color name="colorPetState">#727272</color>
+
 </resources>

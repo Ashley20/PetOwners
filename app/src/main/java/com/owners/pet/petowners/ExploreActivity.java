@@ -6,24 +6,23 @@ import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.Toolbar.LayoutParams;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.owners.pet.petowners.adapters.CardAdapter;
 import com.owners.pet.petowners.models.Pet;
@@ -31,10 +30,13 @@ import com.yuyakaido.android.cardstackview.CardStackView;
 import com.yuyakaido.android.cardstackview.SwipeDirection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class ExploreActivity extends AppCompatActivity {
     public static final String TAG = ExploreActivity.class.getSimpleName();
@@ -44,96 +46,148 @@ public class ExploreActivity extends AppCompatActivity {
     private CardStackView cardStackView;
     private CardAdapter adapter;
     private List<Pet> petList = new ArrayList<>();
+    private HashMap<String, String> filtersMap = new HashMap<>();
+    private Query query;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_explore);
 
+        ButterKnife.bind(this);
+
         db = FirebaseFirestore.getInstance();
 
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-
-            Log.d(TAG, "actionbar is not null");
-            actionBar.setDisplayShowCustomEnabled(true);
-            actionBar.setDisplayShowTitleEnabled(false);
-
-            LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View custom_bar_view = inflater.inflate(R.layout.custom_explore_actionbar, null);
-
-            ImageButton settingsImageBtn = custom_bar_view.findViewById(R.id.settings_image_button);
-            ImageButton homeImageBtn = custom_bar_view.findViewById(R.id.home_image_button);
-
-            homeImageBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent startMainActivity = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(startMainActivity);
-                }
-            });
-
-
-            actionBar.setCustomView(custom_bar_view);
-        }
-
-        db.collection(getString(R.string.COLLECTION_PETS))
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot snapshots) {
-                        if(snapshots != null){
-                            for(DocumentSnapshot s : snapshots.getDocuments()){
-                                Pet pet = s.toObject(Pet.class);
-                                petList.add(pet);
-                            }
-                        }
-                    }
-                });
-
-
+        SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        adapter = new CardAdapter(this);
 
         setup();
-        load();
+        arrangeFilters(sharedPreferences);
+        applyFilters();
+
     }
+
+    private void applyFilters() {
+        query = db.collection(getString(R.string.COLLECTION_PETS));
+        if (filtersMap.containsKey(getString(R.string.adoption_state_filter))) {
+            query = query.whereEqualTo(getString(R.string.PET_ADOPTION_STATE_KEY), true);
+        }
+
+        if (filtersMap.containsKey(getString(R.string.show_me_filter))) {
+            query = query.whereEqualTo(getString(R.string.PET_GENDER_KEY),
+                    filtersMap.get(getString(R.string.show_me_filter)));
+        }
+
+        if (filtersMap.containsKey(getString(R.string.pet_type_filter))) {
+            query = query.whereEqualTo(getString(R.string.PET_TYPE_KEY),
+                    filtersMap.get(getString(R.string.pet_type_filter)));
+        }
+
+        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot snapshots) {
+                if (snapshots != null) {
+                    for (DocumentSnapshot s : snapshots.getDocuments()) {
+                        Pet pet = s.toObject(Pet.class);
+                        petList.add(pet);
+                    }
+                    load();
+                }
+            }
+        });
+    }
+
+    @OnClick(R.id.swipe_right_fab)
+    public void swipeToTheRight(){
+        swipeRight();
+    }
+
+    @OnClick(R.id.view_pet_profile_fab)
+    public void viewPetProfile(){
+        Intent intent = new Intent(getApplicationContext(), PetProfileActivity.class);
+        String uid = adapter.getItem(cardStackView.getTopIndex()).getPetUid();
+        intent.putExtra(getString(R.string.EXTRA_PET_UID), uid);
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.swipe_left_fab)
+    public void swipeToTheLeft(){
+        swipeLeft();
+    }
+
+
+    private void arrangeFilters(SharedPreferences sharedPreferences) {
+
+        Boolean isAdoptionStateCheckboxChecked = sharedPreferences.getBoolean(getString(R.string.key_adoption_state),
+                getResources().getBoolean(R.bool.default_pet_adoption_state));
+        String petType = sharedPreferences.getString(getString(R.string.key_select_type),
+                getString(R.string.default_pet_type));
+
+        Boolean switchPreferenceBoyActive = sharedPreferences.getBoolean(getString(R.string.key_gender_boy),
+                getResources().getBoolean(R.bool.default_show_me_gender_boy));
+        Boolean switchPreferenceGirlActive = sharedPreferences.getBoolean(getString(R.string.key_gender_girl),
+                getResources().getBoolean(R.bool.default_show_me_gender_girl));
+
+        if (isAdoptionStateCheckboxChecked) {
+            filtersMap.put(getString(R.string.adoption_state_filter), "");
+        }
+
+        if (!switchPreferenceBoyActive || !switchPreferenceGirlActive) {
+            if (switchPreferenceBoyActive) {
+                filtersMap.put(getString(R.string.show_me_filter), getString(R.string.gender_boy));
+            } else {
+                filtersMap.put(getString(R.string.show_me_filter), getString(R.string.gender_girl));
+            }
+        }
+
+        switch (petType) {
+            case "1":
+                filtersMap.put(getString(R.string.pet_type_filter), getString(R.string.type_cat));
+                break;
+            case "2":
+                filtersMap.put(getString(R.string.pet_type_filter), getString(R.string.type_dog));
+                break;
+        }
+
+    }
+
 
     private void setup() {
         cardStackView = (CardStackView) findViewById(R.id.card_stack_view);
         cardStackView.setCardEventListener(new CardStackView.CardEventListener() {
             @Override
             public void onCardDragging(float percentX, float percentY) {
-                Log.d(TAG, "onCardDragging");
             }
 
             @Override
             public void onCardSwiped(SwipeDirection direction) {
-                Log.d("TAG", "onCardSwiped: " + direction.toString());
-                Log.d("TAG", "topIndex: " + cardStackView.getTopIndex());
-                if (cardStackView.getTopIndex() == adapter.getCount() - 5) {
-                    Log.d("TAG", "Paginate: " + cardStackView.getTopIndex());
+                if (cardStackView.getTopIndex() == adapter.getCount() - 2) {
                     paginate();
                 }
             }
 
             @Override
             public void onCardReversed() {
-                Log.d("TAG", "onCardReversed");
             }
 
             @Override
             public void onCardMovedToOrigin() {
-                Log.d("TAG", "onCardMovedToOrigin");
             }
 
             @Override
             public void onCardClicked(int index) {
-                Log.d("TAG", "onCardClicked: " + index);
+                Intent intent = new Intent(getApplicationContext(), PetProfileActivity.class);
+                String uid = adapter.getItem(index).getPetUid();
+                intent.putExtra(getString(R.string.EXTRA_PET_UID), uid);
+                startActivity(intent);
             }
+
+
         });
     }
 
     private void load() {
-        adapter = new CardAdapter(this);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -142,6 +196,7 @@ public class ExploreActivity extends AppCompatActivity {
             }
         }, 1000);
     }
+
 
     private LinkedList<Pet> extractRemainingTouristSpots() {
         LinkedList<Pet> spots = new LinkedList<>();
@@ -161,7 +216,7 @@ public class ExploreActivity extends AppCompatActivity {
 
     private void addLast() {
         LinkedList<Pet> spots = extractRemainingTouristSpots();
-        spots.addLast(petList.get(petList.size()-1));
+        spots.addLast(petList.get(petList.size() - 1));
         adapter.clear();
         adapter.addAll(spots);
         adapter.notifyDataSetChanged();
@@ -262,5 +317,7 @@ public class ExploreActivity extends AppCompatActivity {
     private void reverse() {
         cardStackView.reverse();
     }
+
+
 }
 

@@ -7,4 +7,11 @@
     <integer name="last_message_maxiumum_lines">2</integer>
     <integer name="user_fullname_max_ems">23</integer>
     <integer name="upload_image_button_layout_weight">1</integer>
+    <integer name="card_fab_linear_layout_weight_sum">10</integer>
+    <integer name="card_stack_view_layout_weight">9</integer>
+    <integer name="card_stack_view_visible_count">3</integer>
+    <integer name="card_stack_view_translationDiff">12</integer>
+    <integer name="fab_container_layout_weight">1</integer>
+
+
 </resources>
