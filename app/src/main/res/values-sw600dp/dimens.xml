@@ -2,4 +2,19 @@
 <resources>
     <dimen name="linearlayout_margin_size">300dp</dimen>
     <dimen name="linearlayout_margin_top">40dp</dimen>
+    <dimen name="user_list_item_profile_width">100dp</dimen>
+    <dimen name="user_list_item_profile_height">100dp</dimen>
+    <dimen name="user_list_item_profile_margin_right">50dp</dimen>
+    <dimen name="user_list_item_fullname_margin_start">150dp</dimen>
+    <dimen name="user_list_item_fullname_margin_top">28dp</dimen>
+    <dimen name="user_list_item_fullname_text_size">25sp</dimen>
+    <dimen name="user_bio_text_size">23sp</dimen>
+    <dimen name="last_message_time_text_size">20sp</dimen>
+
+    <!-- Add Pet Custom Dialog-->
+
+    <dimen name="add_pet_custom_dialog_margin_top">20dp</dimen>
+    <dimen name="add_pet_custom_dialog_margin_left">5dp</dimen>
+    <dimen name="add_pet_custom_dialog_margin_right">5dp</dimen>
+
 </resources>

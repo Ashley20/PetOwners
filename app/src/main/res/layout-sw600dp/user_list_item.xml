@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:background="?android:attr/selectableItemBackground"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:focusable="true">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="@dimen/user_list_item_profile_width"
+        android:layout_height="@dimen/user_list_item_profile_height"
+        android:id="@+id/user_profile_image_view"
+        android:layout_marginLeft="@dimen/default_profile_margin_left"
+        android:layout_marginTop="@dimen/default_profile_margin_top"
+        android:layout_marginBottom="@dimen/default_profile_margin_bottom"
+        android:layout_marginRight="@dimen/user_list_item_profile_margin_right"
+        android:layout_alignParentTop="true"
+        app:civ_border_color="@color/colorPrimaryText"
+        app:civ_circle_background_color="@color/colorPrimaryText"
+        android:scaleType="centerCrop"
+        android:src="@drawable/profile_icon"
+        android:layout_marginStart="@dimen/default_profile_margin_left"
+        android:layout_marginEnd="@dimen/user_list_item_profile_margin_right" />
+
+    <TextView
+        android:id="@+id/user_fullname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="@dimen/user_list_item_fullname_margin_start"
+        android:layout_marginTop="@dimen/user_list_item_fullname_margin_top"
+        android:maxEms="@integer/user_fullname_max_ems"
+        android:text="@string/user_fullname"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textSize="@dimen/user_list_item_fullname_text_size"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="@dimen/user_list_item_fullname_margin_start" />
+
+    <TextView
+        android:id="@+id/user_bio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/user_fullname"
+        android:layout_alignStart="@id/user_fullname"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/helvetica_neueit"
+        android:maxLines="@integer/user_bio_maxiumum_lines"
+        android:text="@string/user_bio"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textSize="@dimen/user_bio_text_size"
+        android:layout_alignLeft="@id/user_fullname" />
+
+    <TextView
+        android:id="@+id/last_message_time_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/user_fullname"
+        android:layout_marginEnd="@dimen/last_message_time_text_view_margin_right"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/last_message_time_text_view_margin_right"
+        android:textSize="@dimen/last_message_time_text_size"/>
+
+</RelativeLayout>
