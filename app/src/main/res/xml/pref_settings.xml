@@ -28,6 +28,7 @@
             android:entries="@array/pref_select_type_entries"
             android:entryValues="@array/pref_select_type_values"
             android:key="@string/key_select_type"
+            android:summary="%s"
             android:title="@string/title_select_type" />
 
 
