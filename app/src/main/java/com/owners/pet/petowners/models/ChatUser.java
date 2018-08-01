@@ -8,12 +8,14 @@ public class ChatUser {
     private String uid;
     private String lastMessage;
     private Date lastMessageDate;
+    private String profileImageUrl;
 
     public ChatUser(){}
 
     public ChatUser(String name, String biography) {
         this.name = name;
         this.biography = biography;
+        this.profileImageUrl = "";
     }
 
     public String getName() {
@@ -54,5 +56,13 @@ public class ChatUser {
 
     public void setLastMessageDate(Date lastMessageDate) {
         this.lastMessageDate = lastMessageDate;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 }

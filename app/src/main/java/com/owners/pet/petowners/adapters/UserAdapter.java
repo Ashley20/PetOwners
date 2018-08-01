@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,10 +24,12 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.owners.pet.petowners.ChatActivity;
 import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.ChatUser;
+import com.owners.pet.petowners.models.User;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -35,13 +39,15 @@ import java.util.Locale;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserAdapter extends ArrayAdapter<ChatUser> {
+    public static final String TAG = UserAdapter.class.getSimpleName();
+
     private Context mContext;
     private ArrayList<ChatUser> chatUserList;
     private StorageReference storageRef;
     private StorageReference profileImageRef;
 
-    public UserAdapter (Context context, ArrayList<ChatUser> chatUserList) {
-        super(context,0, chatUserList);
+    public UserAdapter(Context context, ArrayList<ChatUser> chatUserList) {
+        super(context, 0, chatUserList);
         this.mContext = context;
         this.chatUserList = chatUserList;
 
@@ -73,21 +79,30 @@ public class UserAdapter extends ArrayAdapter<ChatUser> {
                     .child(chatUser.getUid())
                     .child(mContext.getString(R.string.storage_profile_ref));
 
-            profileImageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Picasso.get()
-                            .load(uri)
-                            .placeholder(R.drawable.profile_icon)
-                            .into(profilePic);
-                }
-            });
+            if(chatUser.getProfileImageUrl() != null && !chatUser.getProfileImageUrl().equals("")){
+                profileImageRef.getDownloadUrl()
+                        .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Picasso.get()
+                                        .load(uri)
+                                        .placeholder(R.drawable.profile_icon)
+                                        .into(profilePic);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, e.getMessage());
+                    }
+                });
+            }
+
 
 
             // Set date
             Locale l = Locale.US;
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a", l);
-            if(chatUser.getLastMessageDate() != null){
+            if (chatUser.getLastMessageDate() != null) {
                 lastMessageTime.setText(simpleDateFormat.format(chatUser.getLastMessageDate()));
             }
 
@@ -108,9 +123,9 @@ public class UserAdapter extends ArrayAdapter<ChatUser> {
 
     @Override
     public int getCount() {
-        if(chatUserList != null){
+        if (chatUserList != null) {
             return chatUserList.size();
-        }else {
+        } else {
             return 0;
         }
     }

@@ -253,6 +253,7 @@ public class ChatActivity extends AppCompatActivity {
         chatUserTwo.setUid(currentUser.getUid());
         chatUserTwo.setName(currentUser.getName());
         chatUserTwo.setBiography(currentUser.getBiography());
+        chatUserTwo.setProfileImageUrl(currentUser.getProfileImageUri());
 
         otherUser.getChatWithUidList().add(currentUser.getUid());
         otherUser.getConversationList().add(chatUserTwo);
@@ -279,6 +280,8 @@ public class ChatActivity extends AppCompatActivity {
         chatUserOne.setUid(otherUser.getUid());
         chatUserOne.setName(otherUser.getName());
         chatUserOne.setBiography(otherUser.getBiography());
+        chatUserOne.setProfileImageUrl(otherUser.getProfileImageUri());
+
 
         // Update our current user
         currentUser.getChatWithUidList().add(chatUserOne.getUid());
@@ -325,12 +328,6 @@ public class ChatActivity extends AppCompatActivity {
                             notification.setFrom(currentUser.getDisplayName());
                             notification.setTo(uid);
                             notification.setContent(content);
-
-                         /*   HashMap<String, String> notificationData = new HashMap<>();
-                            notificationData.put("fromUid", currentUser.getUid());
-                            notificationData.put("from", currentUser.getDisplayName());
-                            notificationData.put("to", uid);
-                            notificationData.put("content", content); */
 
 
                             // Update notification database
