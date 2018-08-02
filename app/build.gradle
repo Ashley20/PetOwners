@@ -3,9 +3,9 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         config {
-            keyAlias 'didem'
+            keyAlias 'key0'
             keyPassword 'mysecretkey_1'
-            storeFile file('C:/capstone/Capstone-Project/keystore.jks')
+            storeFile file('keystore.jks')
             storePassword 'mysecretkey_1'
         }
     }
