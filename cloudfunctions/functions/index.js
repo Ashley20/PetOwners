@@ -6,61 +6,45 @@ admin.initializeApp(functions.config().firebase);
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 //
-exports.sendNotification = functions.firestore
-  .document('notifications/{docId}')
-  .onCreate((snap, context) => {
+exports.sendNotification = functions.database.ref('/notifications/{notification_id}').onWrite( (change,context)=> {
 
-    const store = admin.firestore();
-    let deviceToken
+  const notificationData = change.after.val();
 
-    const newValue = snap.data();
+  const fromUid = notificationData.fromUid;
+  const from = notificationData.from;
+  const to = notificationData.to;
+  const content = notificationData.content;
 
-    const fromUid = newValue.fromUid;
-    const from = newValue.from;
-    const to = newValue.to;
-    const content = newValue.content;
+  const payload = {
+    notification: {
+      title: from,
+      body: content,
+      icon: 'default',
+      sound: 'default'
+    },
+    data: {
+      user_profile_uid: fromUid,
+      user_profile_name: from
+    }
+  };
 
-    const payload = {
-      notification: {
-        title: from,
-        body: content,
-        icon: 'default',
-        sound: 'default'
-      },
-      data: {
-        user_profile_uid: fromUid,
-        user_profile_name: from
-      }
-    };
-
-    // Set the message as high priority and have it expire after 24 hours.
-    const options = {
-      collapseKey: 'demo',
-      contentAvailable: true,
-      priority: 'high',
-      timeToLive: 60 * 60 * 24,
-    };
-
-    store.collection('users').doc(to).get().then(doc => {
-      if (doc.exists) {
-        deviceToken = doc.data().deviceToken;
-        console.log(deviceToken);
-
-        admin.messaging().sendToDevice(deviceToken, payload, options).then(response => {
-          console.log('Notification has been send');
-          return response;
-        }).catch(error => {
-          res.send(err);
-        });
+  // Set the message as high priority and have it expire after 24 hours.
+  const options = {
+    collapseKey: 'demo',
+    contentAvailable: true,
+    priority: 'high',
+    timeToLive: 60 * 60 * 24,
+  };
 
 
-      } else {
-        console.log('User document does not exists..');
-        return null;
-      }
-      return null;
-    }).catch(err => {
-      res.send(err);
-    });
+  const deviceToken = admin.database().ref(`/users/${to}/deviceToken`).once('value');
 
+  return deviceToken.then(result => {
+    const token_id = result.val();
+    return admin.messaging().sendToDevice(token_id, payload).then(response => {
+      console.log("Notification send");
+      return response;
+    })
   });
+
+});

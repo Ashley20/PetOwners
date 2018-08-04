@@ -49,7 +49,8 @@ public class ChatFragment extends Fragment {
         final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (currentUser != null) {
-            mDatabase.child(getString(R.string.COLLECTION_USERS)).child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            mDatabase.child(getString(R.string.COLLECTION_USERS)).child(currentUser.getUid())
+                    .addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
@@ -69,7 +70,7 @@ public class ChatFragment extends Fragment {
                                                         for(DataSnapshot snap : dataSnapshot.getChildren()){
                                                             Message message = snap.getValue(Message.class);
                                                             if (message != null) {
-
+                                                                Log.d(TAG, message.getContent());
                                                                 String lastMessage = message.getContent();
                                                                 String lastMessageTimeStamp = message.getTimestamp();
 

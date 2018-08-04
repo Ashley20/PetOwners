@@ -1,6 +1,7 @@
 package com.owners.pet.petowners;
 
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,27 +18,38 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.owners.pet.petowners.adapters.AllUsersAdapter;
 import com.owners.pet.petowners.models.User;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UsersActivity extends AppCompatActivity {
+    public static final String TAG = UsersActivity.class.getSimpleName();
+
+    private static final String LIST_STATE_KEY = "KEY";
     @BindView(R.id.user_list_rv)
-    RecyclerView mUsersList;
+    RecyclerView mUsersListRv;
     private DatabaseReference mDatabase;
     private StorageReference storageReference;
     private StorageReference profileImagesRef;
     private FirebaseUser currentUser;
-    LinearLayoutManager linearLayoutManager;
-    private FirebaseRecyclerAdapter<User, UsersViewHolder> adapter;
+    private LinearLayoutManager linearLayoutManager;
+    private AllUsersAdapter adapter;
+    private Parcelable mListState;
+    private ArrayList<User> mUserList = new ArrayList<>();
 
 
     @Override
@@ -53,104 +65,66 @@ public class UsersActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
+        if(savedInstanceState != null){
+            mListState = savedInstanceState.getParcelable(LIST_STATE_KEY);
+        }
+
         init();
         loadUsers();
+
 
     }
 
     private void init() {
-        linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
-        mUsersList.setLayoutManager(linearLayoutManager);
+        mUsersListRv.setHasFixedSize(true);
+
+        linearLayoutManager = new LinearLayoutManager(getApplicationContext(),
+                LinearLayoutManager.VERTICAL, false);
+        mUsersListRv.setLayoutManager(linearLayoutManager);
+
+        adapter = new AllUsersAdapter(this, mUserList);
+        mUsersListRv.setAdapter(adapter);
+
         mDatabase = FirebaseDatabase.getInstance().getReference();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         storageReference = FirebaseStorage.getInstance().getReference();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelable(LIST_STATE_KEY, mUsersListRv.getLayoutManager().onSaveInstanceState());
+    }
+
     private void loadUsers() {
-        Query query = mDatabase
-                .child(getString(R.string.COLLECTION_USERS))
-                .limitToLast(50);
 
-        FirebaseRecyclerOptions<User> options =
-                new FirebaseRecyclerOptions.Builder<User>()
-                        .setQuery(query, User.class)
-                        .build();
-
-        adapter = new FirebaseRecyclerAdapter<User, UsersViewHolder>(options){
-
-            @NonNull
+        mDatabase.child(getString(R.string.COLLECTION_USERS))
+                .limitToLast(50).addValueEventListener(new ValueEventListener() {
             @Override
-            public UsersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.user_list_item, parent, false);
-
-                return new UsersViewHolder(view);
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull UsersViewHolder holder, int position, @NonNull final User model) {
-                if(model.getProfileImageUri() != null){
-                    Picasso.get()
-                            .load(model.getProfileImageUri())
-                            .placeholder(R.drawable.profile_icon)
-                            .into(holder.userProfileImage);
-                }
-
-                holder.userFullName.setText(model.getName());
-                holder.userBio.setText(model.getBiography());
-
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if(currentUser != null){
-                            if(currentUser.getUid().equals(model.getUid())){
-                                Intent profileActivityIntent =
-                                        new Intent(getApplicationContext(), ProfileActivity.class);
-                                startActivity(profileActivityIntent);
-                            }else{
-                                Intent othersProfileActivity =
-                                        new Intent(getApplicationContext(), OthersProfileActivity.class);
-                                othersProfileActivity.putExtra(getString(R.string.USER_PROFILE_UID), model.getUid());
-                                startActivity(othersProfileActivity);
-                            }
-                        }
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    if(!mUserList.isEmpty()){
+                        mUserList.clear();
                     }
-                });
+                    for(DataSnapshot s : dataSnapshot.getChildren()){
+                        User user = s.getValue(User.class);
+                        mUserList.add(user);
+                    }
+                    adapter.notifyDataSetChanged();
+                    mUsersListRv.getLayoutManager().onRestoreInstanceState(mListState);
+                }
             }
-        };
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-
-        adapter.notifyDataSetChanged();
-        // Finally set the adapter
-        mUsersList.setAdapter(adapter);
+            }
+        });
 
     }
 
 
-    public static class UsersViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.user_profile_image_view)
-        CircleImageView userProfileImage;
-        @BindView(R.id.user_fullname)
-        TextView userFullName;
-        @BindView(R.id.user_bio)
-        TextView userBio;
 
-        UsersViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        adapter.startListening();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        adapter.stopListening();
-    }
 }
