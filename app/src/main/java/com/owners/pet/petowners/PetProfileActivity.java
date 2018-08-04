@@ -28,11 +28,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -40,7 +40,9 @@ import com.owners.pet.petowners.models.Pet;
 import com.owners.pet.petowners.widget.PetOwnersWidgetProvider;
 import com.squareup.picasso.Picasso;
 
-import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -76,7 +78,7 @@ public class PetProfileActivity extends AppCompatActivity {
     RelativeLayout deletePetContainer;
 
     private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
+    private DatabaseReference mDatabase;
     private StorageReference storageRef;
     private StorageReference petProfilePictureRef;
     private FirebaseUser currentUser;
@@ -102,22 +104,29 @@ public class PetProfileActivity extends AppCompatActivity {
         }
 
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         storageRef = FirebaseStorage.getInstance().getReference();
         currentUser = mAuth.getCurrentUser();
 
         petUid = getIntent().getStringExtra(getString(R.string.EXTRA_PET_UID));
+        petOwnerUid = getIntent().getStringExtra(getString(R.string.EXTRA_PET_OWNER_UID));
 
         if (petUid != null) {
-            db.collection(getString(R.string.COLLECTION_PETS))
-                    .document(petUid)
-                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+
+            mDatabase.child(getString(R.string.COLLECTION_PETS)).child(petOwnerUid)
+                    .child(petUid)
+                    .addValueEventListener(new ValueEventListener() {
                         @Override
-                        public void onEvent(@Nullable DocumentSnapshot snap, @Nullable FirebaseFirestoreException e) {
-                            if (snap != null && snap.exists()) {
-                                currentPet = snap.toObject(Pet.class);
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                currentPet = dataSnapshot.getValue(Pet.class);
                                 loadPetProfile();
                             }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
                         }
                     });
         }
@@ -182,8 +191,6 @@ public class PetProfileActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (!TextUtils.isEmpty(petNameEditText.getText().toString())
                         && !TextUtils.isEmpty(petAboutEditText.getText().toString())) {
-                    final DocumentReference petDocumentRef = db.collection(getString(R.string.COLLECTION_PETS))
-                            .document(petUid);
 
                     currentPet.setName(petNameEditText.getText().toString());
                     currentPet.setAbout(petAboutEditText.getText().toString());
@@ -191,17 +198,17 @@ public class PetProfileActivity extends AppCompatActivity {
                     currentPet.setType(typeSpinner.getSelectedItem().toString());
                     currentPet.setAdoptionState(petAdoptionStateCheckBox.isChecked());
 
-                    petDocumentRef.set(currentPet).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(getApplicationContext(),
-                                    getString(R.string.successful_pet_edition_message),
-                                    Toast.LENGTH_SHORT).show();
-
-                            // We have edited the pet  so update the widget
-                            PetOwnersWidgetProvider.sendRefreshBroadcast(getApplicationContext());
-                        }
-                    });
+                    mDatabase.child(getString(R.string.COLLECTION_PETS)).child(currentPet.getOwnerUid())
+                            .child(currentPet.getPetUid())
+                            .setValue(currentPet)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(getApplicationContext(),
+                                            getString(R.string.successful_pet_edition_message),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            });
 
                 } else {
                     Toast.makeText(getApplicationContext(), getString(R.string.name_and_about_field_cannot_be_empty),
@@ -259,23 +266,26 @@ public class PetProfileActivity extends AppCompatActivity {
         if (!currentUser.getUid().equals(petOwnerUid)) {
             return;
         }
-        db.collection(getString(R.string.COLLECTION_PETS))
-                .document(petUid)
-                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.successful_pet_deletion_message),
-                            Toast.LENGTH_SHORT).show();
-                    // We have deleted a pet so update the widget
-                    PetOwnersWidgetProvider.sendRefreshBroadcast(getApplicationContext());
-                    finish();
-                } else {
-                    Toast.makeText(getApplicationContext(), getString(R.string.failed_pet_deletion_message),
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+
+        mDatabase.child(getString(R.string.COLLECTION_PETS))
+                .child(petOwnerUid).child(petUid)
+                .removeValue()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.successful_pet_deletion_message),
+                                Toast.LENGTH_SHORT).show();
+
+                        finish();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.failed_pet_deletion_message),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
 
     }
 
@@ -324,9 +334,11 @@ public class PetProfileActivity extends AppCompatActivity {
                                 petProfilePictureRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
-                                        DocumentReference pet = db.collection(getString(R.string.COLLECTION_PETS))
-                                                .document(petUid);
-                                        pet.update(getString(R.string.PROFILE_IMAGE_URI_KEY), uri.toString());
+
+                                        Map<String, Object> updates = new HashMap<>();
+                                        updates.put(getString(R.string.PROFILE_IMAGE_URI_KEY), uri.toString());
+                                        mDatabase.child(getString(R.string.COLLECTION_PETS)).child(petOwnerUid)
+                                                .child(petUid).updateChildren(updates);
 
                                         Picasso.get()
                                                 .load(uri)

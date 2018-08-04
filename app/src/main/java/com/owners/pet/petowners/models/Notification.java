@@ -1,17 +1,18 @@
 package com.owners.pet.petowners.models;
 
-import com.google.firebase.firestore.ServerTimestamp;
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.ServerValue;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Notification {
     private String content;
     private String from;
     private String fromUid;
     private String to;
-
-    @ServerTimestamp
-    private Date date;
+    private String timestamp;
 
     public String getContent() {
         return content;
@@ -45,11 +46,11 @@ public class Notification {
         this.to = to;
     }
 
-    public Date getDate() {
-        return date;
+    public String getTimestamp() {
+        return timestamp;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 }

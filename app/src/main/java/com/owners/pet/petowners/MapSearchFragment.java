@@ -52,11 +52,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.owners.pet.petowners.adapters.CustomInfoViewAdapter;
 import com.owners.pet.petowners.models.User;
 import com.owners.pet.petowners.services.Constants;
@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 
@@ -97,7 +98,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
     CheckBox checkBoxGreen;
 
     private GoogleMap mGoogleMap;
-    private FirebaseFirestore db;
+    private DatabaseReference mDatabase;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Location mLastKnownLocation;
     private FirebaseUser currentUser;
@@ -120,7 +121,7 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
 
         ButterKnife.bind(this, rootView);
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
         mResultReceiver = new AddressResultReceiver(null);
 
@@ -307,59 +308,64 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
      * @param mGoogleMap
      */
     private void placeMarkers(final GoogleMap mGoogleMap) {
+        mDatabase.child(getString(R.string.COLLECTION_USERS)).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot s : dataSnapshot.getChildren()) {
+                        User user = s.getValue(User.class);
+                        if (user != null && user.getLatitude() != null) {
 
-        db.collection(getString(R.string.COLLECTION_USERS))
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        List<User> userList = queryDocumentSnapshots.toObjects(User.class);
-                        for (User user : userList) {
-                            if (user != null && user.getLatitude() != null) {
+                            Log.d(TAG, "placeMarkers: " + user.getLatitude().toString());
+                            LatLng latLng = new LatLng(user.getLatitude(), user.getLongtitude());
+                            MarkerOptions markerOptions = new MarkerOptions()
+                                    .title(user.getName())
+                                    .position(latLng);
+                            HashMap<String, String> markerOptionsMap = new HashMap<>();
+                            markerOptionsMap.put(getString(R.string.UID_KEY), user.getUid());
 
-                                LatLng latLng = new LatLng(user.getLatitude(), user.getLongtitude());
-                                MarkerOptions markerOptions = new MarkerOptions()
-                                        .title(user.getName())
-                                        .position(latLng);
-                                HashMap<String, String> markerOptionsMap = new HashMap<>();
-                                markerOptionsMap.put(getString(R.string.UID_KEY), user.getUid());
-
-                                switch (user.getUserState()) {
-                                    case User.WANTS_TO_ADOPT:
-                                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
-                                        markerOptions.snippet(getString(R.string.USER_WANTS_TO_ADOPT_STATE));
-                                        markerOptionsMap.put(getString(R.string.COLOR_KEY), "HUE_ORANGE");
-                                        Marker markerOrange = mGoogleMap.addMarker(markerOptions);
-                                        markerOrange.setTag(markerOptionsMap);
-                                        orangeMarkers.add(markerOrange);
-                                        break;
-                                    case User.WANTS_TO_POST_FOR_ADOPTION:
-                                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
-                                        markerOptions.snippet(getString(R.string.USER_WANTS_TO_POST_FOR_ADOPTION_STATE));
-                                        markerOptionsMap.put(getString(R.string.COLOR_KEY), "HUE_CYAN");
-                                        Marker markerCyan = mGoogleMap.addMarker(markerOptions);
-                                        markerCyan.setTag(markerOptionsMap);
-                                        cyanMarkers.add(markerCyan);
-                                        break;
-                                    case User.NONE:
-                                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                                        markerOptions.snippet(getString(R.string.USER_DEFAULT_STATE));
-                                        markerOptionsMap.put(getString(R.string.COLOR_KEY), "HUE_GREEN");
-                                        Marker markerGreen = mGoogleMap.addMarker(markerOptions);
-                                        markerGreen.setTag(markerOptionsMap);
-                                        greenMarkers.add(markerGreen);
-                                        break;
-                                }
-
-                                //Set Custom InfoWindow Adapter
-                                CustomInfoViewAdapter adapter = new CustomInfoViewAdapter(getContext());
-                                mGoogleMap.setInfoWindowAdapter(adapter);
-
-
+                            switch (user.getUserState()) {
+                                case User.WANTS_TO_ADOPT:
+                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                                    markerOptions.snippet(getString(R.string.USER_WANTS_TO_ADOPT_STATE));
+                                    markerOptionsMap.put(getString(R.string.COLOR_KEY), "HUE_ORANGE");
+                                    Marker markerOrange = mGoogleMap.addMarker(markerOptions);
+                                    markerOrange.setTag(markerOptionsMap);
+                                    orangeMarkers.add(markerOrange);
+                                    break;
+                                case User.WANTS_TO_POST_FOR_ADOPTION:
+                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                                    markerOptions.snippet(getString(R.string.USER_WANTS_TO_POST_FOR_ADOPTION_STATE));
+                                    markerOptionsMap.put(getString(R.string.COLOR_KEY), "HUE_CYAN");
+                                    Marker markerCyan = mGoogleMap.addMarker(markerOptions);
+                                    markerCyan.setTag(markerOptionsMap);
+                                    cyanMarkers.add(markerCyan);
+                                    break;
+                                case User.NONE:
+                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                                    markerOptions.snippet(getString(R.string.USER_DEFAULT_STATE));
+                                    markerOptionsMap.put(getString(R.string.COLOR_KEY), "HUE_GREEN");
+                                    Marker markerGreen = mGoogleMap.addMarker(markerOptions);
+                                    markerGreen.setTag(markerOptionsMap);
+                                    greenMarkers.add(markerGreen);
+                                    break;
                             }
+
+                            //Set Custom InfoWindow Adapter
+                            CustomInfoViewAdapter adapter = new CustomInfoViewAdapter(getContext());
+                            mGoogleMap.setInfoWindowAdapter(adapter);
                         }
+
                     }
-                });
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
 
@@ -416,18 +422,23 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
     /**
      * Function which stores the user's latitude,
      * longtitude, country and admin area information into
-     * firestore database.
+     * firebase realtime database.
+     *
      * @param adminArea
      * @param countryName
      */
     private void saveLocationIntoDb(final String adminArea, final String countryName) {
         if (currentUser != null) {
 
-            DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
-            user.update(getString(R.string.ADMIN_AREA_KEY), adminArea);
-            user.update(getString(R.string.COUNTRY_KEY), countryName);
-            user.update(getString(R.string.LATITUDE_KEY), mLastKnownLocation.getLatitude());
-            user.update(getString(R.string.LONGTITUDE_KEY), mLastKnownLocation.getLongitude())
+            Map<String, Object> updates = new HashMap<>();
+
+            updates.put(getString(R.string.ADMIN_AREA_KEY), adminArea);
+            updates.put(getString(R.string.COUNTRY_KEY), countryName);
+            updates.put(getString(R.string.LATITUDE_KEY), mLastKnownLocation.getLatitude());
+            updates.put(getString(R.string.LONGTITUDE_KEY), mLastKnownLocation.getLongitude());
+
+            mDatabase.child(getString(R.string.COLLECTION_USERS)).child(currentUser.getUid())
+                    .updateChildren(updates)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
@@ -435,8 +446,6 @@ public class MapSearchFragment extends Fragment implements OnMapReadyCallback,
                             placeMarkers(mGoogleMap);
                         }
                     });
-
-
         }
     }
 

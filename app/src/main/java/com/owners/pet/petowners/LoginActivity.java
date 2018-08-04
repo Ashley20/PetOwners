@@ -21,10 +21,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
     ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
+    private DatabaseReference mDatabase;
     private FirebaseUser currentUser;
 
     @Override
@@ -52,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
 
         ActionBar actionBar = getSupportActionBar();
@@ -100,15 +103,19 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (task.isSuccessful()) {
                     currentUser = mAuth.getCurrentUser();
-                    // Get the device id and store it in firestore database
+                    // Get the device id and store it in firebase realtime database
                     FirebaseInstanceId.getInstance().getInstanceId()
                             .addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
                                 @Override
                                 public void onSuccess(InstanceIdResult instanceIdResult) {
                                     String deviceToken = instanceIdResult.getToken();
-                                    DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS))
-                                            .document(currentUser.getUid());
-                                    user.update(getString(R.string.DEVICE_TOKEN_KEY), deviceToken)
+
+                                    Map<String, Object> updates = new HashMap<>();
+                                    updates.put(getString(R.string.DEVICE_TOKEN_KEY), deviceToken);
+
+                                    mDatabase.child(getString(R.string.COLLECTION_USERS))
+                                            .child(currentUser.getUid())
+                                            .updateChildren(updates)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
@@ -116,6 +123,7 @@ public class LoginActivity extends AppCompatActivity {
                                                     startActivity(intent);
                                                 }
                                             });
+
                                 }
                             });
                 } else {

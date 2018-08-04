@@ -1,20 +1,25 @@
 package com.owners.pet.petowners.models;
 
-import com.google.firebase.firestore.ServerTimestamp;
 
+import android.support.annotation.NonNull;
+
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.ServerValue;
+
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class Message {
     private String content;
     private String sender;
     private String receiver;
     private String type;
+    private String timestamp;
 
-    @ServerTimestamp
-    private Date date;
-
-    public Message() {
-    }
+    public Message() {}
 
     public String getContent() {
         return content;
@@ -40,12 +45,12 @@ public class Message {
         this.receiver = receiver;
     }
 
-    public Date getDate() {
-        return date;
+    public String getTimestamp() {
+        return timestamp;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getType() {

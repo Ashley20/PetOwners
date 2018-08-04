@@ -28,14 +28,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.ServerTimestamp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -44,15 +42,13 @@ import com.owners.pet.petowners.models.ChatUser;
 import com.owners.pet.petowners.models.Message;
 import com.owners.pet.petowners.models.Notification;
 import com.owners.pet.petowners.models.User;
-import com.owners.pet.petowners.widget.PetOwnersWidgetProvider;
+import com.owners.pet.petowners.utils.Time;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
-
-import javax.annotation.Nullable;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -62,7 +58,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ChatActivity extends AppCompatActivity {
     private static final String TAG = ChatActivity.class.getSimpleName();
     private static final int GALLERY_PICK_REQUEST = 1;
-    private FirebaseFirestore db;
+    private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private String uid;
     private String name;
@@ -90,7 +86,7 @@ public class ChatActivity extends AppCompatActivity {
 
         progressDialog = new ProgressDialog(this);
 
-        db = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         storageRef = FirebaseStorage.getInstance().getReference();
         imageMessagesRef = storageRef.child("IMAGE_MESSAGES");
@@ -120,13 +116,13 @@ public class ChatActivity extends AppCompatActivity {
             final CircleImageView chatUserProfileImageIv = custom_bar_view.findViewById(R.id.chat_profile_image);
 
             chatUserNameTv.setText(name);
-            db.collection(getString(R.string.COLLECTION_USERS))
-                    .document(uid)
-                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            mDatabase.child(getString(R.string.COLLECTION_USERS))
+                    .child(uid)
+                    .addValueEventListener(new ValueEventListener() {
                         @Override
-                        public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
-                            if (snapshot != null && snapshot.exists()) {
-                                User chatUser = snapshot.toObject(User.class);
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.exists()){
+                                User chatUser = dataSnapshot.getValue(User.class);
                                 if (chatUser != null) {
                                     if (chatUser.getProfileImageUri() != null) {
                                         Picasso.get()
@@ -136,6 +132,11 @@ public class ChatActivity extends AppCompatActivity {
                                     }
                                 }
                             }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
                         }
                     });
 
@@ -173,19 +174,20 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void loadMessages() {
-        db.collection(getString(R.string.COLLECTION_MESSAGES))
-                .document(currentUser.getUid())
-                .collection(uid)
-                .orderBy(getString(R.string.DATE_KEY), Query.Direction.ASCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+        mDatabase.child(getString(R.string.COLLECTION_MESSAGES))
+                .child(currentUser.getUid())
+                .child(uid)
+                //.orderByChild(getString(R.string.DATE_KEY))
+                .addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onEvent(@Nullable QuerySnapshot snap, @Nullable FirebaseFirestoreException e) {
-                        if (snap != null) {
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()){
                             if (messageList != null) {
                                 messageList.clear();
                             }
-                            for (DocumentSnapshot s : snap.getDocuments()) {
-                                Message message = s.toObject(Message.class);
+                            for (DataSnapshot s : dataSnapshot.getChildren()) {
+
+                                Message message = s.getValue(Message.class);
                                 messageList.add(message);
                             }
 
@@ -193,25 +195,35 @@ public class ChatActivity extends AppCompatActivity {
 
                             messageListRv.getLayoutManager().scrollToPosition(messagesAdapter.getItemCount() - 1);
 
-
                         }
                     }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
                 });
+
     }
 
     private void checkIfChatExistsWithTheUser() {
-        db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid())
-                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        mDatabase.child(getString(R.string.COLLECTION_USERS)).child(currentUser.getUid())
+                .addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
-                        if (snapshot != null && snapshot.exists()) {
-                            User user = snapshot.toObject(User.class);
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()){
+                            User user = dataSnapshot.getValue(User.class);
                             if (user != null) {
                                 if (!user.getChatWithUidList().contains(uid)) {
                                     updateConversationList(user);
                                 }
                             }
                         }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
                     }
                 });
     }
@@ -223,20 +235,25 @@ public class ChatActivity extends AppCompatActivity {
      * @param currentUser
      */
     private void updateConversationList(final User currentUser) {
-        db.collection(getString(R.string.COLLECTION_USERS))
-                .document(uid)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        mDatabase.child(getString(R.string.COLLECTION_USERS))
+                .child(uid)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onSuccess(DocumentSnapshot snapshot) {
-                        User otherUser = snapshot.toObject(User.class);
-                        if (otherUser != null) {
-                            updateCurrentUserFields(currentUser, otherUser);
-                            updateOtherUserFields(currentUser, otherUser);
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()){
+                            User otherUser = dataSnapshot.getValue(User.class);
+                            if (otherUser != null) {
+                                updateCurrentUserFields(currentUser, otherUser);
+                                updateOtherUserFields(currentUser, otherUser);
+                            }
                         }
                     }
-                });
 
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     /**
@@ -258,11 +275,8 @@ public class ChatActivity extends AppCompatActivity {
         otherUser.getChatWithUidList().add(currentUser.getUid());
         otherUser.getConversationList().add(chatUserTwo);
 
-        db.collection(getString(R.string.COLLECTION_USERS))
-                .document(otherUser.getUid())
-                .set(otherUser);
-
-
+        mDatabase.child(getString(R.string.COLLECTION_USERS)).child(otherUser.getUid())
+                .setValue(otherUser);
     }
 
 
@@ -287,9 +301,8 @@ public class ChatActivity extends AppCompatActivity {
         currentUser.getChatWithUidList().add(chatUserOne.getUid());
         currentUser.getConversationList().add(chatUserOne);
 
-        db.collection(getString(R.string.COLLECTION_USERS))
-                .document(currentUser.getUid())
-                .set(currentUser);
+        mDatabase.child(getString(R.string.COLLECTION_USERS)).child(currentUser.getUid())
+                .setValue(currentUser);
     }
 
 
@@ -303,40 +316,35 @@ public class ChatActivity extends AppCompatActivity {
         final String content = messageEditText.getText().toString();
         if (!TextUtils.isEmpty(content)) {
             messageEditText.setText("");
+
+
             // Create a new message and set the content, receiver and sender information
             final Message newMessage = new Message();
             newMessage.setSender(currentUser.getUid());
             newMessage.setReceiver(uid);
             newMessage.setType("text");
             newMessage.setContent(content);
+            newMessage.setTimestamp(Time.getTime());
 
-            db.collection(getString(R.string.COLLECTION_MESSAGES))
-                    .document(uid)
-                    .collection(currentUser.getUid())
-                    .document().set(newMessage);
-
-
-            // Store the message in firestore
-            db.collection(getString(R.string.COLLECTION_MESSAGES))
-                    .document(currentUser.getUid())
-                    .collection(uid).document().set(newMessage)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Notification notification = new Notification();
-                            notification.setFromUid(currentUser.getUid());
-                            notification.setFrom(currentUser.getDisplayName());
-                            notification.setTo(uid);
-                            notification.setContent(content);
+            mDatabase.child(getString(R.string.COLLECTION_MESSAGES)).child(uid)
+                    .child(currentUser.getUid()).push().setValue(newMessage);
 
 
-                            // Update notification database
-                            db.collection(getString(R.string.COLLECTION_NOTIFICATIONS))
-                                    .document()
-                                    .set(notification);
+            mDatabase.child(getString(R.string.COLLECTION_MESSAGES)).child(currentUser.getUid())
+                    .child(uid).push().setValue(newMessage);
 
-                        }
-                    });
+            Notification notification = new Notification();
+            notification.setFromUid(currentUser.getUid());
+            notification.setFrom(currentUser.getDisplayName());
+            notification.setTo(uid);
+            notification.setContent(content);
+            notification.setTimestamp(Time.getTime());
+
+
+            // Update notification database
+            mDatabase.child(getString(R.string.COLLECTION_NOTIFICATIONS))
+                    .push()
+                    .setValue(notification);
         }
 
     }
@@ -388,18 +396,15 @@ public class ChatActivity extends AppCompatActivity {
                         imageMessage.setReceiver(uid);
                         imageMessage.setType("image");
                         imageMessage.setContent(downloadUri.toString());
+                        imageMessage.setTimestamp(Time.getTime());
 
-                        db.collection(getString(R.string.COLLECTION_MESSAGES))
-                                .document(currentUser.getUid())
-                                .collection(uid)
-                                .document()
-                                .set(imageMessage);
 
-                        db.collection(getString(R.string.COLLECTION_MESSAGES))
-                                .document(uid)
-                                .collection(currentUser.getUid())
-                                .document()
-                                .set(imageMessage);
+                        mDatabase.child(getString(R.string.COLLECTION_MESSAGES)).child(currentUser.getUid())
+                                .child(uid).push().setValue(imageMessage);
+
+                        mDatabase.child(getString(R.string.COLLECTION_MESSAGES)).child(uid)
+                                .child(currentUser.getUid()).push().setValue(imageMessage);
+
                     }
                 });
             }

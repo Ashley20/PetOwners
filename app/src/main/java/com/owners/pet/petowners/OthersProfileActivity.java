@@ -25,12 +25,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.owners.pet.petowners.models.Pet;
@@ -41,7 +40,6 @@ import java.util.ArrayList;
 import com.owners.pet.petowners.adapters.PetsAdapter;
 import com.squareup.picasso.Picasso;
 
-import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -67,7 +65,7 @@ public class OthersProfileActivity extends AppCompatActivity{
 
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
-    private FirebaseFirestore db;
+    private DatabaseReference mDatabase;
     private FirebaseStorage storage;
     private StorageReference storageRef;
     private StorageReference profileImagesRef;
@@ -91,7 +89,7 @@ public class OthersProfileActivity extends AppCompatActivity{
         }
 
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         storageRef = FirebaseStorage.getInstance().getReference();
 
         // Get the user profile uid extra from the intent
@@ -111,37 +109,37 @@ public class OthersProfileActivity extends AppCompatActivity{
 
     private void loadUserProfileInformation() {
         // If the uid is not null then update the UI profile information
-        if (uid != null) {
-            db.collection(getString(R.string.COLLECTION_USERS))
-                    .document(uid)
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot doc = task.getResult();
-                                if (doc.exists()) {
-                                    user = doc.toObject(User.class);
-                                    if (user != null) {
-                                        name.setText(user.getName());
-                                        email.setText(user.getEmail());
-                                        phone.setText(user.getPhoneNumber());
-                                        bio.setText(user.getBiography());
+        if(uid != null){
+            mDatabase.child(getString(R.string.COLLECTION_USERS)).child(uid).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        user = dataSnapshot.getValue(User.class);
+                        if(user != null){
+                            name.setText(user.getName());
+                            email.setText(user.getEmail());
+                            phone.setText(user.getPhoneNumber());
+                            bio.setText(user.getBiography());
 
-                                        if(user.getProfileImageUri() != null){
-                                            Picasso.get()
-                                                    .load(user.getProfileImageUri())
-                                                    .placeholder(R.drawable.profile_icon)
-                                                    .into(profile_picture);
-                                        }
-
-                                        loadPets();
-                                    }
-                                }
+                            if(user.getProfileImageUri() != null){
+                                Picasso.get()
+                                        .load(user.getProfileImageUri())
+                                        .placeholder(R.drawable.profile_icon)
+                                        .into(profile_picture);
                             }
+
+                            loadPets();
                         }
-                    });
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
         }
+
     }
 
 
@@ -149,22 +147,27 @@ public class OthersProfileActivity extends AppCompatActivity{
         final PetsAdapter petsAdapter = new PetsAdapter(this, petList);
         pets_list_view.setAdapter(petsAdapter);
 
-        db.collection(getString(R.string.COLLECTION_PETS))
-                .whereEqualTo(getString(R.string.OWNER_UID_KEY), uid)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+        mDatabase.child(getString(R.string.COLLECTION_PETS)).child(uid)
+                .addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onEvent(@Nullable QuerySnapshot snap, @Nullable FirebaseFirestoreException e) {
-                        if(snap != null){
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()){
                             if (petList != null) {
                                 petList.clear();
                             }
-                            for (DocumentSnapshot s : snap.getDocuments()) {
-                                Pet pet = s.toObject(Pet.class);
+                            for(DataSnapshot data : dataSnapshot.getChildren()){
+                                Pet pet = data.getValue(Pet.class);
                                 petList.add(pet);
                             }
+
                             petsAdapter.notifyDataSetChanged();
                             setListViewHeightBasedOnChildren(pets_list_view);
                         }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
                     }
                 });
 

@@ -16,20 +16,11 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.owners.pet.petowners.ChatActivity;
 import com.owners.pet.petowners.R;
 import com.owners.pet.petowners.models.ChatUser;
-import com.owners.pet.petowners.models.User;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -98,12 +89,8 @@ public class UserAdapter extends ArrayAdapter<ChatUser> {
             }
 
 
-
-            // Set date
-            Locale l = Locale.US;
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a", l);
-            if (chatUser.getLastMessageDate() != null) {
-                lastMessageTime.setText(simpleDateFormat.format(chatUser.getLastMessageDate()));
+            if (chatUser.getLastMessageTimeStamp() != null) {
+                lastMessageTime.setText(chatUser.getLastMessageTimeStamp());
             }
 
             convertView.setOnClickListener(new View.OnClickListener() {

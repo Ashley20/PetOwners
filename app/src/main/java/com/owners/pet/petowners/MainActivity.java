@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setElevation(0);
         }
 
-
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         // Add  MapSearchFragment and MessagesFragment

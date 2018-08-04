@@ -65,6 +65,7 @@ public class PetsAdapter extends ArrayAdapter<Pet> {
                 public void onClick(View view) {
                     Intent petProfileIntent = new Intent(mContext, PetProfileActivity.class);
                     petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_UID), pet.getPetUid());
+                    petProfileIntent.putExtra(mContext.getString(R.string.EXTRA_PET_OWNER_UID), pet.getOwnerUid());
                     mContext.startActivity(petProfileIntent);
                 }
             });

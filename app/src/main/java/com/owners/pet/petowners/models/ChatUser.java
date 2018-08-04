@@ -1,13 +1,18 @@
 package com.owners.pet.petowners.models;
 
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.ServerValue;
+
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChatUser {
     private String name;
     private String biography;
     private String uid;
     private String lastMessage;
-    private Date lastMessageDate;
+    private String lastMessageTimeStamp;
     private String profileImageUrl;
 
     public ChatUser(){}
@@ -50,12 +55,12 @@ public class ChatUser {
         this.lastMessage = lastMessage;
     }
 
-    public Date getLastMessageDate() {
-        return lastMessageDate;
+    public String getLastMessageTimeStamp() {
+        return lastMessageTimeStamp;
     }
 
-    public void setLastMessageDate(Date lastMessageDate) {
-        this.lastMessageDate = lastMessageDate;
+    public void setLastMessageTimeStamp(String lastMessageTimeStamp) {
+        this.lastMessageTimeStamp = lastMessageTimeStamp;
     }
 
     public String getProfileImageUrl() {

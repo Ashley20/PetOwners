@@ -33,13 +33,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
@@ -48,13 +46,13 @@ import com.owners.pet.petowners.models.Pet;
 import com.owners.pet.petowners.models.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.owners.pet.petowners.adapters.PetsAdapter;
 import com.owners.pet.petowners.widget.PetOwnersWidgetProvider;
 import com.squareup.picasso.Picasso;
-
-import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -84,7 +82,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
 
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
-    private FirebaseFirestore db;
+    private DatabaseReference mDatabase;
     private FirebaseStorage storage;
     private StorageReference storageRef;
     private StorageReference profileImagesRef;
@@ -112,7 +110,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
         }
 
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         storageRef = FirebaseStorage.getInstance().getReference();
 
@@ -135,34 +133,35 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
     private void loadUserProfileInformation() {
         // If the user is not null then update the UI with current user's profile information
         if (currentUser != null) {
-            db.collection(getString(R.string.COLLECTION_USERS))
-                    .document(currentUser.getUid())
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            mDatabase.child(getString(R.string.COLLECTION_USERS)).child(currentUser.getUid())
+                    .addValueEventListener(new ValueEventListener() {
                         @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot doc = task.getResult();
-                                if (doc.exists()) {
-                                    user = doc.toObject(User.class);
-                                    if (user != null) {
-                                        name.setText(user.getName());
-                                        email.setText(user.getEmail());
-                                        phone.setText(user.getPhoneNumber());
-                                        bio.setText(user.getBiography());
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                user = dataSnapshot.getValue(User.class);
 
-                                        if (user.getProfileImageUri() != null) {
-                                            Picasso.get()
-                                                    .load(user.getProfileImageUri())
-                                                    .resize(150, 150)
-                                                    .centerCrop()
-                                                    .into(profile_picture);
-                                        }
+                                if (user != null) {
+                                    name.setText(user.getName());
+                                    email.setText(user.getEmail());
+                                    phone.setText(user.getPhoneNumber());
+                                    bio.setText(user.getBiography());
 
-                                        loadPets();
+                                    if (user.getProfileImageUri() != null) {
+                                        Picasso.get()
+                                                .load(user.getProfileImageUri())
+                                                .resize(150, 150)
+                                                .centerCrop()
+                                                .into(profile_picture);
                                     }
+
+                                    loadPets();
                                 }
                             }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
                         }
                     });
         }
@@ -173,25 +172,30 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
         final PetsAdapter petsAdapter = new PetsAdapter(this, petList);
         pets_list_view.setAdapter(petsAdapter);
 
-        db.collection(getString(R.string.COLLECTION_PETS))
-                .whereEqualTo(getString(R.string.OWNER_UID_KEY), currentUser.getUid())
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+        mDatabase.child(getString(R.string.COLLECTION_PETS)).child(currentUser.getUid())
+                .addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onEvent(@Nullable QuerySnapshot snap, @Nullable FirebaseFirestoreException e) {
-                        if(snap != null){
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()){
                             if (petList != null) {
                                 petList.clear();
                             }
-                            for (DocumentSnapshot s : snap.getDocuments()) {
-                                Pet pet = s.toObject(Pet.class);
+
+                            for(DataSnapshot s : dataSnapshot.getChildren()){
+                                Pet pet = s.getValue(Pet.class);
                                 petList.add(pet);
                             }
+
                             petsAdapter.notifyDataSetChanged();
                             setListViewHeightBasedOnChildren(pets_list_view);
                         }
                     }
-                });
 
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     @Override
@@ -215,10 +219,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
         }
     }
 
-    /**
-     * Updates email for firebaseUser and also calls updateEmail function
-     * to update the firestore user's phone information.
-     */
+
     private void saveUserProfile() {
         final String phoneUpdate = phone.getText().toString();
         final String emailUpdate = email.getText().toString();
@@ -231,27 +232,31 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
 
         currentUser.updateEmail(emailUpdate);
 
-        // Update the firestore user's email and phone number.
-        updateFirestoreUser(phoneUpdate, emailUpdate);
+        // Update the  user's email and phone number.
+        updateUser(phoneUpdate, emailUpdate);
 
         Toast.makeText(this, getString(R.string.successful_profile_update_message),
                 Toast.LENGTH_SHORT).show();
 
-
     }
 
     /**
-     * Updates user's phone and saves it into firestore database.
+     * Updates user's phone and saves it into firebase realtime database.
      *
      * @param newPhone
      */
-    private void updateFirestoreUser(String newPhone, final String newEmail) {
-        DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
-        user.update(getString(R.string.EMAIL_KEY), newEmail);
-        user.update(getString(R.string.PHONE_NUMBER_KEY), newPhone).addOnSuccessListener(new OnSuccessListener<Void>() {
+    private void updateUser(final String newPhone, final String newEmail) {
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(getString(R.string.EMAIL_KEY), newEmail);
+        updates.put(getString(R.string.PHONE_NUMBER_KEY), newPhone);
+
+        mDatabase.child(getString(R.string.COLLECTION_USERS)).child(currentUser.getUid())
+                .updateChildren(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 email.setText(newEmail);
+                phone.setText(newPhone);
             }
         });
     }
@@ -295,9 +300,12 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
                                                 .placeholder(R.drawable.profile_icon)
                                                 .into(profile_picture);
 
-                                        DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS))
-                                                .document(currentUser.getUid());
-                                        user.update(getString(R.string.USER_PROFILE_IMAGE_URI_KEY), uri.toString());
+
+                                        Map<String, Object> updates = new HashMap<>();
+                                        updates.put(getString(R.string.USER_PROFILE_IMAGE_URI_KEY), uri.toString());
+
+                                        mDatabase.child(getString(R.string.COLLECTION_USERS)).child(currentUser.getUid())
+                                                .updateChildren(updates);
 
                                     }
                                 });
@@ -386,7 +394,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
                             .child(getString(R.string.storage_profile_ref));
 
                     // Store pet profile picture into firebase storage
-                    if(petSelectedImageUri != null){
+                    if (petSelectedImageUri != null) {
                         UploadTask uploadTask = petProfilePictureRef.putFile(petSelectedImageUri);
                         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
@@ -401,7 +409,7 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
                             }
                         });
 
-                    }else {
+                    } else {
                         addAnewPet(pet);
                     }
                 } else {
@@ -432,23 +440,20 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
     /**
      * Creates a new pet and
      * stores it into pets section in the database
+     *
      * @param pet
      */
     private void addAnewPet(final Pet pet) {
 
-        db.collection(getString(R.string.COLLECTION_PETS))
-                .document(pet.getPetUid())
-                .set(pet)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.successful_pet_addition_message),
-                                Toast.LENGTH_SHORT).show();
+        mDatabase.child(getString(R.string.COLLECTION_PETS)).child(pet.getOwnerUid()).child(pet.getPetUid())
+                .setValue(pet).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(getApplicationContext(), getString(R.string.successful_pet_addition_message),
+                        Toast.LENGTH_SHORT).show();
 
-                        // We have added a new pet  so update the widget
-                        PetOwnersWidgetProvider.sendRefreshBroadcast(getApplicationContext());
-                    }
-                });
+            }
+        });
 
     }
 
@@ -496,8 +501,11 @@ public class ProfileActivity extends AppCompatActivity implements OnFailureListe
      * @param newBiography
      */
     private void updateBio(final String newBiography) {
-        DocumentReference user = db.collection(getString(R.string.COLLECTION_USERS)).document(currentUser.getUid());
-        user.update(getString(R.string.BIO_KEY), newBiography).addOnSuccessListener(new OnSuccessListener<Void>() {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(getString(R.string.BIO_KEY), newBiography);
+
+        mDatabase.child(getString(R.string.COLLECTION_USERS)).child(currentUser.getUid())
+                .updateChildren(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 bio.setText(newBiography);

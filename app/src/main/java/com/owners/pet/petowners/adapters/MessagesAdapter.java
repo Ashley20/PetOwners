@@ -73,11 +73,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ((MeMessageViewHolder) holder).messageText.setText(message.getContent());
                     ((MeMessageViewHolder) holder).uploadImageView.setVisibility(View.GONE);
 
-                    // Set date
-                    Locale l = Locale.US;
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a", l);
-                    if (message.getDate() != null) {
-                        ((MeMessageViewHolder) holder).date.setText(simpleDateFormat.format(message.getDate()));
+
+                    if (message.getTimestamp() != null) {
+                        ((MeMessageViewHolder) holder).date.setText(message.getTimestamp());
                     }
 
                 } else if (message.getType().equals("image")) {
@@ -100,10 +98,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ((MessageViewHolder) holder).messageText.setText(message.getContent());
                     ((MessageViewHolder) holder).uploadImageView.setVisibility(View.GONE);
 
-                    // Set date
-                    Locale l = Locale.US;
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a", l);
-                    ((MessageViewHolder) holder).date.setText(simpleDateFormat.format(message.getDate()));
+                    ((MessageViewHolder) holder).date.setText(message.getTimestamp());
 
                 } else {
                     ((MessageViewHolder) holder).uploadImageView.setVisibility(View.VISIBLE);

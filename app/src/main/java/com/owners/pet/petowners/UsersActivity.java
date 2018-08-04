@@ -1,7 +1,6 @@
 package com.owners.pet.petowners;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,16 +13,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.owners.pet.petowners.models.User;
@@ -36,12 +32,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class UsersActivity extends AppCompatActivity {
     @BindView(R.id.user_list_rv)
     RecyclerView mUsersList;
-    private FirebaseFirestore db;
-    private FirestoreRecyclerAdapter adapter;
+    private DatabaseReference mDatabase;
     private StorageReference storageReference;
     private StorageReference profileImagesRef;
     private FirebaseUser currentUser;
     LinearLayoutManager linearLayoutManager;
+    private FirebaseRecyclerAdapter<User, UsersViewHolder> adapter;
 
 
     @Override
@@ -65,24 +61,34 @@ public class UsersActivity extends AppCompatActivity {
     private void init() {
         linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
         mUsersList.setLayoutManager(linearLayoutManager);
-        db = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         storageReference = FirebaseStorage.getInstance().getReference();
     }
 
     private void loadUsers() {
+        Query query = mDatabase
+                .child(getString(R.string.COLLECTION_USERS))
+                .limitToLast(50);
 
-        Query query = db.collection("users");
+        FirebaseRecyclerOptions<User> options =
+                new FirebaseRecyclerOptions.Builder<User>()
+                        .setQuery(query, User.class)
+                        .build();
 
-        FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()
-                .setQuery(query, User.class)
-                .build();
+        adapter = new FirebaseRecyclerAdapter<User, UsersViewHolder>(options){
 
-        adapter = new FirestoreRecyclerAdapter<User, UsersViewHolder>(options) {
+            @NonNull
+            @Override
+            public UsersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.user_list_item, parent, false);
+
+                return new UsersViewHolder(view);
+            }
 
             @Override
-            protected void onBindViewHolder(@NonNull final UsersViewHolder holder, int position, @NonNull final User model) {
-
+            protected void onBindViewHolder(@NonNull UsersViewHolder holder, int position, @NonNull final User model) {
                 if(model.getProfileImageUri() != null){
                     Picasso.get()
                             .load(model.getProfileImageUri())
@@ -111,23 +117,9 @@ public class UsersActivity extends AppCompatActivity {
                     }
                 });
             }
-
-            @NonNull
-            @Override
-            public UsersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.user_list_item, parent, false);
-
-                return new UsersViewHolder(view);
-            }
-
-
-            @Override
-            public void onError(@NonNull FirebaseFirestoreException e) {
-                super.onError(e);
-                Log.e("errorrrrrrrrrrrr", e.getMessage());
-            }
         };
+
+
 
         adapter.notifyDataSetChanged();
         // Finally set the adapter

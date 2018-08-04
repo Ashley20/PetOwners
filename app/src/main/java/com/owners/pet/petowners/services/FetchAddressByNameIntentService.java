@@ -10,7 +10,6 @@ import android.os.ResultReceiver;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.firebase.firestore.CollectionReference;
 import com.owners.pet.petowners.R;
 
 import java.io.IOException;

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,15 +17,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.owners.pet.petowners.adapters.CardAdapter;
 import com.owners.pet.petowners.models.Pet;
 import com.yuyakaido.android.cardstackview.CardStackView;
@@ -32,23 +32,21 @@ import com.yuyakaido.android.cardstackview.SwipeDirection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class ExploreActivity extends AppCompatActivity {
     public static final String TAG = ExploreActivity.class.getSimpleName();
-
-    private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private CardStackView cardStackView;
+    private DatabaseReference mDatabase;
     private CardAdapter adapter;
     private List<Pet> petList = new ArrayList<>();
     private HashMap<String, String> filtersMap = new HashMap<>();
-    private Query query;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,14 +55,14 @@ public class ExploreActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        db = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         SharedPreferences sharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(this);
         adapter = new CardAdapter(this);
 
         ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null){
+        if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -85,51 +83,102 @@ public class ExploreActivity extends AppCompatActivity {
         }
     }
 
+
     private void applyFilters() {
-        query = db.collection(getString(R.string.COLLECTION_PETS));
-        if (filtersMap.containsKey(getString(R.string.adoption_state_filter))) {
-            query = query.whereEqualTo(getString(R.string.PET_ADOPTION_STATE_KEY), true);
-        }
 
-        if (filtersMap.containsKey(getString(R.string.show_me_filter))) {
-            query = query.whereEqualTo(getString(R.string.PET_GENDER_KEY),
-                    filtersMap.get(getString(R.string.show_me_filter)));
-        }
+        mDatabase.child(getString(R.string.COLLECTION_PETS))
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            Log.d(TAG, dataSnapshot.toString());
+                            for (DataSnapshot entrySnapshot : dataSnapshot.getChildren()) {
+                                for (DataSnapshot propertySnapshot : entrySnapshot.getChildren()) {
+                                    Pet pet = propertySnapshot.getValue(Pet.class);
+                                    petList.add(pet);
+                                }
+                            }
 
-        if (filtersMap.containsKey(getString(R.string.pet_type_filter))) {
-            query = query.whereEqualTo(getString(R.string.PET_TYPE_KEY),
-                    filtersMap.get(getString(R.string.pet_type_filter)));
-        }
+                            if (filtersMap.containsKey(getString(R.string.adoption_state_filter))) {
+                                applyAdoptionStateFilter();
+                            }
 
-        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot snapshots) {
-                if (snapshots != null) {
-                    for (DocumentSnapshot s : snapshots.getDocuments()) {
-                        Pet pet = s.toObject(Pet.class);
-                        petList.add(pet);
+                            if (filtersMap.containsKey(getString(R.string.show_me_filter))) {
+                                applyShowMeFilter();
+                            }
+
+                            if (filtersMap.containsKey(getString(R.string.pet_type_filter))) {
+                                applyPetTypeFilter();
+                            }
+
+
+                            // Finally load the data
+                            load();
+                        }
                     }
-                    load();
-                }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+    }
+
+    private void applyAdoptionStateFilter() {
+        for (Iterator<Pet> iterator = petList.iterator(); iterator.hasNext();) {
+            Pet pet = iterator.next();
+
+            if(!pet.getAdoptionState()) {
+                iterator.remove();
             }
-        });
+        }
+    }
+
+    private void applyShowMeFilter(){
+        for (Iterator<Pet> iterator = petList.iterator(); iterator.hasNext();) {
+            Pet pet = iterator.next();
+
+            if(!filtersMap.get(getString(R.string.show_me_filter)).equals(pet.getGender())) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void applyPetTypeFilter(){
+        for (Iterator<Pet> iterator = petList.iterator(); iterator.hasNext();) {
+            Pet pet = iterator.next();
+
+            if(!filtersMap.get(getString(R.string.pet_type_filter)).equals(pet.getType())) {
+                iterator.remove();
+            }
+        }
     }
 
     @OnClick(R.id.swipe_right_fab)
-    public void swipeToTheRight(){
+    public void swipeToTheRight() {
         swipeRight();
     }
 
     @OnClick(R.id.view_pet_profile_fab)
-    public void viewPetProfile(){
+    public void viewPetProfile() {
         Intent intent = new Intent(getApplicationContext(), PetProfileActivity.class);
-        String uid = adapter.getItem(cardStackView.getTopIndex()).getPetUid();
-        intent.putExtra(getString(R.string.EXTRA_PET_UID), uid);
-        startActivity(intent);
+
+        Pet topPet = adapter.getItem(cardStackView.getTopIndex());
+        if(topPet != null){
+            String uid = topPet.getPetUid();
+            String petOwnerUid = topPet.getOwnerUid();
+
+            intent.putExtra(getString(R.string.EXTRA_PET_UID), uid);
+            intent.putExtra(getString(R.string.EXTRA_PET_OWNER_UID), petOwnerUid);
+
+            startActivity(intent);
+        }
+
     }
 
     @OnClick(R.id.swipe_left_fab)
-    public void swipeToTheLeft(){
+    public void swipeToTheLeft() {
         swipeLeft();
     }
 
@@ -179,7 +228,7 @@ public class ExploreActivity extends AppCompatActivity {
 
             @Override
             public void onCardSwiped(SwipeDirection direction) {
-                if (cardStackView.getTopIndex() == adapter.getCount() - 2) {
+                if (cardStackView.getTopIndex() == adapter.getCount() - 1) {
                     paginate();
                 }
             }
@@ -195,9 +244,16 @@ public class ExploreActivity extends AppCompatActivity {
             @Override
             public void onCardClicked(int index) {
                 Intent intent = new Intent(getApplicationContext(), PetProfileActivity.class);
-                String uid = adapter.getItem(index).getPetUid();
-                intent.putExtra(getString(R.string.EXTRA_PET_UID), uid);
-                startActivity(intent);
+                Pet topPet = adapter.getItem(index);
+                if(topPet != null){
+                    String uid = topPet.getPetUid();
+                    String petOwnerUid = topPet.getOwnerUid();
+
+                    intent.putExtra(getString(R.string.EXTRA_PET_UID), uid);
+                    intent.putExtra(getString(R.string.EXTRA_PET_OWNER_UID), petOwnerUid);
+
+                    startActivity(intent);
+                }
             }
 
 

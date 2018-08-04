@@ -20,8 +20,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.owners.pet.petowners.models.User;
@@ -45,7 +45,7 @@ public class SignupActivity extends AppCompatActivity {
     @BindView(R.id.progress_bar)
     ProgressBar progressBar;
     private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,7 @@ public class SignupActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -115,9 +115,9 @@ public class SignupActivity extends AppCompatActivity {
                                 firebaseUser.updateProfile(profileUpdates).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                         /* Store the new user with the exact same uid reference into firestore database so that
+                                         /* Store the new user with the exact same uid reference into firebase database so that
                                 you can keep extra information about that user*/
-                                        saveIntoFirestore(firebaseUser);
+                                        saveIntoDb(firebaseUser);
                                     }
                                 });
                             }
@@ -138,11 +138,11 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     /**
-     * Save user into firestore database
+     * Save user into firebase realtime database
      *
      * @param firebaseUser
      */
-    private void saveIntoFirestore(final FirebaseUser firebaseUser) {
+    private void saveIntoDb(final FirebaseUser firebaseUser) {
 
         // Get the device id and store it in firestore database
         FirebaseInstanceId.getInstance().getInstanceId()
@@ -158,9 +158,9 @@ public class SignupActivity extends AppCompatActivity {
                         user.setBiography(getString(R.string.NO_BIOGRAPHY));
                         user.setDeviceToken(deviceToken);
 
-                        db.collection(getString(R.string.COLLECTION_USERS))
-                                .document(firebaseUser.getUid())
-                                .set(user);
+                        mDatabase.child(getString(R.string.COLLECTION_USERS))
+                                .child(firebaseUser.getUid()).setValue(user);
+
                     }
                 });
     }
